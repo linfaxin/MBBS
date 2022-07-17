@@ -88,4 +88,4 @@ mbbs serve # 在当前目录启动论坛服务
 
 ## Star & PR
 
-希望的朋友帮忙给个 Start，欢迎提 PR！
+喜欢的朋友帮忙给个 Start，欢迎提 PR！
