@@ -1,10 +1,5 @@
-<!-- PROJECT SHIELDS -->
-
 [![npm version](https://badgen.net/npm/v/mbbs)](https://www.npmjs.com/package/mbbs)
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![MIT License][license-shield]][license-url]
-[![Contributors][contributors-shield]][contributors-url]
+[![MIT License](https://img.shields.io/npm/l/mbbs.svg?sanitize=true)](https://www.npmjs.com/package/mbbs)
 
 <!-- PROJECT LOGO -->
 <div align="center">
