@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+const fs = require('fs');
+const readlineSync = require('readline-sync');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
+const path = require('path');
+
+yargs(hideBin(process.argv))
+  .command(
+    'serve',
+    '部署并启动论坛',
+    (yargs) => {
+      return yargs.positional('db', {
+        describe: '指定论坛的 db 文件路径',
+        default: 'bbs',
+      }).positional('res-dir', {
+        describe: '指定论坛上传图片/视频/附件的本地储存目录',
+        default: './resources',
+      }).positional('port', {
+        describe: '指定论坛启动的端口',
+        default: 884,
+      }).positional('log-dir', {
+        describe: '指定日志输出目录',
+        default: 'logs',
+      }).positional('set-admin-password', {
+        describe: '可以使用这个参数在启动论坛时，重置管理员密码为参数值',
+      });
+    },
+    async (argv) => {
+      process.env.PORT = argv.port;
+      process.env.MBBS_DB_NAME = path.basename(argv.db || '', '.db');
+      process.env.MBBS_DB_DIR = path.dirname(argv.db || '');
+      process.env.MBBS_RES_DIR = argv.resDir || '';
+      process.env.MBBS_LOG_DIR = argv.logDir || '';
+      process.env.MBBS_SET_ADMIN_PASSWORD = argv.setAdminPassword || '';
+      if (argv.setAdminPassword === true) {
+        console.error('参数 "--set-admin-password" 缺少参数值');
+        return;
+      }
+      if (!process.env.MBBS_SET_ADMIN_PASSWORD) {
+        const dbFileName = process.env.MBBS_DB_NAME + '.db';
+        if (!fs.existsSync(dbFileName)) {
+          const password = readlineSync.question(`will create BBS(${dbFileName}), please enter admin password(123456): `);
+          process.env.MBBS_SET_ADMIN_PASSWORD = password || '123456';
+        }
+      }
+      require('../dist/index');
+    },
+  )
+  .parse();

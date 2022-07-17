@@ -1,0 +1,74 @@
+.vditor-reset {
+  p {
+    margin-bottom: 6px;
+  }
+
+  code {
+    max-height: none !important; // 代码区域 平铺开 不滚动
+    word-break: break-all !important;
+    white-space: pre-wrap !important;
+
+    &[data-marker='`'] {
+      padding: 0.2em 0.4em !important;
+    }
+  }
+  .vditor-wysiwyg__block[data-type='code-block'][data-marker='```'] {
+    .vditor-wysiwyg__pre {
+      display: block !important;
+      margin-bottom: 1em;
+    }
+    .vditor-wysiwyg__preview {
+      display: none;
+    }
+  }
+
+  img[data-select-img] {
+    opacity: 0.7;
+    box-shadow: 0 0 0 2px #146ada;
+  }
+
+  &[contenteditable='true'] {
+    padding-bottom: 60px !important;
+  }
+
+  table {
+    font-size: 13px;
+    th,
+    td {
+      white-space: normal;
+      word-break: break-all;
+      &:first-child::after {
+        display: none;
+      }
+    }
+  }
+}
+
+.vditor {
+  .vditor-toolbar {
+    position: relative;
+    //.vditor-toolbar__br { // 修复 br 不能换行
+    //  float: left;
+    //}
+    .vditor-counter {
+      // 调整字数统计位置
+      position: absolute;
+      margin: 2px;
+      top: 100%;
+      right: 0;
+      z-index: 3;
+    }
+  }
+  .vditor-content {
+    overflow: auto;
+  }
+  // 隐藏编辑时的工具栏（体验不好，换成自主实现的底部按钮）
+  .vditor-panel--none {
+    display: none !important;
+  }
+  &[data-show-toolbar='true'] {
+    .vditor-panel--none {
+      display: block !important;
+    }
+  }
+}

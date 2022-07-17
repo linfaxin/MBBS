@@ -1,0 +1,10 @@
+export * as settingApi from './setting';
+export * as userApi from './user';
+export * as resourcesApi from './resources';
+export * as loginApi from './login';
+export * as permissionApi from './permission';
+export * as categoryApi from './category';
+export * as threadApi from './thread';
+export * as postApi from './post';
+export * as groupApi from './group';
+export * as manageApi from './manage';
