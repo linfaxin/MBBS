@@ -57,7 +57,7 @@ mbbs serve # 在当前目录启动论坛服务
 
 ## 更多启动参数
 
-命令行启动论坛时，可以用 `npx mbbs serve --参数名1 参数值1 --参数名2 参数值2` 的形式指定更多可选参数
+命令行启动论坛时，可以用 `mbbs serve --参数名1 参数值1 --参数名2 参数值2` 的形式指定更多可选参数
 
 - --db: 指定论坛的数据库文件名，默认为 `bbs`，启动后会在当前目录创建/使用 `<参数值>.db` Sqlite 数据库文件
 - --res-dir: 指定 上传图片/视频/附件 的本地储存目录，默认为 `./resources`
@@ -84,4 +84,8 @@ mbbs serve # 在当前目录启动论坛服务
 - 前端：React ([mui](https://mui.com/) + Typescript)
 - 数据库：Sqlite (ORM: [sequelize](https://sequelize.org/))
 
-欢迎提 PR！
+开发过程中如果什么问题，也可以 [在此交流](http://bbs.mbbs.cc/#/thread/category/5)
+
+## Star & PR
+
+希望的朋友帮忙给个 Start，欢迎提 PR！
