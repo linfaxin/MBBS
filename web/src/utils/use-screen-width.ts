@@ -7,6 +7,13 @@ export function useScreenWidthUpMD(): boolean {
   });
 }
 
+export function useScreenWidthUpSM(): boolean {
+  const theme = useTheme();
+  return useMediaQuery(theme.breakpoints.up('sm'), {
+    defaultMatches: document.documentElement.offsetWidth > theme.breakpoints.values['md'],
+  });
+}
+
 export function useScreenWidthUpLG(): boolean {
   const theme = useTheme();
   return useMediaQuery(theme.breakpoints.up('lg'), {

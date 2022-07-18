@@ -5,7 +5,7 @@ import { categoryApi } from '@/api';
 import { getResourceUrl } from '@/utils/resource-url';
 import PaperClickable from '@/components/paper-clickable';
 import PowerBy from '@/components/power-by';
-import { useScreenWidthUpMD } from '@/utils/use-screen-width';
+import { useScreenWidthUpMD, useScreenWidthUpSM } from '@/utils/use-screen-width';
 import AppLink from '@/components/app-link';
 import AppPage from '@/components/app-page';
 import { usePageState } from '@/utils/use-page-history-hooks';
@@ -14,6 +14,7 @@ import MarkdownPreview from '@/components/vditor/markdown-preview';
 
 export default function IndexPage() {
   const widthUpMD = useScreenWidthUpMD();
+  const widthUpSM = useScreenWidthUpSM();
   const bbsSetting = useModel('useBBSSetting');
   const [categories, setCategories] = usePageState<Category[]>('index-categories');
 
@@ -34,7 +35,7 @@ export default function IndexPage() {
           <Grid item xs={12} sm={6} key={category.id}>
             <AppLink href={`/thread/category/${category.id}`} sx={{ width: '100%' }}>
               <PaperClickable>
-                <Card variant="outlined">
+                <Card variant="outlined" sx={{ height: widthUpSM ? '100%' : undefined }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <img
                       style={{ width: 100, height: 100, marginRight: 6, flex: 'none' }}
