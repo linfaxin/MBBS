@@ -1,29 +1,22 @@
 import React from 'react';
 import { Box, Card, Divider, Grid, Typography } from '@mui/material';
 import { useModel } from 'umi';
-import { categoryApi } from '@/api';
 import { getResourceUrl } from '@/utils/resource-url';
 import PaperClickable from '@/components/paper-clickable';
 import PowerBy from '@/components/power-by';
 import { useScreenWidthUpMD, useScreenWidthUpSM } from '@/utils/use-screen-width';
 import AppLink from '@/components/app-link';
 import AppPage from '@/components/app-page';
-import { usePageState } from '@/utils/use-page-history-hooks';
-import { Category } from '@/api/category';
 import MarkdownPreview from '@/components/vditor/markdown-preview';
 
 export default function IndexPage() {
   const widthUpMD = useScreenWidthUpMD();
   const widthUpSM = useScreenWidthUpSM();
   const bbsSetting = useModel('useBBSSetting');
-  const [categories, setCategories] = usePageState<Category[]>('index-categories');
+  const { categoriesSorted, reloadCategory } = useModel('useCategories');
 
   return (
-    <AppPage
-      contentSx={{ padding: 2 }}
-      initPage={async () => setCategories(await categoryApi.listCategorySorted(true))}
-      showInitPageLoading={!categories}
-    >
+    <AppPage contentSx={{ padding: 2 }} initPage={reloadCategory} showInitPageLoading={!categoriesSorted || categoriesSorted.length === 0}>
       {bbsSetting.ui_tip_home_page?.trim() && (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
           <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.ui_tip_home_page} />
@@ -31,7 +24,7 @@ export default function IndexPage() {
       )}
       <Typography sx={{ fontSize: 'smaller', opacity: 0.5, textAlign: 'center' }}>选择一个分类版块进入</Typography>
       <Grid container spacing={{ xs: 2, sm: 2 }} columns={12} sx={{ paddingTop: 2 }}>
-        {(categories || []).map((category) => (
+        {(categoriesSorted || []).map((category) => (
           <Grid item xs={12} sm={6} key={category.id}>
             <AppLink href={`/thread/category/${category.id}`} sx={{ width: '100%' }}>
               <PaperClickable>
