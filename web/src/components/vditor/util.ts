@@ -1,5 +1,3 @@
-const vditorVersion = require('vditor/package.json').version;
-
 export const hasParentElementTag = (currentNode: Node, parentElementTagName: string) => {
   if (!currentNode) {
     return false;
@@ -19,6 +17,6 @@ export const hasParentElementTag = (currentNode: Node, parentElementTagName: str
   return isClosest && e;
 };
 
-export const vditorCDNUrlPrefix = `https://mbbs-vditor-npm.oss-cn-shenzhen.aliyuncs.com/vditor@${vditorVersion}`;
+export const vditorCDNUrlPrefix = `/vditor`;
 export const vditorCDNThemePathPrefix = `${vditorCDNUrlPrefix}/dist/css/content-theme`;
 export const vditorCDNEmojiPathPrefix = `${vditorCDNUrlPrefix}/dist/images/emoji`;

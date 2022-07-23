@@ -47,6 +47,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/', indexRouter);
 app.use(express.static(path.join(__dirname, '../web/dist'))); // web dist
+app.use('/vditor', express.static(path.join(__dirname, '../node_modules/vditor'))); // vditor dist
 
 initBBSRouter(app); // bbs routes
 
