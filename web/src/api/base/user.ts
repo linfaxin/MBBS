@@ -30,8 +30,11 @@ export interface User {
   nickname: string;
   /** 手机号 */
   mobile: string;
-  /** 绑定的邮箱（接口返回 bool 型，代表是否已绑定） */
-  email?: boolean;
+  /**
+   * 绑定的邮箱（接口返回 bool 型，代表是否已绑定）
+   * 在 管理员/自身 访问时，email 会返回真实邮箱值
+   */
+  email?: boolean | string;
   /** 论坛新消息发送至邮箱开关 */
   msg_to_email_enable?: boolean;
   /** 个人签名 */

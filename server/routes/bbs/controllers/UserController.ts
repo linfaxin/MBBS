@@ -33,7 +33,7 @@ const BindEmailVerifyCodeCacheMap = new LRUCache<String, { code: string; sendTim
 export default class UserController {
   @Get('/getLoginUser')
   async getLoginUser(@CurrentUser({ required: true }) currentUser: User) {
-    return currentUser.toViewJSON();
+    return currentUser.toViewJSON({ showRealEmail: true });
   }
 
   @Get('/getByName')
@@ -230,7 +230,7 @@ export default class UserController {
       offset,
       limit,
     });
-    const result = await Promise.all(findUsers.map((user) => user.toViewJSON()));
+    const result = await Promise.all(findUsers.map((user) => user.toViewJSON({ showRealEmail: !!currentUser.isAdmin() })));
     const totalCount = await UserModel.count({ where: whereOption });
     result[WrapDataExtraKey] = {
       totalCount,

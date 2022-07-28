@@ -28,6 +28,7 @@ const UserItem: React.FC<{
         <Grid item xs={12} sm={6}>
           <Typography>角色：{user.group?.name}</Typography>
           <Typography>状态：{ENUM_MAP_USER_STATE[user.status] || user.status}</Typography>
+          <Typography>绑定邮箱：{user.email || '未绑定'}</Typography>
         </Grid>
       </Grid>
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>

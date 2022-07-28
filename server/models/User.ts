@@ -139,11 +139,12 @@ export class User extends Model<Partial<User>> {
       last_login_ip: undefined,
       register_reason: undefined,
       register_invitation_code: undefined,
-      email: !!this.email,
+      email: !!this.email, // 默认隐藏真实邮箱
     } as any;
   }
   /** 给前端展示的 json 数据 */
-  async toViewJSON() {
+  async toViewJSON(option?: { showRealEmail?: boolean }) {
+    const { showRealEmail } = option || {};
     let group: Partial<Group>;
     if (await this.isAdmin()) {
       group = { name: '论坛管理员' };
@@ -153,8 +154,12 @@ export class User extends Model<Partial<User>> {
         group = (await getGroupById(this.sequelize, groupId))?.toJSON();
       }
     }
+    const userJSON = this.toJSON();
+    if (showRealEmail) {
+      userJSON.email = this.email;
+    }
     return {
-      ...this.toJSON(),
+      ...userJSON,
       group,
     };
   }
