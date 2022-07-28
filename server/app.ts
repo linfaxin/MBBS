@@ -11,8 +11,11 @@ const cookieParser = require('cookie-parser');
 const lessMiddleware = require('less-middleware');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const compression = require('compression');
 
 const app = express();
+
+app.use(compression()); // 开启 gzip 压缩
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
