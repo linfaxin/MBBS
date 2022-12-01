@@ -7,7 +7,7 @@ export function toAbsUrl(url: string) {
 
 export function appendHttpPrefixForInputUrl(url: string) {
   if (!url) return url;
-  if (!/^https?:/.test(url)) {
+  if (!/^https?:/.test(url) && url.split('/')[0].includes('.')) {
     return `http://${url}`;
   }
   return url;

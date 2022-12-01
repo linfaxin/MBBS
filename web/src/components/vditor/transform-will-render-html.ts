@@ -5,7 +5,7 @@ const parseHTMLTemp = document.createElement('template');
 
 function tryAppendResourceBaseUrl(src: string | null, appendResAuthToken?: boolean): string {
   if (!src) return '';
-  if (/^(https?:|data:|file:|\/|\.)/.test(src)) {
+  if (/^(https?:|data:|file:|\/|\.|#|\?)/.test(src)) {
     return src;
   }
   src = getResourceUrl(src);
