@@ -61,6 +61,9 @@ export default function EditThreadPage() {
         variant="outlined"
         fullWidth
         size="small"
+        inputProps={{
+          maxLength: 100,
+        }}
         defaultValue={titleValueRef.current}
         onChange={(e) => (titleValueRef.current = e.target.value)}
       />

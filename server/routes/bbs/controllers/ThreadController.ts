@@ -316,6 +316,7 @@ export default class ThreadController {
       }
     }
     if (!title.trim()) throw new UIError('请输入帖子标题');
+    if (title.length > 100) throw new UIError('超过帖子标题最大长度(100)');
     if (!content.trim()) throw new UIError('请输入帖子内容');
 
     const reqIP = formatReqIP(request.ip);
@@ -602,6 +603,7 @@ export default class ThreadController {
     if (!(await getCategoryById(db, categoryId))) throw new UIError('未找到分类');
 
     if (!title.trim()) throw new UIError('请输入帖子标题');
+    if (title.length > 100) throw new UIError('超过帖子标题最大长度(100)');
     if (!content.trim()) throw new UIError('请输入帖子内容');
 
     if (categoryId !== thread.category_id) {

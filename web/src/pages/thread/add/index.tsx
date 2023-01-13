@@ -76,6 +76,9 @@ export default function AddThreadPage() {
         variant="outlined"
         fullWidth
         size="small"
+        inputProps={{
+          maxLength: 100,
+        }}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
