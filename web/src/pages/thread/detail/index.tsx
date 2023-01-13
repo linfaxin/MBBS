@@ -14,9 +14,8 @@ import { removeThreadInHistoryData, updateThreadInHistoryData, usePageState } fr
 import { Thread } from '@/api/thread';
 import { formatTime, formatTimeFriendly } from '@/utils/format-util';
 import AppLink from '@/components/app-link';
-import MarkdownPreview from '@/components/vditor/markdown-preview';
 import OpenPopoverMenu from '@/components/open-popover-menu';
-import showAlert, { showErrorAlert } from '@/utils/show-alert';
+import showAlert from '@/utils/show-alert';
 import showSnackbar from '@/utils/show-snackbar';
 import MouseOverTip from '@/components/mouse-over-tip';
 import PostList from '@/components/post-list';

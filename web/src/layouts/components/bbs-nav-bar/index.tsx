@@ -10,6 +10,7 @@ import { getResourceUrl } from '@/utils/resource-url';
 import AppLink from '@/components/app-link';
 import styles from './index.less';
 import showLoginDialog from '@/utils/show-login-dialog';
+import { isHashHistoryRootPage } from '@/utils/use-page-history-hooks';
 import ApiUI from '@/api-ui';
 
 const BBSNavBar: React.FC = (props) => {
@@ -32,7 +33,7 @@ const BBSNavBar: React.FC = (props) => {
       <Toolbar>
         {!ApiUI.hideSlideMenu &&
           !widthUpMD &&
-          (navBarContentModel.navBackBtn && history.length > 1 ? (
+          (navBarContentModel.navBackBtn && history.length > 1 && !isHashHistoryRootPage() ? (
             <IconButton size="large" edge="start" color="inherit" aria-label="back" onClick={() => history.back()}>
               <ArrowBackIosIcon />
             </IconButton>

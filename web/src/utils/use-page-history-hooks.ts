@@ -67,21 +67,31 @@ const AllPageStateMap: Record<string, PageState> = {};
 // @ts-ignore
 window.AllPageStateMap = AllPageStateMap;
 
-function getCurrentPageState() {
+function getCurrentPageKey() {
   if (!(window.history.state || {}).pageKey) {
     window.history.replaceState(
       {
         ...window.history.state,
         pageKey: `${Date.now()}_${Math.random()}`,
+        isHashHistoryRootPage: Object.keys(AllPageStateMap).length === 0,
       },
       null as any,
     );
   }
-  const pageKey = window.history.state.pageKey;
+  return window.history.state.pageKey;
+}
+
+function getCurrentPageState() {
+  const pageKey = getCurrentPageKey();
   if (!AllPageStateMap[pageKey]) {
     AllPageStateMap[pageKey] = new PageState(pageKey, history.location.pathname);
   }
   return AllPageStateMap[pageKey];
+}
+
+export function isHashHistoryRootPage(): boolean {
+  getCurrentPageKey();
+  return !!window.history.state?.isHashHistoryRootPage;
 }
 
 class PageState {
