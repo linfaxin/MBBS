@@ -1,12 +1,10 @@
 import React from 'react';
 import { useModel } from 'umi';
 import EditIcon from '@mui/icons-material/Edit';
-import { Button, IconButton, List, ListItem, ListItemText, ListSubheader, Switch, useTheme } from '@mui/material';
-import doTaskWithUI from '@/utils/do-task-with-ui';
+import { Button, IconButton, List, ListItem, ListItemText, ListSubheader, MenuItem, Switch, TextField, useTheme } from '@mui/material';
 import { settingApi } from '@/api';
 import AppPage from '@/components/app-page';
 import OpenColorPickerDialog from '@/components/open-color-picker-dialog';
-import showAlert from '@/utils/show-alert';
 import TipIconButton from '@/components/tip-icon-button';
 import MarkdownPureText from '@/components/vditor/markdown-pure-text';
 import { DEFAULT_POWER_BY_MARKDOWN } from '@/consts';
@@ -16,9 +14,11 @@ import UploadResourceButton from '@/components/upload-resource-button';
 import { compressImageFile } from '@/utils/compress-image-util';
 import OpenAlertDialog from '@/components/open-alert-dialog';
 import { formatHexColor } from '@/utils/format-util';
+import DoTaskButton from '@/components/do-task-button';
 
 const BaseSetting = () => {
   const bbsSetting = useModel('useBBSSetting');
+  const { categories } = useModel('useCategories');
   const theme = useTheme();
 
   return (
@@ -348,6 +348,46 @@ const BaseSetting = () => {
             </IconButton>
           </OpenPopupMarkdownEditor>
         </ListItem>
+        {categories && (
+          <ListItem>
+            <ListItemText
+              primary={
+                <>
+                  首页显示板块内容
+                  <TipIconButton message="设置后，进入首页将直接显示目标板块的帖子内容" />
+                </>
+              }
+            />
+            <TextField
+              select
+              label="选择板块"
+              size="small"
+              sx={{ maxWidth: '50vw', minWidth: 120 }}
+              value={bbsSetting.site_home_page_show_category || ''}
+              onChange={async (e) => {
+                await settingApi.set('site_home_page_show_category', String(e.target.value) as any);
+                bbsSetting.update('site_home_page_show_category', String(e.target.value) as any);
+              }}
+            >
+              {(categories || []).map((c) => (
+                <MenuItem value={c.id} key={c.id}>
+                  {c.name}
+                </MenuItem>
+              ))}
+            </TextField>
+            {bbsSetting.site_home_page_show_category && (
+              <DoTaskButton
+                failAlert
+                task={async () => {
+                  await settingApi.batchSet({ site_home_page_show_category: null as any });
+                  bbsSetting.update('site_home_page_show_category', null as any);
+                }}
+              >
+                删除
+              </DoTaskButton>
+            )}
+          </ListItem>
+        )}
       </List>
     </AppPage>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, Divider, Grid, Typography } from '@mui/material';
-import { useModel } from 'umi';
+import { useModel, history } from 'umi';
 import { getResourceUrl } from '@/utils/resource-url';
 import PaperClickable from '@/components/paper-clickable';
 import PowerBy from '@/components/power-by';
@@ -16,7 +16,21 @@ export default function IndexPage() {
   const { categoriesSorted, reloadCategory } = useModel('useCategories');
 
   return (
-    <AppPage contentSx={{ padding: 2 }} initPage={reloadCategory} showInitPageLoading={!categoriesSorted || categoriesSorted.length === 0}>
+    <AppPage
+      contentSx={{ padding: 2 }}
+      initPage={async () => {
+        const categories = await reloadCategory();
+        if (bbsSetting.site_home_page_show_category) {
+          // 首页直接显示目标板块
+          const redirectToCategory = categories.find((c) => String(c.id) === bbsSetting.site_home_page_show_category);
+          if (redirectToCategory) {
+            history.replace(`/thread/category/${redirectToCategory.id}`);
+            await new Promise((resolve) => {});
+          }
+        }
+      }}
+      showInitPageLoading={!!bbsSetting.site_home_page_show_category || !categoriesSorted || categoriesSorted.length === 0}
+    >
       {bbsSetting.ui_tip_home_page?.trim() && (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
           <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.ui_tip_home_page} />

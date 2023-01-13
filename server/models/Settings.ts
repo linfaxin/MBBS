@@ -38,6 +38,8 @@ export interface SettingKeyValue {
   site_enable_third_platform_login: '0' | '1';
   /** 开启邮件功能 */
   site_enable_email: '0' | '1';
+  /** 进入首页默认显示目标板块内容 */
+  site_home_page_show_category: `${number}`;
   /** 每人每日在所有分类发帖 总量上限 */
   person_daily_create_thread: `${number}`;
   /** 每人每日在一个分类内 发帖总量上限 */
