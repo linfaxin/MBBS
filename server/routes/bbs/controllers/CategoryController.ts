@@ -19,6 +19,8 @@ export default class CategoryController {
     @BodyParam('description') description: string,
     @BodyParam('sort') sort: number,
     @BodyParam('hidden') hidden: boolean,
+    @BodyParam('disable_post') disable_post: boolean,
+    @BodyParam('threads_default_sort') threads_default_sort: string,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -26,7 +28,7 @@ export default class CategoryController {
       throw new UIError('分类版块名称已存在');
     }
     const CategoryModel = await getCategoryModel(db);
-    const category = await CategoryModel.create({ icon, name, description, sort, hidden });
+    const category = await CategoryModel.create({ icon, name, description, sort, hidden, disable_post, threads_default_sort });
     return category.toJSON();
   }
 
@@ -60,6 +62,7 @@ export default class CategoryController {
     @BodyParam('sort') sort: number,
     @BodyParam('hidden') hidden: boolean,
     @BodyParam('disable_post') disable_post: boolean,
+    @BodyParam('threads_default_sort') threads_default_sort: string,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -69,7 +72,10 @@ export default class CategoryController {
     }
 
     const CategoryModel = await getCategoryModel(db);
-    await CategoryModel.update({ icon, name, description, sort, hidden, disable_post }, { where: { id: categoryId } });
+    await CategoryModel.update(
+      { icon, name, description, sort, hidden, disable_post, threads_default_sort },
+      { where: { id: categoryId } },
+    );
 
     return true;
   }

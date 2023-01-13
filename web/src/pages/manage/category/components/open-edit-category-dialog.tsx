@@ -1,6 +1,6 @@
 import React from 'react';
 import OpenAlertDialog, { OpenAlertDialogProps } from '@/components/open-alert-dialog';
-import { Box, TextField, Switch, FormControlLabel } from '@mui/material';
+import { Box, TextField, Switch, FormControlLabel, MenuItem } from '@mui/material';
 import doTaskWithUI from '@/utils/do-task-with-ui';
 import Form, { Field } from 'rc-field-form';
 import { FormInstance } from 'rc-field-form/es/interface';
@@ -50,11 +50,12 @@ const OpenEditCategoryDialog: React.FC<
                 margin="dense"
                 label="名称"
                 placeholder="请输入"
+                size="small"
                 fullWidth
                 variant="outlined"
                 error={!!form.getFieldError('name')?.length}
                 helperText={(form.getFieldError('name') || [])[0]}
-                sx={{ marginTop: 2 }}
+                sx={{ marginTop: 1 }}
               />
             </Field>
             <Field name="description" initialValue={category?.description || ''}>
@@ -62,12 +63,13 @@ const OpenEditCategoryDialog: React.FC<
                 margin="dense"
                 label="描述"
                 placeholder="请输入"
+                size="small"
                 fullWidth
                 variant="outlined"
                 multiline
                 error={!!form.getFieldError('description')?.length}
                 helperText={(form.getFieldError('description') || [])[0]}
-                sx={{ marginTop: 2 }}
+                sx={{ marginTop: 1 }}
               />
             </Field>
             <Field name="sort" initialValue={category?.sort || ''} rules={[{ required: true, message: '请输入' }]}>
@@ -75,19 +77,52 @@ const OpenEditCategoryDialog: React.FC<
                 margin="dense"
                 label="排序"
                 placeholder="请输入"
+                size="small"
                 fullWidth
                 variant="outlined"
                 type="number"
                 error={!!form.getFieldError('sort')?.length}
                 helperText={(form.getFieldError('sort') || [])[0]}
-                sx={{ marginTop: 2 }}
+                sx={{ marginTop: 1 }}
               />
             </Field>
+            <Field
+              name="threads_default_sort"
+              initialValue={category?.threads_default_sort || '-posted_at'}
+              rules={[{ required: true, message: '请选择' }]}
+            >
+              <TextField
+                margin="dense"
+                label="帖子默认排序"
+                placeholder="请选择"
+                size="small"
+                fullWidth
+                select
+                variant="outlined"
+                error={!!form.getFieldError('threads_default_sort')?.length}
+                helperText={(form.getFieldError('threads_default_sort') || [])[0]}
+                sx={{ marginTop: 1 }}
+              >
+                <MenuItem value="-posted_at">最新回复</MenuItem>
+                <MenuItem value="-created_at">最新发帖</MenuItem>
+                <MenuItem value="-modified_at">最新修改</MenuItem>
+              </TextField>
+            </Field>
             <Field name="hidden" initialValue={!!category?.hidden} valuePropName="checked">
-              <FormControlLabel control={<Switch sx={{ m: 1 }} />} label="隐藏版块" labelPlacement="start" />
+              <FormControlLabel
+                sx={{ m: 0.5, mr: 2 }}
+                control={<Switch size="small" sx={{ m: 0.5 }} />}
+                label="隐藏版块"
+                labelPlacement="start"
+              />
             </Field>
             <Field name="disable_post" initialValue={!!category?.disable_post} valuePropName="checked">
-              <FormControlLabel control={<Switch sx={{ m: 1 }} />} label="关闭帖子评论功能" labelPlacement="start" />
+              <FormControlLabel
+                sx={{ m: 0.5, mr: 2 }}
+                control={<Switch size="small" sx={{ m: 0.5 }} />}
+                label="关闭帖子评论功能"
+                labelPlacement="start"
+              />
             </Field>
           </>
         )}

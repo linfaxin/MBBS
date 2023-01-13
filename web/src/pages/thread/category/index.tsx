@@ -64,7 +64,7 @@ function CategoryThreadsPageComponent(props: { categoryId: string | number }) {
         </Box>
       </Card>
       {!isWidthUpDM && <Divider orientation="horizontal" />}
-      <ThreadList queryParam={{ category_id: categoryId }} style={{ marginTop: 16 }} />
+      {category && <ThreadList queryParam={{ category_id: categoryId, sort: category.threads_default_sort }} style={{ marginTop: 16 }} />}
       <MouseOverTip tip="发帖">
         <AppLink href={`/thread/add?category_id=${categoryId}`} sx={{ position: 'fixed', bottom: 20, right: 20 }}>
           <Fab color="primary" aria-label="add">

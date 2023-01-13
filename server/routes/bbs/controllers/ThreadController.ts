@@ -7,7 +7,6 @@ import { Op, Sequelize, WhereOptions } from 'sequelize';
 import CurrentUser from '../decorators/CurrentUser';
 import { getGroupPermissions } from '../../../models/GroupPermission';
 import {
-  AllNotDeleteThreadFilter,
   getThread,
   getThreadModel,
   getUserCreateThreadCountInTimes,
