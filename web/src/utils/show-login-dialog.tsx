@@ -218,7 +218,9 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
             <Typography textAlign="center" pb={2}>
               已关闭新用户注册
             </Typography>
-            <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.register_close_reason} />
+            {bbsSetting.register_close_reason?.trim() && (
+              <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.register_close_reason} />
+            )}
           </Box>
         );
       }
@@ -228,7 +230,7 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
             <Typography textAlign="center" pb={2}>
               论坛已关闭
             </Typography>
-            <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.site_close_msg} />
+            {bbsSetting.site_close_msg?.trim() && <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.site_close_msg} />}
           </Box>
         );
       }
