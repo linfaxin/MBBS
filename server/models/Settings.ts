@@ -36,8 +36,6 @@ export interface SettingKeyValue {
   site_need_login_first: '0' | '1';
   /** 论坛是否开启了三方登录 */
   site_enable_third_platform_login: '0' | '1';
-  /** 使用 非绑定的第一条域名 访问论坛时，默认重定向至 已设置的 绑定域名 */
-  site_redirect_to_custom_host: '0' | '1';
   /** 开启邮件功能 */
   site_enable_email: '0' | '1';
   /** 每人每日在所有分类发帖 总量上限 */

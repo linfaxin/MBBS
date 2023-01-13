@@ -37,12 +37,6 @@ export default function ManagePage() {
       <Typography variant="h5" gutterBottom sx={{ paddingTop: 2, paddingLeft: 2 }}>
         欢迎回来，{user?.nickname || user?.username}
       </Typography>
-      <Alert severity="info" sx={{ marginBottom: 2 }}>
-        请查阅并遵守{' '}
-        <a href="http://mbbs.cc/agreement" target="_blank">
-          MBBS 服务协议
-        </a>
-      </Alert>
       <List sx={{ background: theme.palette.background.paper, marginTop: 2 }}>
         <ListItem>
           <ListItemText primary="论坛名称" secondary={`${bbsSetting.site_name || '(未设置)'}`} />

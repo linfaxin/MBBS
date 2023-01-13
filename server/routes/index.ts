@@ -29,15 +29,6 @@ router.get('/', async (req, res, next) => {
     }
     const setting = await getAllSettings(db);
 
-    if (setting.site_redirect_to_custom_host === '1') {
-      const hosts = await getBindHosts(dbName);
-      const redirectToHost = (hosts?.[0] || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
-      if (redirectToHost && !req.hostname.includes(redirectToHost)) {
-        res.redirect(`http://${redirectToHost}`);
-        return;
-      }
-    }
-
     let pageHtml: string;
     try {
       pageHtml = isDevEnv()

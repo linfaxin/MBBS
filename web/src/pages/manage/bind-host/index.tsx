@@ -1,13 +1,11 @@
 import React from 'react';
 import { useModel } from 'umi';
 import EditIcon from '@mui/icons-material/Edit';
-import { Alert, Button, IconButton, List, ListItem, ListItemText, Switch, useTheme } from '@mui/material';
+import { Alert, IconButton, List, ListItem, ListItemText, Switch, useTheme } from '@mui/material';
 import OpenPromptDialog from '@/components/open-prompt-dialog';
 import { manageApi, settingApi } from '@/api';
 import AppPage from '@/components/app-page';
 import { useRequest } from 'ahooks';
-import AppLink from '@/components/app-link';
-import showAlert from '@/utils/show-alert';
 import TipIconButton from '@/components/tip-icon-button';
 import doTaskWithUI from '@/utils/do-task-with-ui';
 
