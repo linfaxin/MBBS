@@ -88,7 +88,7 @@ export default class RegisterController {
 
   @Get('/captcha')
   getCaptcha() {
-    const captcha = svgCaptcha.create();
+    const captcha = svgCaptcha.create({ ignoreChars: 'IloO0' });
     const captchaId = captchaIdNext++;
     captchaLruCache.set(captchaId, captcha.text);
     return { id: captchaId, svg: captcha.data };

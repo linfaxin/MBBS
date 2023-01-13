@@ -6,7 +6,6 @@ import { noop } from 'lodash';
 import { isDevEnv } from '../utils/env-util';
 import { getDB, getDBNameFromHost } from '../models/db';
 import { getAllSettings, setSettingValue } from '../models/Settings';
-import { getBindHosts } from '../utils/bind-host-util';
 
 const express = require('express');
 const router = express.Router();
