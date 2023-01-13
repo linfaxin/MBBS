@@ -1,6 +1,6 @@
 {
   "name": "mbbs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "轻量级全功能论坛，移动/PC双端适配，无依赖一键启动",
   "bin": "./bin/mbbs",
   "scripts": {
