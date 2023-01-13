@@ -19,7 +19,7 @@ const UserItem: React.FC<{
   return (
     <Box sx={{ padding: 2, display: 'flex' }}>
       <img alt="avatar" src={getResourceUrl(user.avatar) || require('@/images/default-avatar.png')} style={{ width: 60, height: 60 }} />
-      <Grid container spacing={{ xs: 0, sm: 2 }} columns={12} sx={{ paddingLeft: 2, flex: 1 }}>
+      <Grid container spacing={{ xs: 0, sm: 2 }} columns={12} sx={{ paddingLeft: 2, flex: 1, wordBreak: 'break-all' }}>
         <Grid item xs={12} sm={6}>
           <Typography>ID：{user.id}</Typography>
           <Typography>账号：{user.username}</Typography>

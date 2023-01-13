@@ -25,6 +25,10 @@ export default function CurrentUser(options?: { required?: boolean }) {
         return null;
       }
       const user = await getUser(db, userId);
+      if (!user) {
+        if (options?.required) throw new UnauthorizedError();
+        return null;
+      }
       if ((await getSettingValue(db, 'site_close')) === '1' && !(await user.isAdmin())) {
         throw new UIError('论坛已关闭');
       }

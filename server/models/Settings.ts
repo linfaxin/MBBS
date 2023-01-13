@@ -36,6 +36,8 @@ export interface SettingKeyValue {
   site_need_login_first: '0' | '1';
   /** 论坛是否开启了三方登录 */
   site_enable_third_platform_login: '0' | '1';
+  /** 三方授权登录免审核 */
+  site_third_platform_login_pass_validate: '0' | '1';
   /** 开启邮件功能 */
   site_enable_email: '0' | '1';
   /** 进入首页默认显示目标板块内容 */

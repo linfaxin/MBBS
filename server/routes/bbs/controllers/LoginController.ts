@@ -121,12 +121,14 @@ export default class LoginController {
       // 未注册
       await RegisterController.checkCanCreateUser(db);
 
+      const passValidate = (await getSettingValue(db, 'site_third_platform_login_pass_validate')) === '1';
       const userJSON = await RegisterController.doCreateUser({
         db,
         username,
         nickname: `QQ用户${unionid.substr(-6)}`,
         password: uuidV4(),
         requestIp: request.ip,
+        needValidate: passValidate ? false : undefined,
       });
 
       userLoginLogger.log({ ...userJSON, token: undefined });
@@ -166,12 +168,14 @@ export default class LoginController {
       // 未注册
       await RegisterController.checkCanCreateUser(db);
 
+      const passValidate = (await getSettingValue(db, 'site_third_platform_login_pass_validate')) === '1';
       const userJSON = await RegisterController.doCreateUser({
         db,
         username,
         nickname,
         password: uuidV4(),
         requestIp: request.ip,
+        needValidate: passValidate ? false : undefined,
       });
 
       userLoginLogger.log({ ...userJSON, token: undefined });

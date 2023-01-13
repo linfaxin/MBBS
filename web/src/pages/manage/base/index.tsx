@@ -585,6 +585,29 @@ const BaseSetting = () => {
             }}
           />
         </ListItem>
+        <ListItem>
+          <ListItemText
+            primary={
+              <>
+                三方授权登录注册免审核
+                <TipIconButton message="开启后，通过三方平台授权登录论坛注册的账号免审核" />
+              </>
+            }
+            secondary={bbsSetting.site_third_platform_login_pass_validate === '1' ? '已开启' : '已关闭'}
+          />
+          <Switch
+            checked={bbsSetting.site_third_platform_login_pass_validate === '1'}
+            onChange={async (e) => {
+              const checked = e.target.checked;
+              await doTaskWithUI({
+                task: () => settingApi.set('site_third_platform_login_pass_validate', checked ? '1' : '0'),
+                failAlert: true,
+                fullScreenLoading: true,
+              });
+              bbsSetting.update('site_third_platform_login_pass_validate', checked ? '1' : '0');
+            }}
+          />
+        </ListItem>
       </List>
     </AppPage>
   );
