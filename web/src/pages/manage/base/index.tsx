@@ -310,13 +310,13 @@ const BaseSetting = () => {
             primary={
               <>
                 用户日发帖上限
-                <TipIconButton message="用户在所有分类版块的每日可发帖数上限" />
+                <TipIconButton message="用户在所有分类版块的每日可发帖总数上限" />
               </>
             }
             secondary={bbsSetting.person_daily_create_thread || '无限制'}
           />
           <OpenPromptDialog
-            title="修改用户日发帖上限"
+            title="修改用户日发帖总数上限"
             defaultValue={bbsSetting.person_daily_create_thread}
             maxInputLength={10}
             TextFieldProps={{
