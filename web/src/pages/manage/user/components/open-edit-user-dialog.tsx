@@ -48,7 +48,7 @@ const OpenEditUserDialog: React.FC<
                   />
                   <UploadResourceButton
                     sx={{ marginLeft: 2 }}
-                    beforeUpload={(file) => compressImageFile(file, { maxWidth: 192, maxHeight: 192 })}
+                    beforeUpload={(file) => compressImageFile(file, { maxWidth: 192, maxHeight: 192, mimeType: 'image/png' })}
                     onUploaded={async (result) => {
                       form.setFieldsValue({ avatar: result.filePath });
                     }}

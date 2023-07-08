@@ -113,7 +113,7 @@ export default function UserIndexPage() {
           />
           <UploadResourceButton
             startIcon={<EditIcon />}
-            beforeUpload={(file) => compressImageFile(file, { maxWidth: 192, maxHeight: 192 })}
+            beforeUpload={(file) => compressImageFile(file, { maxWidth: 192, maxHeight: 192, mimeType: 'image/png' })}
             onUploaded={async (result) => {
               const modifiedUser = await userApi.modifyUser({ id: user.id, avatar: result.filePath });
               setUser(modifiedUser);

@@ -35,7 +35,7 @@ const BaseSetting = () => {
           <ListItemText />
           <UploadResourceButton
             startIcon={<EditIcon />}
-            beforeUpload={(file) => compressImageFile(file, { maxWidth: 256, maxHeight: 256 })}
+            beforeUpload={(file) => compressImageFile(file, { maxWidth: 256, maxHeight: 256, mimeType: 'image/png' })}
             onUploaded={async (result) => {
               const faviconFile = await compressImageFile(result.file, {
                 maxWidth: 32,
