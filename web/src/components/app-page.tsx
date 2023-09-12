@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from 'react';
+import React, { ReactNode, useEffect, useLayoutEffect } from 'react';
 import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/material';
 import { useModel } from 'umi';
 import { useScreenWidthUpMD } from '@/utils/use-screen-width';
@@ -16,6 +16,7 @@ const AppPage: React.FC<
     parentPageCategoryId?: number | string;
     title?: string;
     requestNavBackButton?: boolean;
+    navBarActionButton?: ReactNode;
     contentSx?: SxProps<Theme>;
     contentMaxWidth?: Breakpoint | false;
     initPage?: () => Promise<any>;
@@ -28,6 +29,7 @@ const AppPage: React.FC<
     parentPageCategoryId,
     title = '',
     requestNavBackButton,
+    navBarActionButton,
     contentSx,
     contentMaxWidth = 'md',
     initPage,
@@ -44,12 +46,9 @@ const AppPage: React.FC<
     loading: pageLoading,
     error: pageError,
     refresh: reloadPage,
-  } = useRequest(
-    async () => {
-      if (initPage) await initPage();
-    },
-    { defaultLoading: !!initPage },
-  );
+  } = useRequest(async () => {
+    if (initPage) await initPage();
+  });
 
   useUpdateEffect(() => {
     if (reloadPageWhenLoginChange) {
@@ -92,6 +91,11 @@ const AppPage: React.FC<
       navBarContentModel.setContent(parentPage ? [...parentPage, { title }] : title);
     }
   }, [title, parentPageCategoryId, JSON.stringify(parentPage)]);
+
+  useEffect(() => {
+    navBarContentModel.setActionBtn(navBarActionButton);
+    return () => navBarContentModel.setActionBtn(null);
+  }, [navBarActionButton]);
 
   useEffect(() => {
     if (requestNavBackButton) {

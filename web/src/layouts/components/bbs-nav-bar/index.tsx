@@ -98,8 +98,9 @@ const BBSNavBar: React.FC = (props) => {
             </div>
           )}
         </Typography>
+        {navBarContentModel.actionBtn}
         {!loginUser && (
-          <Button color="inherit" size="large" sx={{ marginRight: -1 }} onClick={() => showLoginDialog()}>
+          <Button color="inherit" size="large" sx={{ mr: -1, ml: 1 }} onClick={() => showLoginDialog()}>
             登录
           </Button>
         )}

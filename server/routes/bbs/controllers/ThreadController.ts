@@ -18,7 +18,7 @@ import {
 import { GROUP_ID_TOURIST } from '../const';
 import { setUserLikePost } from '../../../models/LikePostUser';
 import { getPost, getPostModel } from '../../../models/Post';
-import { getCategoryById, updateCategoryThreadCount } from '../../../models/Category';
+import { getCategoryById, getCategoryModel, updateCategoryThreadCount } from '../../../models/Category';
 import { getCreateThreadDailyLimit, getSettingValue, setSettingValue } from '../../../models/Settings';
 import { Request } from 'express';
 import { formatReqIP } from '../../../utils/format-utils';
@@ -447,16 +447,36 @@ export default class ThreadController {
         throw new UIError('无权查看特殊状态帖子');
       }
     }
-    if (currentUser) {
-      // 已登录用户
-      const hasPermission =
-        (await currentUser.hasPermission('viewThreads')) || (await currentUser.hasPermission(`category${categoryId}.viewThreads`));
-      if (!hasPermission) throw new UIError('无权查看帖子');
+
+    // 仅在有阅读权限的板块内搜索帖子
+    const filterInCategoryIds = [] as Array<number>;
+    const hasPermissionForCategory = async (categoryId: number) => {
+      if (currentUser) {
+        // 已登录用户
+        return (await currentUser.hasPermission('viewThreads')) || (await currentUser.hasPermission(`category${categoryId}.viewThreads`));
+      } else {
+        // 游客
+        const permissions = await getGroupPermissions(db, GROUP_ID_TOURIST);
+        return permissions.includes('viewThreads') || permissions.includes(`category${categoryId}.viewThreads`);
+      }
+    };
+    if (categoryId) {
+      // 指定了查看板块，检查是否有权限查看
+      if (await hasPermissionForCategory(categoryId)) {
+        filterInCategoryIds.push(categoryId);
+      }
     } else {
-      // 游客
-      const permissions = await getGroupPermissions(db, GROUP_ID_TOURIST);
-      const hasPermission = permissions.includes('viewThreads') || permissions.includes(`category${categoryId}.viewThreads`);
-      if (!hasPermission) throw new UnauthorizedError('游客无权查看帖子，请先登录');
+      // 未指定查看板块，找出所有有阅读权限的板块
+      const CategoryModel = await getCategoryModel(db);
+      for (const category of await CategoryModel.findAll()) {
+        if (await hasPermissionForCategory(category.id)) {
+          filterInCategoryIds.push(category.id);
+        }
+      }
+    }
+    if (!filterInCategoryIds.length) {
+      if (!currentUser) throw new UIError('游戏无权查看帖子，请先登录');
+      throw new UIError('无权查看帖子');
     }
 
     const ThreadModel = await getThreadModel(db);
@@ -465,6 +485,9 @@ export default class ThreadController {
       ...NormalThreadFilter,
       ...(threadId ? { id: threadId } : {}),
       ...(categoryId ? { category_id: categoryId } : {}),
+      category_id: {
+        [Op.in]: filterInCategoryIds,
+      },
       ...(userId ? { user_id: userId } : {}),
       ...(keywords
         ? {

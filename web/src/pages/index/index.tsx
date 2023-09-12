@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Card, Divider, Grid, Typography } from '@mui/material';
+import { Box, Card, Divider, Grid, IconButton, Typography } from '@mui/material';
 import { useModel, history } from 'umi';
+import SearchIcon from '@mui/icons-material/Search';
 import { getResourceUrl } from '@/utils/resource-url';
 import PaperClickable from '@/components/paper-clickable';
 import PowerBy from '@/components/power-by';
@@ -8,6 +9,7 @@ import { useScreenWidthUpMD, useScreenWidthUpSM } from '@/utils/use-screen-width
 import AppLink from '@/components/app-link';
 import AppPage from '@/components/app-page';
 import MarkdownPreview from '@/components/vditor/markdown-preview';
+import showPromptDialog from '@/utils/show-prompt-dialog';
 
 export default function IndexPage() {
   const widthUpMD = useScreenWidthUpMD();
@@ -18,6 +20,22 @@ export default function IndexPage() {
   return (
     <AppPage
       contentSx={{ padding: 2 }}
+      navBarActionButton={
+        <IconButton
+          color="inherit"
+          size="large"
+          sx={{ marginRight: -1 }}
+          onClick={() =>
+            showPromptDialog({
+              title: '全站搜索',
+              inputLabel: '搜索关键字',
+              onSubmit: (input) => history.push(`/thread/search?keywords=${encodeURIComponent(input || '')}`),
+            })
+          }
+        >
+          <SearchIcon />
+        </IconButton>
+      }
       initPage={async () => {
         const categories = await reloadCategory();
         if (bbsSetting.site_home_page_show_category) {

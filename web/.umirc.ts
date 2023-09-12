@@ -18,6 +18,7 @@ export default defineConfig({
         { path: '/thread/add', component: '@/pages/thread/add' },
         { path: '/thread/edit/:id', component: '@/pages/thread/edit' },
         { path: '/thread/category/:id', component: '@/pages/thread/category' },
+        { path: '/thread/search', component: '@/pages/thread/search' },
         { path: '/personal-center', component: '@/pages/personal-center/index' },
         { path: '/user/detail', component: '@/pages/user/detail' },
         { path: '/user/threads', component: '@/pages/user/threads' },
