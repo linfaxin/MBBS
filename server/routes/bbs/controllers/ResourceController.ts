@@ -119,10 +119,11 @@ export default class ResourceController {
     @Param('domain') domain: string,
     @Param('fileName') fileName: string,
     @QueryParam('download') download: string,
+    @QueryParam('downloadFileName') downloadFileName: string,
     @QueryParam('token') token: string,
     @QueryParam('uid') uid: string,
   ) {
-    return this.get(res, req, resourcesReadLogger, domain, `attachment/${fileName}`, download, token, uid);
+    return this.get(res, req, resourcesReadLogger, domain, `attachment/${fileName}`, download || '1', downloadFileName, token, uid);
   }
 
   @Get('/:domain/:fileName')
@@ -133,6 +134,7 @@ export default class ResourceController {
     @Param('domain') domain: string,
     @Param('fileName') fileName: string,
     @QueryParam('download') download: string,
+    @QueryParam('downloadFileName') downloadFileName: string,
     @QueryParam('token') token: string,
     @QueryParam('uid') uid: string,
   ) {
@@ -140,12 +142,12 @@ export default class ResourceController {
       const db = await getDB(domain);
       if (fileName.startsWith('attachment/')) {
         // 附件校验登录态
-        if (token.length < 8 || !uid) {
+        if ((token || '').length < 8 || !uid) {
           throw new ForbiddenError('出错：附件仅登录后可访问');
         }
         const userTokens = await getValidUserTokens(db, parseInt(uid));
         if (!userTokens.some((t) => t.token.startsWith(token))) {
-          throw new ForbiddenError('出错：附件仅登录后可访问');
+          throw new ForbiddenError('附件访问失败：登录校验不匹配');
         }
       } else {
         // 图片校验 referer
@@ -178,9 +180,11 @@ export default class ResourceController {
         // ignore
       }
 
-      if (download === '1') {
-        const sourceFileName = path.basename(fileName).replace(/^\d+_\d+_?/, '');
-        res.attachment(sourceFileName);
+      if (download === '1' || downloadFileName) {
+        if (downloadFileName && !downloadFileName.endsWith(path.extname(fileName))) {
+          downloadFileName += path.extname(fileName);
+        }
+        res.attachment(downloadFileName || path.basename(fileName));
       }
 
       const rateLimit = parseInt(await getSettingValue(db, 'attachment_load_rate')) || 64 * 1024;

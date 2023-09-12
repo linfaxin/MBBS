@@ -270,7 +270,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
                   title: '设置链接',
                   defaultValue: {
                     text: currentSelectNode.innerText,
-                    link: currentSelectNode.href,
+                    link: currentSelectNode?.getAttribute('href') || '',
                   },
                   onOk: ({ text, link }) => {
                     currentSelectNode.innerText = text;

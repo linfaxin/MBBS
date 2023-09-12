@@ -3,7 +3,7 @@ import { getLoginUser } from '@/api/base/user';
 
 const parseHTMLTemp = document.createElement('template');
 
-function tryAppendResourceBaseUrl(src: string | null, appendResAuthToken?: boolean): string {
+function tryAppendResourceBaseUrl(src: string | null, appendResAuthToken?: boolean, appendDownloadFileName?: string): string {
   if (!src) return '';
   if (/^(https?:|data:|file:|\/|\.|#|\?)/.test(src)) {
     return src;
@@ -14,6 +14,10 @@ function tryAppendResourceBaseUrl(src: string | null, appendResAuthToken?: boole
     const loginUser = getLoginUser();
     if (loginUser) {
       src += `?uid=${loginUser.id}&token=${loginUser.token?.substring(0, 8)}`; // 请求资源的 token 为 user-token 前8位
+    }
+    if (appendDownloadFileName) {
+      // 指定下载文件名
+      src += `${/\?/.test(src) ? '&' : '?'}downloadFileName=${encodeURIComponent(appendDownloadFileName)}`;
     }
   }
   return src;
@@ -59,7 +63,8 @@ export default function transformWillRenderHtml(html: string, transformAttachmen
   if (transformAttachmentLink) {
     Array.from(parseHTMLTemp.content.querySelectorAll('a')).forEach((a) => {
       const isVideo = /\.(mp4|avi)$/.test(a.href);
-      a.setAttribute('href', tryAppendResourceBaseUrl(a.getAttribute('href'), true));
+      const resourceUrl = tryAppendResourceBaseUrl(a.getAttribute('href'), true, a.innerText);
+      a.setAttribute('href', resourceUrl);
       if (isVideo) {
         a.outerHTML = `<video src="${a.href}" controls preload="none"></video>`;
       }
@@ -79,6 +84,12 @@ export function transformRenderHtmlForUpload(html: string) {
     }
     if (img.getAttribute('data-src')) {
       img.setAttribute('data-src', removeResourceBaseUrl(img.getAttribute('data-src')));
+    }
+  });
+  // 静态资源服务器开头的附件地址 转 资源路径
+  Array.from(parseHTMLTemp.content.querySelectorAll('a')).forEach((anchor) => {
+    if (anchor.getAttribute('href')) {
+      anchor.setAttribute('href', removeResourceBaseUrl(anchor.getAttribute('href')));
     }
   });
 
