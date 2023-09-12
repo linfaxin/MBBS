@@ -8,7 +8,7 @@ export interface Setting {
   /** 站点是否关闭 */
   site_close: '0' | '1';
   /** 是否关闭新用户注册 */
-  register_close: '0' | '1';
+  register_close: '0' | '1' | 'close_username';
   /** 关闭新用户注册原因 */
   register_close_reason: string;
   /** 新用户注册审核 */

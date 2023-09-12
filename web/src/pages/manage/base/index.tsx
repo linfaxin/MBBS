@@ -15,7 +15,6 @@ import AppPage from '@/components/app-page';
 import showAlert from '@/utils/show-alert';
 import MarkdownPureText from '@/components/vditor/markdown-pure-text';
 import OpenPopupMarkdownEditor from '@/components/open-popup-markdown-editor';
-import AppLink from '@/components/app-link';
 import GlobalOrCategoryRadio from '@/components/global-or-category-radio';
 
 const BaseSetting = () => {
@@ -459,33 +458,44 @@ const BaseSetting = () => {
         component="nav"
       >
         <ListItem>
-          <ListItemText primary="允许新用户注册" secondary={bbsSetting.register_close === '1' ? '不允许' : '允许'} />
-          <Switch
-            checked={bbsSetting.register_close !== '1'}
-            onChange={async (e) => {
-              const checked = e.target.checked;
-              await doTaskWithUI({
-                task: () => settingApi.set('register_close', checked ? '0' : '1'),
-                failAlert: true,
-                fullScreenLoading: true,
-              });
-              bbsSetting.update('register_close', checked ? '0' : '1');
-            }}
+          <ListItemText
+            primary="允许新用户注册"
+            secondary={
+              bbsSetting.register_close === '1' ? '不允许' : bbsSetting.register_close === 'close_username' ? '仅允许三方授权' : '允许'
+            }
           />
+          <OpenPromptDialog
+            title="新用户注册开关"
+            defaultValue={bbsSetting.register_close || '0'}
+            options={[
+              { label: '允许', value: '0' },
+              { label: '不允许', value: '1' },
+              { label: '仅允许三方授权登录注册', value: 'close_username' },
+            ]}
+            submitFailAlert
+            onSubmit={async (inputValue) => {
+              await settingApi.set('register_close', inputValue as any);
+              bbsSetting.update('register_close', inputValue as any);
+            }}
+          >
+            <IconButton color="primary">
+              <EditIcon />
+            </IconButton>
+          </OpenPromptDialog>
         </ListItem>
         {bbsSetting.register_close === '1' && (
           <ListItem>
             <ListItemText
               primary={
                 <>
-                  关闭新用户注册原因
+                  不允许新用户注册原因
                   <TipIconButton message="设置后，会展示在登录弹窗的注册界面" />
                 </>
               }
               secondary={<MarkdownPureText md={bbsSetting.register_close_reason || '(空)'} />}
             />
             <OpenPopupMarkdownEditor
-              title="关闭新用户注册原因"
+              title="不允许新用户注册原因"
               defaultValue={bbsSetting.register_close_reason}
               submitButtonText="确定"
               onSubmitFailAlert

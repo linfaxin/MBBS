@@ -28,9 +28,13 @@ const captchaLruCache = new LRUCache<number, string>({
 
 @JsonController('/register')
 export default class RegisterController {
-  static async checkCanCreateUser(db: Sequelize) {
-    if ('1' === (await getSettingValue(db, 'register_close'))) {
+  static async checkCanCreateUser(db: Sequelize, createdBy: 'username' | '3rd') {
+    const register_close = await getSettingValue(db, 'register_close');
+    if ('1' === register_close) {
       throw new UIError('已关闭新用户注册');
+    }
+    if (createdBy === 'username' && register_close === 'close_username') {
+      throw new UIError('已关闭用户名方式注册');
     }
     if ((await getSettingValue(db, 'site_close')) === '1') {
       throw new UIError('论坛已关闭');
@@ -115,7 +119,7 @@ export default class RegisterController {
     @BodyParam('captcha_id', { required: true }) captchaId: number,
     @BodyParam('captcha_text', { required: true }) captchaText: string,
   ) {
-    await RegisterController.checkCanCreateUser(db);
+    await RegisterController.checkCanCreateUser(db, 'username');
 
     if (password.length < 6) throw new UIError('密码长度必须大于等于 6 位');
     username = username.trim();

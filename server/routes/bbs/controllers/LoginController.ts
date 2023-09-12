@@ -119,7 +119,7 @@ export default class LoginController {
       };
     } else {
       // 未注册
-      await RegisterController.checkCanCreateUser(db);
+      await RegisterController.checkCanCreateUser(db, '3rd');
 
       const passValidate = (await getSettingValue(db, 'site_third_platform_login_pass_validate')) === '1';
       const userJSON = await RegisterController.doCreateUser({
@@ -166,7 +166,7 @@ export default class LoginController {
       };
     } else {
       // 未注册
-      await RegisterController.checkCanCreateUser(db);
+      await RegisterController.checkCanCreateUser(db, '3rd');
 
       const passValidate = (await getSettingValue(db, 'site_third_platform_login_pass_validate')) === '1';
       const userJSON = await RegisterController.doCreateUser({

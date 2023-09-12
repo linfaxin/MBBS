@@ -224,6 +224,15 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
           </Box>
         );
       }
+      if (bbsSetting.register_close === 'close_username') {
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+            <Typography textAlign="center">
+              {bbsSetting.site_enable_third_platform_login === '1' ? '请通过授权登录自动完成注册' : '论坛配置异常（未开启三方授权登录）'}
+            </Typography>
+          </Box>
+        );
+      }
       if (bbsSetting.site_close === '1') {
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 200, p: 2 }}>
