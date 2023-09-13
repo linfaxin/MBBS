@@ -9,7 +9,7 @@ import { formatTimeFriendly } from '@/utils/format-util';
 import { getPageStateWhenPop, setPageState, usePageState } from '@/utils/use-page-history-hooks';
 import { history } from 'umi';
 import { Post, PostSortKey } from '@/api/post';
-import { showConfirm, showErrorAlert } from '@/utils/show-alert';
+import { showConfirm } from '@/utils/show-alert';
 import OpenPopoverMenu from '@/components/open-popover-menu';
 import showPromptDialog from '@/utils/show-prompt-dialog';
 import ApiUI from '@/api-ui';
@@ -108,14 +108,17 @@ const UserPostCommentList: React.FC<
                         <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅 admin 可见</div>
                       </div>
                     ),
-                    onClick: async () => {
-                      try {
-                        await postApi.batchDeletePosts(commentList.map((p) => p.id));
-                        showSnackbar(`已删除 ${commentList.length} 条回复`);
-                        setListReloadKeyId((prev) => prev + 1);
-                      } catch (e: any) {
-                        showErrorAlert(e?.message || String(e));
-                      }
+                    onClick: () => {
+                      showConfirm({
+                        title: '删除确认',
+                        message: `确认删除当前显示列表中的 ${commentList.length} 条回复吗？`,
+                        onOkErrorAlert: true,
+                        onOk: async () => {
+                          await postApi.batchDeletePosts(commentList.map((p) => p.id));
+                          showSnackbar(`已删除 ${commentList.length} 条回复`);
+                          setListReloadKeyId((prev) => prev + 1);
+                        },
+                      });
                     },
                   },
                 ]}
