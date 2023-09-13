@@ -9,11 +9,10 @@ import OpenAlertDialog from '@/components/open-alert-dialog';
 import showSnackbar from '@/utils/show-snackbar';
 import AppPage from '@/components/app-page';
 import OpenPromptDialog from '@/components/open-prompt-dialog';
-import showAlert from '@/utils/show-alert';
+import showAlert, { showConfirm } from '@/utils/show-alert';
 import { formatTime } from '@/utils/format-util';
 import AppLink from '@/components/app-link';
 import { GROUP_ID_TOURIST } from '@/consts';
-import DoTaskButton from '@/components/do-task-button';
 
 const ManageCategory = () => {
   const { data: groups, refresh } = useRequest(() => groupApi.listGroup(true));
@@ -91,9 +90,19 @@ const ManageCategory = () => {
                 </Button>
               </AppLink>
               {!group.default && (
-                <DoTaskButton task={() => groupApi.setGroupIsDefault(group.id).then(refresh)} sx={{ marginTop: 1 }}>
+                <Button
+                  onClick={() => {
+                    showConfirm({
+                      title: '修改默认角色',
+                      message: `确认将 "${group.name}" 设置为 新注册用户的默认角色吗？`,
+                      onOkErrorAlert: true,
+                      onOk: () => groupApi.setGroupIsDefault(group.id).then(refresh),
+                    });
+                  }}
+                  sx={{ marginTop: 1 }}
+                >
                   设为默认
-                </DoTaskButton>
+                </Button>
               )}
               <OpenAlertDialog
                 message="确定删除这个角色吗？"
