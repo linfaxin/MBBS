@@ -26,6 +26,7 @@ import { markThreadViewed } from '@/utils/view-thread-records-util';
 import showPromptDialog from '@/utils/show-prompt-dialog';
 import ThreadContentPreview from '@/components/thread-content/thread-content-preview';
 import DoTaskButton from '@/components/do-task-button';
+import { Category, getCategory } from '@/api/category';
 
 export default function ThreadDetailPage() {
   const params = useParams() as any;
@@ -35,9 +36,10 @@ export default function ThreadDetailPage() {
 
 function ThreadDetailPageComponent(props: { threadId: number | string }) {
   const { threadId } = props;
-  const { categories, reloadCategory } = useModel('useCategories');
+  const { reloadCategory } = useModel('useCategories');
   const [thread, setThread] = usePageState<Thread>('thread-detail');
   const [postListReloadKey, setPostListReloadKey] = useState(1);
+  const [threadCategory, setThreadCategory] = useState<Category>();
   const theme = useTheme();
   const umiLocation = useLocation();
   const openReplyDialog = !!umiLocation.search.match(/openReply=1/);
@@ -52,6 +54,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
     const thread =
       history.location.query?.isAdmin === '1' ? await threadApi.getThreadForAdmin(threadId) : await threadApi.getThread(threadId);
     markThreadViewed(threadId);
+    setThreadCategory(await getCategory(thread.category_id));
     setThread(thread);
     updateThreadInHistoryData(thread);
   };
@@ -103,7 +106,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
         showSnackbar('删除成功');
         removeThreadInHistoryData(thread);
         history.goBack();
-        reloadCategory();
+        reloadCategory(); // 更新板块内帖子数显示
       },
     });
   };
@@ -141,7 +144,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
       title: '设置评论开关',
       inputLabel: '帖子评论开关',
       defaultValue: thread.disable_post ? 'off' : thread.disable_post === false ? 'on' : 'default',
-      description: `当前板块评论开关：${categories?.find((c) => c.id === thread.category_id)?.disable_post ? '关' : '开'}`,
+      description: `当前板块评论开关：${threadCategory?.disable_post ? '关' : '开'}`,
       options: [
         { label: '跟随板块', value: 'default' },
         { label: '开', value: 'on' },
@@ -242,7 +245,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
       </Box>
       {thread?.can_view_posts ? (
         <PostList
-          queryParam={{ thread_id: threadId }}
+          queryParam={{ thread_id: threadId, sort: threadCategory?.posts_default_sort }}
           listReloadKey={postListReloadKey}
           style={{ marginTop: 20 }}
           renderExtraActions={(post) =>

@@ -25,6 +25,8 @@ export class Category extends Model<Partial<Category>> {
   disable_post: boolean;
   /** 板块内帖子默认排序方式 */
   threads_default_sort: string;
+  /** 板块内帖子评论默认排序方式 */
+  posts_default_sort: string;
   /** 创建时间 */
   created_at: Date;
   /** 更新时间 */
@@ -124,6 +126,9 @@ export async function getCategoryModel(db: Sequelize): Promise<typeof Category> 
         type: DataTypes.BOOLEAN,
       },
       threads_default_sort: {
+        type: DataTypes.TEXT,
+      },
+      posts_default_sort: {
         type: DataTypes.TEXT,
       },
     },

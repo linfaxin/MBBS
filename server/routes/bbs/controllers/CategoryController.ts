@@ -63,6 +63,7 @@ export default class CategoryController {
     @BodyParam('hidden') hidden: boolean,
     @BodyParam('disable_post') disable_post: boolean,
     @BodyParam('threads_default_sort') threads_default_sort: string,
+    @BodyParam('posts_default_sort') posts_default_sort: string,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -73,7 +74,7 @@ export default class CategoryController {
 
     const CategoryModel = await getCategoryModel(db);
     await CategoryModel.update(
-      { icon, name, description, sort, hidden, disable_post, threads_default_sort },
+      { icon, name, description, sort, hidden, disable_post, threads_default_sort, posts_default_sort },
       { where: { id: categoryId } },
     );
 

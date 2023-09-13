@@ -21,7 +21,7 @@ export default async function doTaskWithUI<T>(options: {
       hideFullScreenLoading();
     }
     return result;
-  } catch (e) {
+  } catch (e: any) {
     const errMessage = e?.message || String(e);
     if (failSnackbar) {
       const hideSnackbar = showSnackbar({

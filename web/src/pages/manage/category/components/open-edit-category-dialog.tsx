@@ -109,6 +109,28 @@ const OpenEditCategoryDialog: React.FC<
                 <MenuItem value="-modified_at">最新修改</MenuItem>
               </TextField>
             </Field>
+            <Field
+              name="posts_default_sort"
+              initialValue={category?.posts_default_sort || 'created_at'}
+              rules={[{ required: true, message: '请选择' }]}
+            >
+              <TextField
+                margin="dense"
+                label="帖内评论默认排序"
+                placeholder="请选择"
+                size="small"
+                fullWidth
+                select
+                variant="outlined"
+                error={!!form.getFieldError('posts_default_sort')?.length}
+                helperText={(form.getFieldError('posts_default_sort') || [])[0]}
+                sx={{ marginTop: 1 }}
+              >
+                <MenuItem value="created_at">最早发布</MenuItem>
+                <MenuItem value="-created_at">最新发布</MenuItem>
+                <MenuItem value="-like_count">最多点赞</MenuItem>
+              </TextField>
+            </Field>
             <Field name="hidden" initialValue={!!category?.hidden} valuePropName="checked">
               <FormControlLabel
                 sx={{ m: 0.5, mr: 2 }}

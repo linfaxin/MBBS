@@ -1,6 +1,7 @@
 import fetchApi from '@/api/base/fetch';
 import { permissionApi } from '.';
 import { ThreadSortKey } from '@/api/thread';
+import { PostSortKey } from '@/api/post';
 
 /**
  * 分类板块
@@ -23,8 +24,10 @@ export interface Category {
   hidden: boolean;
   /** 是否关闭板块评论功能 */
   disable_post: boolean;
-  /** 板块帖子默认排序方式 */
+  /** 板块帖子 默认排序方式 */
   threads_default_sort?: ThreadSortKey;
+  /** 板块帖子评论 默认排序方式 */
+  posts_default_sort?: PostSortKey;
   /** 创建时间 */
   created_at: string;
   /** 更新时间 */
