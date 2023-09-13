@@ -183,7 +183,22 @@ export default function UserIndexPage() {
           />
         </ListItem>
         <ListItem>
-          <ListItemText sx={{ paddingLeft: 2 }} primary="用户角色" secondary={user.group?.name} />
+          <ListItemText
+            sx={{ paddingLeft: 2 }}
+            primary="用户角色"
+            secondary={
+              <>
+                {user.group?.name}
+                {!!user.group?.icon && (
+                  <img
+                    alt="icon"
+                    src={getResourceUrl(user.group.icon)}
+                    style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 4 }}
+                  />
+                )}
+              </>
+            }
+          />
         </ListItem>
         {bbsSetting.site_enable_email === '1' && (
           <ListItem>

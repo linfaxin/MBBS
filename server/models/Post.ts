@@ -91,8 +91,8 @@ export class Post extends Model<Partial<Post>> {
     if (thread == null) throw new NotFoundError('帖子未找到');
     return {
       ...this.toJSON(),
-      user: (await getUser(this.sequelize, this.user_id)).toJSON(),
-      comment_user: this.comment_user_id ? (await getUser(this.sequelize, this.comment_user_id)).toJSON() : undefined,
+      user: await (await getUser(this.sequelize, this.user_id)).toViewJSON(),
+      comment_user: this.comment_user_id ? await (await getUser(this.sequelize, this.comment_user_id)).toViewJSON() : undefined,
       is_liked: !!viewUser && (await hasUserLikedPost(this.sequelize, this.id, viewUser.id)),
       can_sticky:
         !!viewUser &&

@@ -191,7 +191,22 @@ export default function UserDetailPage() {
           )}
         </ListItem>
         <ListItem>
-          <ListItemText sx={{ paddingLeft: 2 }} primary="用户角色" secondary={user.group?.name} />
+          <ListItemText
+            sx={{ paddingLeft: 2 }}
+            primary="用户角色"
+            secondary={
+              <>
+                {user.group?.name}
+                {!!user.group?.icon && (
+                  <img
+                    alt="icon"
+                    src={getResourceUrl(user.group.icon)}
+                    style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 4 }}
+                  />
+                )}
+              </>
+            }
+          />
           {myPermissions?.includes('user.edit.group') && (
             <OpenPromptDialog
               title="修改用户角色"

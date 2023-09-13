@@ -42,7 +42,16 @@ const PostItem: React.FC<{
             src={getResourceUrl(post.user.avatar) || require('@/images/default-avatar.png')}
             style={{ height: 20, width: 20 }}
           />
-          <span style={{ marginLeft: 4 }}>{post.user.nickname || post.user.username}</span>
+          <span style={{ marginLeft: 4 }}>
+            {post.user.nickname || post.user.username}
+            {!!post.user.group?.icon && (
+              <img
+                alt="icon"
+                src={getResourceUrl(post.user.group.icon)}
+                style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
+              />
+            )}
+          </span>
         </AppLink>
         <span style={{ marginLeft: 12, opacity: 0.6 }}>{formatTimeFriendly(post.created_at)}</span>
         {post.is_sticky ? (

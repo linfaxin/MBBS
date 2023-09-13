@@ -34,5 +34,8 @@ export const UserStatusCanChangeToMap: Record<UserStatus, UserStatus[]> = {
 
 export const DEFAULT_POWER_BY_MARKDOWN = '由 [mbbs.cc](http://mbbs.cc) 提供论坛服务';
 
+/** 论坛管理员 角色ID值，用于设置角色名称/图标 */
+export const GROUP_ID_ADMIN = 6;
+
 /** 游客分组ID值，用于设置游客的权限 */
 export const GROUP_ID_TOURIST = 7;

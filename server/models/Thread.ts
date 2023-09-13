@@ -128,7 +128,7 @@ export class Thread extends Model<Partial<Thread>> {
     return {
       ...this.toJSON(),
       content,
-      user: (await getUser(this.sequelize, this.user_id)).toJSON(),
+      user: await (await getUser(this.sequelize, this.user_id)).toViewJSON(),
       like_count: firstPost?.like_count,
       reply_count: firstPost?.reply_count,
       modified_at: this.modified_at || this.created_at, // 老数据无 modified_at 展示兼容

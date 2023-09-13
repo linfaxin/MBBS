@@ -2,7 +2,7 @@ import { Model, Sequelize, DataTypes, Transactionable } from 'sequelize';
 import { getGroupPermissions, PermissionType } from './GroupPermission';
 import { getUserGroupId, setUserGroupId } from './GroupUser';
 import { createModelCache } from '../utils/model-cache';
-import { GROUP_ID_TOURIST } from '../routes/bbs/const';
+import { GROUP_ID_ADMIN, GROUP_ID_TOURIST } from '../routes/bbs/const';
 import { getGroupById, Group } from './Group';
 import { getThreadModel, NormalThreadFilter } from './Thread';
 import { getPostModel } from './Post';
@@ -79,6 +79,7 @@ export class User extends Model<Partial<User>> {
   updated_at: Date;
   /** 获取当前用户的 分组id */
   async getGroupId(): Promise<number> {
+    if (await this.isAdmin()) return GROUP_ID_ADMIN;
     return getUserGroupId(this.sequelize, this.id);
   }
   /** 设置当前用户的 分组id */
@@ -148,11 +149,10 @@ export class User extends Model<Partial<User>> {
     let group: Partial<Group>;
     if (await this.isAdmin()) {
       group = { name: '论坛管理员' };
-    } else {
-      const groupId = await this.getGroupId();
-      if (groupId) {
-        group = (await getGroupById(this.sequelize, groupId))?.toJSON();
-      }
+    }
+    const groupId = await this.getGroupId();
+    if (groupId) {
+      group = (await getGroupById(this.sequelize, groupId))?.toJSON() || group;
     }
     const userJSON = this.toJSON();
     if (showRealEmail) {

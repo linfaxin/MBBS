@@ -70,7 +70,16 @@ const PostCommentList: React.FC<
                 src={getResourceUrl(comment.user.avatar) || require('@/images/default-avatar.png')}
                 style={{ height: 20, width: 20, verticalAlign: 'bottom' }}
               />
-              <span style={{ marginLeft: 4 }}>{comment.user.nickname || comment.user.username}</span>
+              <span style={{ marginLeft: 4 }}>
+                {comment.user.nickname || comment.user.username}
+                {!!comment.user.group?.icon && (
+                  <img
+                    alt="icon"
+                    src={getResourceUrl(comment.user.group.icon)}
+                    style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
+                  />
+                )}
+              </span>
             </AppLink>
             {comment.comment_user ? (
               <>
@@ -81,7 +90,16 @@ const PostCommentList: React.FC<
                     src={getResourceUrl(comment.comment_user.avatar) || require('@/images/default-avatar.png')}
                     style={{ height: 20, width: 20, verticalAlign: 'bottom' }}
                   />
-                  <span style={{ marginLeft: 4 }}>{comment.comment_user.nickname || comment.comment_user.username}</span>
+                  <span style={{ marginLeft: 4 }}>
+                    {comment.comment_user.nickname || comment.comment_user.username}
+                    {!!comment.comment_user.group?.icon && (
+                      <img
+                        alt="icon"
+                        src={getResourceUrl(comment.comment_user.group.icon)}
+                        style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
+                      />
+                    )}
+                  </span>
                 </AppLink>
               </>
             ) : null}

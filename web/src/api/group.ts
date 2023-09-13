@@ -1,12 +1,14 @@
-/** 角色 */
 import fetchApi from '@/api/base/fetch';
 
+/** 角色 */
 export interface Group {
-  /** 分组ID */
+  /** 角色ID */
   id: number;
-  /** 分组名称 */
+  /** 角色名称 */
   name: string;
-  /** 是否为用户注册时的默认分组 */
+  /** 角色图标 */
+  icon: string;
+  /** 是否为用户注册时的默认角色 */
   default: boolean;
   /** 创建时间 */
   created_at: string;
@@ -16,7 +18,7 @@ export interface Group {
 
 let listGroupCache: null | Promise<Group[]>;
 
-/** 列出所有分组 */
+/** 列出所有角色 */
 export async function listGroup(ignoreCache = false) {
   if (ignoreCache || !listGroupCache) {
     listGroupCache = fetchApi('group/listGroup')
@@ -29,7 +31,7 @@ export async function listGroup(ignoreCache = false) {
   return listGroupCache;
 }
 
-/** 添加分组 */
+/** 添加角色 */
 export async function addGroup(groupName: string): Promise<Group> {
   return fetchApi({
     pathOrUrl: 'group/addGroup',
@@ -43,14 +45,15 @@ export async function addGroup(groupName: string): Promise<Group> {
   });
 }
 
-/** 修改分组名称 */
-export async function setGroupName(groupId: number | string, groupName: string): Promise<Group> {
+/** 修改角色 */
+export async function setGroup(groupId: number | string, fields: Partial<Group>): Promise<Group> {
   return fetchApi({
     pathOrUrl: 'group/setGroup',
     method: 'post',
     data: {
       group_id: groupId,
-      group_name: groupName,
+      group_name: fields?.name,
+      group_icon: fields?.icon,
     },
   }).then((resp) => {
     listGroupCache = null;
@@ -58,7 +61,7 @@ export async function setGroupName(groupId: number | string, groupName: string):
   });
 }
 
-/** 设置分组为 新用户默认分组 */
+/** 设置角色为 新用户默认角色 */
 export async function setGroupIsDefault(groupId: number | string): Promise<Group> {
   return fetchApi({
     pathOrUrl: 'group/setGroup',
@@ -73,7 +76,7 @@ export async function setGroupIsDefault(groupId: number | string): Promise<Group
   });
 }
 
-/** 删除一个分组 */
+/** 删除一个角色 */
 export function removeGroup(groupId: string | number): Promise<void> {
   return fetchApi({
     pathOrUrl: 'group/removeGroup',

@@ -2,13 +2,15 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import { createModelCache } from '../utils/model-cache';
 
 /**
- * 用户分组模型
+ * 用户角色模型
  */
 export class Group extends Model<Partial<Group>> {
   id: number;
-  /** 分组名称 */
+  /** 角色名称 */
   name: string;
-  /** 是否为用户注册时的默认分组 */
+  /** 角色图标 */
+  icon: string;
+  /** 是否为用户注册时的默认角色 */
   default: boolean;
   /** 创建时间 */
   created_at: Date;
@@ -84,6 +86,9 @@ export async function getGroupModel(db: Sequelize): Promise<typeof Group> {
         type: DataTypes.TEXT,
         allowNull: false,
         unique: true,
+      },
+      icon: {
+        type: DataTypes.TEXT,
       },
       default: {
         type: DataTypes.BOOLEAN,

@@ -3,7 +3,7 @@ import { v4 as uuidV4 } from 'uuid';
 import * as LRUCache from 'lru-cache';
 import { Request } from 'express';
 import * as dayjs from 'dayjs';
-import { DB_NAME, DBDataDir, GROUP_ID_DEFAULT, GROUP_ID_TOURIST } from '../routes/bbs/const';
+import { DB_NAME, DBDataDir, GROUP_ID_ADMIN, GROUP_ID_DEFAULT, GROUP_ID_TOURIST } from '../routes/bbs/const';
 import { clearAllModelCache } from '../utils/model-cache';
 import { getUserModel } from './User';
 import { hashPassword } from '../utils/password-util';
@@ -128,8 +128,13 @@ export async function createDB(adminPassword: string): Promise<Sequelize> {
     });
     await defaultCategory.save();
 
-    // 创建默认用户分组
+    // 创建初始化角色
     const GroupModel = await getGroupModel(db);
+    await GroupModel.build({
+      id: GROUP_ID_ADMIN,
+      name: '论坛管理员',
+    }).save();
+
     const defaultGroupId = GROUP_ID_DEFAULT;
     const defaultGroup = GroupModel.build({
       id: defaultGroupId,

@@ -195,6 +195,13 @@ const ThreadList: React.FC<
                             }}
                           >
                             {thread.user.nickname || thread.user.username}
+                            {!!thread.user.group?.icon && (
+                              <img
+                                alt="icon"
+                                src={getResourceUrl(thread.user.group.icon)}
+                                style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
+                              />
+                            )}
                           </span>
                           <span
                             style={{

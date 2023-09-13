@@ -13,6 +13,9 @@ export const HEADER_USERID = 'mbbs-userid';
 /** 放于请求头，携带当前用户身份 */
 export const HEADER_TOKEN = 'authorization';
 
+/** admin 角色ID值，可用于设置角色昵称/图标 */
+export const GROUP_ID_ADMIN = 6;
+
 /** 游客分组ID值，可用于设置游客的权限 */
 export const GROUP_ID_TOURIST = 7;
 
