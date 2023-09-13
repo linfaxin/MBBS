@@ -2,10 +2,10 @@ import { BodyParam, Delete, Get, JsonController, Param, Post, QueryParam, Req, U
 import { noop } from 'lodash';
 import * as LRUCache from 'lru-cache';
 import CurrentDB from '../decorators/CurrentDB';
-import { User, UserStatus } from '../../../models/User';
+import { getUser, User, UserStatus } from '../../../models/User';
 import { Op, Sequelize, WhereOptions } from 'sequelize';
 import CurrentUser from '../decorators/CurrentUser';
-import { getGroupPermissions } from '../../../models/GroupPermission';
+import { getGroupPermissions, hasPermission } from '../../../models/GroupPermission';
 import {
   getThread,
   getThreadModel,
@@ -477,6 +477,18 @@ export default class ThreadController {
     if (!filterInCategoryIds.length) {
       if (!currentUser) throw new UIError('游戏无权查看帖子，请先登录');
       throw new UIError('无权查看帖子');
+    }
+
+    if (!categoryId && userId) {
+      const aimUser = await getUser(db, userId);
+      if (!aimUser) throw new UIError('指定用户未找到');
+      // 查看指定用户所有帖子权限 检查
+      const currentUserHasPermission = currentUser
+        ? await currentUser.hasPermission('user.view.threads')
+        : await hasPermission(db, GROUP_ID_TOURIST, 'user.view.threads');
+      if (!currentUserHasPermission) {
+        throw new UIError('无权限查看指定用户的所有帖子');
+      }
     }
 
     const ThreadModel = await getThreadModel(db);

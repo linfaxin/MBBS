@@ -142,6 +142,8 @@ export async function createDB(adminPassword: string): Promise<Sequelize> {
     const GroupPermissionModel = await getGroupPermissionModel(db);
     await GroupPermissionModel.bulkCreate([
       { group_id: defaultGroupId, permission: 'user.view' },
+      { group_id: defaultGroupId, permission: 'user.view.threads' },
+      { group_id: defaultGroupId, permission: 'user.view.posts' },
       { group_id: defaultGroupId, permission: 'viewThreads' },
       { group_id: defaultGroupId, permission: 'createThread' },
       { group_id: defaultGroupId, permission: 'thread.createHiddenContent' },

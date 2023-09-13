@@ -10,7 +10,7 @@ import { getThread, Thread } from '../../../models/Thread';
 import { WrapDataExtraKey } from '../global-interceptors/WrapDataInterceptors';
 import { formatReqIP } from '../../../utils/format-utils';
 import UIError from '../../../utils/ui-error';
-import { hasOneOfPermissions } from '../../../models/GroupPermission';
+import { hasOneOfPermissions, hasPermission } from '../../../models/GroupPermission';
 import { GROUP_ID_TOURIST } from '../const';
 import { getSettingValue } from '../../../models/Settings';
 import dayjs = require('dayjs');
@@ -122,15 +122,13 @@ export default class PostController {
     @QueryParam('page_limit') limit = 20,
     @QueryParam('sort') sort: string, // [keyof Post | `-${keyof Post}`].join(',')
   ) {
+    if (!threadId && !userId && !(await currentUser.isAdmin())) {
+      throw new UIError('无权限查看全站评论');
+    }
     if (threadId) {
       const thread = await getThread(db, threadId);
       if (thread == null) throw new UIError('帖子未找到');
-      const hasPermission = currentUser
-        ? await currentUser.hasOneOfPermissions('thread.viewPosts', `category${thread.category_id}.thread.viewPosts`)
-        : await hasOneOfPermissions(db, GROUP_ID_TOURIST, 'thread.viewPosts', `category${thread.category_id}.thread.viewPosts`);
-      if (!hasPermission) {
-        throw new UIError('无权限查看评论');
-      }
+      // 帖子评论关闭 检查
       if (thread.disable_post) throw new UIError('当前帖子已关闭评论功能');
       if (thread.disable_post === null) {
         const category = await getCategoryById(db, thread.category_id);
@@ -138,7 +136,26 @@ export default class PostController {
           throw new UIError('当前板块已关闭评论功能');
         }
       }
+      // 用户查看评论权限 检查
+      const hasPermission = currentUser
+        ? await currentUser.hasOneOfPermissions('thread.viewPosts', `category${thread.category_id}.thread.viewPosts`)
+        : await hasOneOfPermissions(db, GROUP_ID_TOURIST, 'thread.viewPosts', `category${thread.category_id}.thread.viewPosts`);
+      if (!hasPermission) {
+        throw new UIError('无权限查看评论');
+      }
     }
+    if (!threadId && userId) {
+      const aimUser = await getUser(db, userId);
+      if (!aimUser) throw new UIError('指定用户未找到');
+      // 权限检查：查看指定用户所有评论
+      const currentUserHasPermission = currentUser
+        ? await currentUser.hasPermission('user.view.posts')
+        : await hasPermission(db, GROUP_ID_TOURIST, 'user.view.posts');
+      if (!currentUserHasPermission) {
+        throw new UIError('无权限查看指定用户的所有评论');
+      }
+    }
+
     const PostModel = await getPostModel(db);
     const whereOption: WhereOptions<Partial<PostClass>> = {
       ...(threadId ? { thread_id: threadId } : {}),
@@ -191,6 +208,20 @@ export default class PostController {
     @QueryParam('page_limit') limit = 20,
     @QueryParam('sort') sort: string, // [keyof Post | `-${keyof Post}`].join(',')
   ) {
+    if (!postId && !userId && !(await currentUser.isAdmin())) {
+      throw new UIError('无权限查看全站回复');
+    }
+    if (!postId && userId) {
+      const aimUser = await getUser(db, userId);
+      if (!aimUser) throw new UIError('指定用户未找到');
+      // 权限检查：查看指定用户所有评论
+      const currentUserHasPermission = currentUser
+        ? await currentUser.hasPermission('user.view.posts')
+        : await hasPermission(db, GROUP_ID_TOURIST, 'user.view.posts');
+      if (!currentUserHasPermission) {
+        throw new UIError('无权限查看指定用户的所有回复');
+      }
+    }
     const PostModel = await getPostModel(db);
     const whereOption: WhereOptions<Partial<PostClass>> = {
       ...(postId ? { reply_post_id: postId } : {}),

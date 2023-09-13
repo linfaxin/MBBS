@@ -41,7 +41,7 @@ const PermissionScopeRadio: React.FC<
   const selectCategories = useMemo(() => (Array.isArray(value) ? value : []), [value]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 'none', paddingLeft: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 'none', paddingLeft: 1, minWidth: 120 }}>
       <RadioGroup
         {...otherProps}
         sx={{
@@ -67,7 +67,7 @@ const PermissionScopeRadio: React.FC<
           label={<Typography pl={1}>{isCategoryPermission ? '全局允许' : '允许'}</Typography>}
         />
         {isCategoryPermission && (
-          <FormControlLabel value="2" control={<Radio size="small" sx={{ p: 0 }} />} label={<Typography pl={1}>指定版块允许</Typography>} />
+          <FormControlLabel value="2" control={<Radio size="small" sx={{ p: 0 }} />} label={<Typography pl={1}>仅指定版块</Typography>} />
         )}
       </RadioGroup>
       {Array.isArray(value) && (

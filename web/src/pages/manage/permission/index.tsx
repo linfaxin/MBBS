@@ -52,7 +52,19 @@ const PermissionPage = () => {
           <ListItem>
             <ListItemText primary="查看其他用户信息" />
             <Field name="user.view" initialValue={permissions.includes('user.view')}>
-              <PermissionScopeRadio />
+              <PermissionScopeRadio isCategoryPermission={false} />
+            </Field>
+          </ListItem>
+          <ListItem>
+            <ListItemText primary="查看指定用户所有帖子" />
+            <Field name="user.view.threads" initialValue={permissions.includes('user.view.threads')}>
+              <PermissionScopeRadio isCategoryPermission={false} />
+            </Field>
+          </ListItem>
+          <ListItem>
+            <ListItemText primary="查看指定用户所有评论/回复" />
+            <Field name="user.view.posts" initialValue={permissions.includes('user.view.posts')}>
+              <PermissionScopeRadio isCategoryPermission={false} />
             </Field>
           </ListItem>
         </List>
