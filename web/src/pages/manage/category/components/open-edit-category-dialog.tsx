@@ -1,6 +1,6 @@
 import React from 'react';
 import OpenAlertDialog, { OpenAlertDialogProps } from '@/components/open-alert-dialog';
-import { Box, TextField, Switch, FormControlLabel, MenuItem } from '@mui/material';
+import { Box, TextField, Switch, FormControlLabel, MenuItem, Button } from '@mui/material';
 import doTaskWithUI from '@/utils/do-task-with-ui';
 import Form, { Field } from 'rc-field-form';
 import { FormInstance } from 'rc-field-form/es/interface';
@@ -42,6 +42,7 @@ const OpenEditCategoryDialog: React.FC<
                   >
                     上传新图标
                   </UploadResourceButton>
+                  {form.getFieldValue('icon') && <Button onClick={() => form.setFieldsValue({ icon: '' })}>删除</Button>}
                 </Box>
               )}
             </Field>
