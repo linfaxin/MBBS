@@ -240,7 +240,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
           />
         )}
       </Box>
-      {thread?.can_view_posts && (
+      {thread?.can_view_posts ? (
         <PostList
           queryParam={{ thread_id: threadId }}
           listReloadKey={postListReloadKey}
@@ -259,6 +259,10 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
             ) : null
           }
         />
+      ) : (
+        <Typography textAlign="center" p={2} fontSize="smaller" sx={{ opacity: 0.5 }}>
+          共 {thread?.post_count || ''} 条评论，无查看权限
+        </Typography>
       )}
       <Box sx={{ height: 56 }} />
       <ButtonGroup
