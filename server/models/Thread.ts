@@ -145,6 +145,27 @@ export class Thread extends Model<Partial<Thread>> {
         : await hasOneOfPermissions(this.sequelize, GROUP_ID_TOURIST, 'thread.viewPosts', `category${this.category_id}.thread.viewPosts`),
     };
   }
+  async canDeleteByUser(user: User) {
+    let hasPermission = false;
+    if (this.user_id === user.id) {
+      // 删除自己的帖子
+      hasPermission =
+        this.is_draft ||
+        (await user.hasPermission('thread.hideOwnThread')) ||
+        (await user.hasPermission(`category${this.category_id}.thread.hideOwnThread`));
+    }
+    if (!hasPermission) {
+      // 管理员权限
+      hasPermission = await user.hasOneOfPermissions('thread.hide', `category${this.category_id}.thread.hide`);
+    }
+    return hasPermission;
+  }
+  async deleteByUser(user: User) {
+    this.deleted_user_id = user.id;
+    this.deleted_at = new Date();
+    this.is_sticky = false; // 删除时，同步取消置顶
+    await this.saveAndUpdateThreadCount();
+  }
   async saveAndUpdateThreadCount(options?: SaveOptions<Partial<Thread>>) {
     await this.save(options);
     try {

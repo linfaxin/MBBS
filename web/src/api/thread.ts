@@ -191,6 +191,15 @@ export async function deleteThread(threadId: number | string): Promise<void> {
   });
 }
 
+/** 批量删除 帖子 */
+export function batchDelete(thread_ids: Array<number | string>): Promise<{ sucIds: number[] }> {
+  return fetchApi({
+    pathOrUrl: 'threads/batchDelete',
+    method: 'post',
+    data: { ids: thread_ids.join(',') },
+  }).then((resp) => resp.data);
+}
+
 /** 撤销删除帖子 */
 export async function restoreDeleteThread(threadId: number | string): Promise<void> {
   await fetchApi({

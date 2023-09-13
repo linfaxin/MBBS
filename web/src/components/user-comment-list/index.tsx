@@ -104,18 +104,18 @@ const UserPostCommentList: React.FC<
                   {
                     label: (
                       <div>
-                        <div>删除当前列表中{commentList.length}条回复</div>
+                        <div>删除显示的 {commentList.length} 条回复</div>
                         <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅 admin 可见</div>
                       </div>
                     ),
                     onClick: () => {
                       showConfirm({
                         title: '删除确认',
-                        message: `确认删除当前显示列表中的 ${commentList.length} 条回复吗？`,
+                        message: `确认删除当前列表显示中的 ${commentList.length} 条回复吗？`,
                         onOkErrorAlert: true,
                         onOk: async () => {
-                          await postApi.batchDeletePosts(commentList.map((p) => p.id));
-                          showSnackbar(`已删除 ${commentList.length} 条回复`);
+                          const { sucIds } = await postApi.batchDeletePosts(commentList.map((p) => p.id));
+                          showSnackbar(`已删除 ${sucIds.length} 条回复`);
                           setListReloadKeyId((prev) => prev + 1);
                         },
                       });

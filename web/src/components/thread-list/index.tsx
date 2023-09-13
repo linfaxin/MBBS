@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 import AppPageList, { PageListProps } from '@/components/app-page-list';
 import { ListThreadParam, Thread, ThreadSortKey } from '@/api/thread';
 import {
@@ -25,12 +25,10 @@ import { getResourceUrl } from '@/utils/resource-url';
 import { formatTimeFriendly } from '@/utils/format-util';
 import { getPageStateWhenPop, setPageState, usePageState } from '@/utils/use-page-history-hooks';
 import OpenPromptDialog from '@/components/open-prompt-dialog';
-import { useRequest } from 'ahooks';
+import { useRequest, useUpdateEffect } from 'ahooks';
 import style from './index.less';
 import { hasViewThread } from '@/utils/view-thread-records-util';
 import ShowThreadContentMatchKeywords from './show-thread-content-match-keywords';
-
-let listReloadKeyIdNext = 0;
 
 const ThreadList: React.FC<
   Partial<PageListProps> & {
@@ -39,9 +37,19 @@ const ThreadList: React.FC<
     showCategoryName?: boolean;
     onClickThread?: (thread: Thread) => void;
     renderActions?: (thread: Thread, reRender: () => void) => React.ReactNode;
+    renderAfterListTitleThreadCount?: (threads: Thread[], reLoad: () => void) => React.ReactNode;
   }
 > = (props) => {
-  const { queryParam, listReloadKey, enablePullRefreshLoad = true, showCategoryName, onClickThread, renderActions, ...listProps } = props;
+  const {
+    queryParam,
+    listReloadKey,
+    enablePullRefreshLoad = true,
+    showCategoryName,
+    onClickThread,
+    renderActions,
+    renderAfterListTitleThreadCount,
+    ...listProps
+  } = props;
   const isWidthUpDM = useScreenWidthUpMD();
   const theme = useTheme();
   const [sort, setSort] = usePageState<ThreadSortKey>(
@@ -53,7 +61,10 @@ const ThreadList: React.FC<
   const [threadList, setThreadList] = usePageState<Thread[]>('thread-list', []);
   const forceUpdate = () => setThreadList([...threadList]);
   const { data: categories } = useRequest(() => categoryApi.listCategory());
-  const listReloadKeyId = useMemo(() => listReloadKeyIdNext++, [listReloadKey]);
+  const [listReloadKeyId, setListReloadKeyId] = useState(0);
+  useUpdateEffect(() => {
+    setListReloadKeyId((prev) => prev + 1);
+  }, [listReloadKey]);
 
   const loadPage = async (pageNo: number) => {
     if (pageNo === 1) setThreadList([]);
@@ -113,6 +124,7 @@ const ThreadList: React.FC<
             帖子数：{totalCount}
             {keywords ? `(搜索：${keywords})` : ''}
           </Typography>
+          {renderAfterListTitleThreadCount?.(threadList, () => setListReloadKeyId((prev) => prev + 1))}
           <div style={{ flex: 1 }} />
           <Select
             size="small"

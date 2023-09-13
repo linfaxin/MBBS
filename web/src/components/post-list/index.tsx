@@ -120,18 +120,18 @@ const PostList: React.FC<
                   {
                     label: (
                       <div>
-                        <div>删除当前列表中{postList.length}条评论</div>
+                        <div>删除显示的 {postList.length} 条评论</div>
                         <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅 admin 可见</div>
                       </div>
                     ),
                     onClick: () => {
                       showConfirm({
                         title: '删除确认',
-                        message: `确认删除当前显示列表中的 ${postList.length} 条评论吗？`,
+                        message: `确认删除当前列表显示中的 ${postList.length} 条评论吗？`,
                         onOkErrorAlert: true,
                         onOk: async () => {
-                          await postApi.batchDeletePosts(postList.map((p) => p.id));
-                          showSnackbar(`已删除 ${postList.length} 条评论`);
+                          const { sucIds } = await postApi.batchDeletePosts(postList.map((p) => p.id));
+                          showSnackbar(`已删除 ${sucIds.length} 条评论`);
                           setListReloadKeyId((prev) => prev + 1);
                         },
                       });

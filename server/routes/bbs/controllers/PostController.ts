@@ -381,17 +381,28 @@ export default class PostController {
     @CurrentDB() db: Sequelize,
     @BodyParam('ids') ids: string,
   ) {
-    const posts = await Promise.all(ids.split(',').map((id) => getPost(db, parseInt(id))));
+    const posts = (await Promise.all(ids.split(',').map((id) => getPost(db, parseInt(id))))).filter(Boolean);
+    const result = {
+      sucIds: [] as number[],
+      failIds: [] as number[],
+    };
     for (const post of posts) {
-      if (!(await post.canHideByUser(currentUser))) {
-        throw new UIError(`无权删除(id: ${post.id})`);
+      try {
+        if (await post.canHideByUser(currentUser)) {
+          await post.delete();
+          result.sucIds.push(post.id);
+          userDeletePostLogger.log({ postId: post.id });
+        } else {
+          result.failIds.push(post.id);
+        }
+      } catch (e) {
+        result.failIds.push(post.id);
       }
     }
-    for (const post of posts) {
-      await post.delete();
-      userDeletePostLogger.log({ postId: post.id });
+    if (result.sucIds.length === 0 && result.failIds.length > 0) {
+      throw new UIError('删除失败');
     }
-    return true;
+    return result;
   }
 
   /** 获取一条 评论/回复 详情 */

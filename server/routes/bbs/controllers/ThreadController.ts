@@ -563,6 +563,37 @@ export default class ThreadController {
     return thread.toViewJSON(currentUser);
   }
 
+  @Post('/batchDelete')
+  async batchDelete(
+    @ReqLog('user_delete_thread.json.log') userDeleteThreadLogger: ReqLogger,
+    @CurrentUser({ required: true }) currentUser: User,
+    @CurrentDB() db: Sequelize,
+    @BodyParam('ids') ids: string,
+  ) {
+    const threads = (await Promise.all(ids.split(',').map((id) => getThread(db, parseInt(id))))).filter(Boolean);
+    const result = {
+      sucIds: [] as number[],
+      failIds: [] as number[],
+    };
+    for (const thread of threads) {
+      try {
+        if (await thread.canDeleteByUser(currentUser)) {
+          await thread.deleteByUser(currentUser);
+          result.sucIds.push(thread.id);
+          userDeleteThreadLogger.log({ threadId: thread.id });
+        } else {
+          result.failIds.push(thread.id);
+        }
+      } catch (e) {
+        result.failIds.push(thread.id);
+      }
+    }
+    if (result.sucIds.length === 0 && result.failIds.length > 0) {
+      throw new UIError('删除失败');
+    }
+    return result;
+  }
+
   @Get('/:id')
   async getById(
     @ReqLog('user_view_thread.json.log') userViewThreadLogger: ReqLogger,
@@ -750,25 +781,10 @@ export default class ThreadController {
   ) {
     const thread = await getThread(db, id);
     if (thread == null) throw new UIError('帖子未找到');
-    let hasPermission;
-    if (thread.user_id === currentUser.id) {
-      // 删除自己的帖子
-      hasPermission =
-        thread.is_draft ||
-        (await currentUser.hasPermission('thread.hideOwnThread')) ||
-        (await currentUser.hasPermission(`category${thread.category_id}.thread.hideOwnThread`));
+    if (!(await thread.canDeleteByUser(currentUser))) {
+      throw new UIError('无权删除帖子');
     }
-    if (!hasPermission) {
-      // 管理员权限
-      hasPermission =
-        (await currentUser.hasPermission('thread.hide')) || (await currentUser.hasPermission(`category${thread.category_id}.thread.hide`));
-    }
-    if (!hasPermission) throw new UIError('无权删除帖子');
-
-    thread.deleted_user_id = currentUser.id;
-    thread.deleted_at = new Date();
-    thread.is_sticky = false; // 删除时，同步取消置顶
-    await thread.saveAndUpdateThreadCount();
+    await thread.deleteByUser(currentUser);
 
     userDeleteThreadLogger.log({ threadId: id });
     return true;
