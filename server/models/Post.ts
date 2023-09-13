@@ -86,6 +86,55 @@ export class Post extends Model<Partial<Post>> {
     }
     return hasPermission;
   }
+  async updatePostReplyCount() {
+    const PostModel = await getPostModel(this.sequelize);
+    if (this.is_first) {
+      // 是帖子评论
+      this.reply_count = await PostModel.count({
+        where: {
+          thread_id: this.thread_id,
+          is_first: false,
+          is_approved: true,
+          is_comment: false,
+        },
+      });
+      // 同时更新 thread 的 post_count
+      const thread = await getThread(this.sequelize, this.thread_id);
+      thread.post_count = this.reply_count;
+      await thread.save();
+    } else {
+      // 是评论回复
+      this.reply_count = await PostModel.count({
+        where: {
+          reply_post_id: this.id,
+          is_first: false,
+          is_approved: true,
+          is_comment: true,
+        },
+      });
+    }
+    await this.save();
+  }
+  async delete() {
+    await this.destroy();
+
+    if (this.reply_post_id && this.is_comment) {
+      const replyPost = await getPost(this.sequelize, this.reply_post_id);
+      if (replyPost) {
+        await replyPost.updatePostReplyCount();
+      }
+    } else {
+      const thread = await getThread(this.sequelize, this.thread_id);
+      const threadFirstPost = await getPost(this.sequelize, thread.first_post_id);
+      if (threadFirstPost) {
+        await threadFirstPost.updatePostReplyCount();
+      }
+
+      // 更新用户回复数量
+      const postUser = await getUser(this.sequelize, this.user_id);
+      await postUser.updatePostCount();
+    }
+  }
   async toViewJSON(viewUser: User) {
     const thread = await getThread(this.sequelize, this.thread_id);
     if (thread == null) throw new NotFoundError('帖子未找到');

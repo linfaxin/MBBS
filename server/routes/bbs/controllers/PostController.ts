@@ -23,36 +23,6 @@ import CurrentDomain from '../decorators/CurrentDomain';
 
 @JsonController('/posts')
 export default class PostController {
-  private async updatePostReplyCount(post: PostClass) {
-    const PostModel = await getPostModel(post.sequelize);
-    if (post.is_first) {
-      // 是帖子评论
-      post.reply_count = await PostModel.count({
-        where: {
-          thread_id: post.thread_id,
-          is_first: false,
-          is_approved: true,
-          is_comment: false,
-        },
-      });
-      // 同时更新 thread 的 post_count
-      const thread = await getThread(post.sequelize, post.thread_id);
-      thread.post_count = post.reply_count;
-      await thread.save();
-    } else {
-      // 是评论回复
-      post.reply_count = await PostModel.count({
-        where: {
-          reply_post_id: post.id,
-          is_first: false,
-          is_approved: true,
-          is_comment: true,
-        },
-      });
-    }
-    await post.save();
-  }
-
   /** 点赞一个评论 */
   @Post('/setLike')
   async setLike(
@@ -304,7 +274,7 @@ export default class PostController {
       is_approved: true,
       content,
     });
-    await this.updatePostReplyCount(threadFirstPost);
+    await threadFirstPost.updatePostReplyCount();
 
     await currentUser.updatePostCount();
     thread.posted_at = new Date();
@@ -370,7 +340,7 @@ export default class PostController {
       is_approved: true,
       content,
     });
-    await this.updatePostReplyCount(post);
+    await post.updatePostReplyCount();
     thread.posted_at = new Date();
     await thread.save();
     userCreateCommentLogger.log({ postId, commentPostId, contentLength: content.length, content: content.substr(0, 100) });
@@ -401,6 +371,27 @@ export default class PostController {
     }
 
     return newCommentPost.toViewJSON(currentUser);
+  }
+
+  /** 批量删除 评论/回复 */
+  @Post('/batchDeletePosts')
+  async batchDeletePosts(
+    @ReqLog('user_delete_post.json.log') userDeletePostLogger: ReqLogger,
+    @CurrentUser({ required: true }) currentUser: User,
+    @CurrentDB() db: Sequelize,
+    @BodyParam('ids') ids: string,
+  ) {
+    const posts = await Promise.all(ids.split(',').map((id) => getPost(db, parseInt(id))));
+    for (const post of posts) {
+      if (!(await post.canHideByUser(currentUser))) {
+        throw new UIError(`无权删除(id: ${post.id})`);
+      }
+    }
+    for (const post of posts) {
+      await post.delete();
+      userDeletePostLogger.log({ postId: post.id });
+    }
+    return true;
   }
 
   /** 获取一条 评论/回复 详情 */
@@ -449,24 +440,7 @@ export default class PostController {
     if (!(await post.canHideByUser(currentUser))) {
       throw new UIError('无权删除');
     }
-    await post.destroy();
-
-    if (post.reply_post_id && post.is_comment) {
-      const replyPost = await getPost(db, post.reply_post_id);
-      if (replyPost) {
-        await this.updatePostReplyCount(replyPost);
-      }
-    } else {
-      const thread = await getThread(db, post.thread_id);
-      const threadFirstPost = await getPost(db, thread.first_post_id);
-      if (threadFirstPost) {
-        await this.updatePostReplyCount(threadFirstPost);
-      }
-
-      // 更新用户回复数量
-      const postUser = await getUser(db, post.user_id);
-      await postUser.updatePostCount();
-    }
+    await post.delete();
 
     userDeletePostLogger.log({ postId: id });
     return true;

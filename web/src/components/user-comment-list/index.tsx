@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
+import { useUpdateEffect } from 'ahooks';
 import AppPageList, { PageListProps } from '@/components/app-page-list';
 import { Box, Button, Card, Divider, IconButton, MenuItem, Select, Typography, useTheme } from '@mui/material';
 import { postApi } from '@/api';
@@ -8,7 +9,7 @@ import { formatTimeFriendly } from '@/utils/format-util';
 import { getPageStateWhenPop, setPageState, usePageState } from '@/utils/use-page-history-hooks';
 import { history } from 'umi';
 import { Post, PostSortKey } from '@/api/post';
-import { showConfirm } from '@/utils/show-alert';
+import { showConfirm, showErrorAlert } from '@/utils/show-alert';
 import OpenPopoverMenu from '@/components/open-popover-menu';
 import showPromptDialog from '@/utils/show-prompt-dialog';
 import ApiUI from '@/api-ui';
@@ -17,8 +18,7 @@ import style from '@/components/post-list/index.less';
 import showSnackbar from '@/utils/show-snackbar';
 import OpenPromptDialog from '@/components/open-prompt-dialog';
 import SearchIcon from '@mui/icons-material/Search';
-
-let listReloadKeyIdNext = 0;
+import { useModel } from '@@/plugin-model/useModel';
 
 const UserPostCommentList: React.FC<
   Partial<PageListProps> & {
@@ -26,11 +26,17 @@ const UserPostCommentList: React.FC<
   }
 > = (props) => {
   const { userId, listReloadKey, ...listProps } = props;
+  const loginUserModel = useModel('useLoginUser');
   const [totalCount, setTotalCount] = usePageState<number>(`user-post-comment-list-${userId}.totalCount`);
   const [commentList, setCommentList] = usePageState<Post[]>(`user-post-comment-list-${userId}`, []);
   const [sort, setSort] = usePageState<PostSortKey>('user-post-comment-list.sort', '-created_at');
   const [keywords, setKeywords] = usePageState<string>('user-post-comment-list.keywords', '');
-  const listReloadKeyId = useMemo(() => listReloadKeyIdNext++, [listReloadKey]);
+  const [listReloadKeyId, setListReloadKeyId] = useState(0);
+
+  useUpdateEffect(() => {
+    setListReloadKeyId((prev) => prev + 1);
+  }, [listReloadKey]);
+
   const isWidthUpDM = useScreenWidthUpMD();
   const theme = useTheme();
 
@@ -92,6 +98,29 @@ const UserPostCommentList: React.FC<
               回复数：{totalCount}
               {keywords ? `(搜索：${keywords})` : ''}
             </Typography>
+            {loginUserModel.user?.username === 'admin' && (
+              <OpenPopoverMenu
+                options={[
+                  {
+                    label: (
+                      <div>
+                        <div>删除当前列表中{commentList.length}条回复</div>
+                        <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅 admin 可见</div>
+                      </div>
+                    ),
+                    onClick: async () => {
+                      try {
+                        await postApi.batchDeletePosts(commentList.map((p) => p.id));
+                        showSnackbar(`已删除 ${commentList.length} 条回复`);
+                        setListReloadKeyId((prev) => prev + 1);
+                      } catch (e: any) {
+                        showErrorAlert(e?.message || String(e));
+                      }
+                    },
+                  },
+                ]}
+              />
+            )}
             <div style={{ flex: 1 }} />
             <Select
               size="small"

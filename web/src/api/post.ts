@@ -149,6 +149,15 @@ export function deletePost(post_id: number | string): Promise<void> {
   }).then(() => {});
 }
 
+/** 批量删除 帖子/回复 */
+export function batchDeletePosts(post_ids: Array<number | string>): Promise<void> {
+  return fetchApi({
+    pathOrUrl: 'posts/batchDeletePosts',
+    method: 'post',
+    data: { ids: post_ids.join(',') },
+  }).then(() => {});
+}
+
 /** 点赞/取消点赞 一条评论/回复 */
 export function setLike(param: { post_id: number | string; is_like: boolean }): Promise<void> {
   return fetchApi({

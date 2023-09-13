@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
+import { useUpdateEffect } from 'ahooks';
 import AppPageList, { PageListProps } from '@/components/app-page-list';
 import PageList from 'rmc-pagelist';
 import { Box, Button, Card, Divider, IconButton, MenuItem, Select, Typography, useTheme } from '@mui/material';
@@ -10,8 +11,10 @@ import { ListPostParam, Post, PostSortKey } from '@/api/post';
 import OpenPromptDialog from '@/components/open-prompt-dialog';
 import PostItem from '@/components/post-list/post-item';
 import style from './index.less';
-
-let listReloadKeyIdNext = 0;
+import OpenPopoverMenu from '@/components/open-popover-menu';
+import { useModel } from '@@/plugin-model/useModel';
+import showSnackbar from '@/utils/show-snackbar';
+import { showErrorAlert } from '@/utils/show-alert';
 
 const PostList: React.FC<
   Partial<PageListProps> & {
@@ -21,6 +24,7 @@ const PostList: React.FC<
   }
 > = (props) => {
   const { queryParam, listReloadKey, enablePullRefreshLoad, renderExtraActions, ...listProps } = props;
+  const loginUserModel = useModel('useLoginUser');
   const isWidthUpDM = useScreenWidthUpMD();
   const theme = useTheme();
   const [sort, setSort] = usePageState<PostSortKey>(
@@ -30,7 +34,10 @@ const PostList: React.FC<
   const [totalCount, setTotalCount] = usePageState<number>('post-list.totalCount');
   const [postList, setPostList] = usePageState<Post[]>('post-list', []);
   const [keywords, setKeywords] = usePageState<string>('post-list.keywords', '');
-  const listReloadKeyId = useMemo(() => listReloadKeyIdNext++, [listReloadKey]);
+  const [listReloadKeyId, setListReloadKeyId] = useState(0);
+  useUpdateEffect(() => {
+    setListReloadKeyId((prev) => prev + 1);
+  }, [listReloadKey]);
 
   const loadPage = async (pageNo: number) => {
     if (pageNo === 1) setPostList([]);
@@ -107,6 +114,29 @@ const PostList: React.FC<
               评论数：{totalCount}
               {keywords ? `(搜索：${keywords})` : ''}
             </Typography>
+            {loginUserModel.user?.username === 'admin' && (
+              <OpenPopoverMenu
+                options={[
+                  {
+                    label: (
+                      <div>
+                        <div>删除当前列表中{postList.length}条评论</div>
+                        <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅 admin 可见</div>
+                      </div>
+                    ),
+                    onClick: async () => {
+                      try {
+                        await postApi.batchDeletePosts(postList.map((p) => p.id));
+                        showSnackbar(`已删除 ${postList.length} 条评论`);
+                        setListReloadKeyId((prev) => prev + 1);
+                      } catch (e: any) {
+                        showErrorAlert(e?.message || String(e));
+                      }
+                    },
+                  },
+                ]}
+              />
+            )}
             <div style={{ flex: 1 }} />
             <Select
               size="small"
