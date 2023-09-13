@@ -26,7 +26,7 @@ const ManageCategory = () => {
       <Typography variant="h5" p={2}>
         角色列表
       </Typography>
-      <List sx={{ background: theme.palette.background.paper }}>
+      <List sx={{ background: theme.palette.background.paper }} disablePadding>
         {groupAdmin && (
           <ListItem divider>
             <ListItemText
@@ -83,8 +83,8 @@ const ManageCategory = () => {
         </ListItem>
         {(groups || [])
           .filter((p) => p.id !== GROUP_ID_ADMIN)
-          .map((group, index) => (
-            <ListItem key={index} divider={index < (groups || []).length - 1}>
+          .map((group, index, arr) => (
+            <ListItem key={index} divider={index < arr.length - 1}>
               <ListItemText
                 primary={
                   <>
