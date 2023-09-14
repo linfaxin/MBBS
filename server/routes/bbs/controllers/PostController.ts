@@ -506,10 +506,20 @@ export default class PostController {
     // 短时间评论/回复频率过快拦截
     if (canCreate && !(await currentUser.isAdmin())) {
       const createdPostsCountIn3Mins = await getUserCreatePostCountInTimes(db, currentUser.id, [Date.now() - 3 * 60 * 1000, Date.now()]);
-      if (createdPostsCountIn3Mins >= 20) {
-        // 3分钟内 限制最多评论/回复 20条
+      if (createdPostsCountIn3Mins >= 15) {
+        // 3分钟内 限制最多评论/回复 15 条
         canCreate = false;
         cantCreateReason = '回复频率过快，请稍后再试';
+      } else {
+        const createdPostsCountIn20Mins = await getUserCreatePostCountInTimes(db, currentUser.id, [
+          Date.now() - 20 * 60 * 1000,
+          Date.now(),
+        ]);
+        if (createdPostsCountIn20Mins >= 50) {
+          // 20分钟 限制最多评论/回复 50条
+          canCreate = false;
+          cantCreateReason = '回复频率过快，请稍后再试';
+        }
       }
     }
 
