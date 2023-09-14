@@ -156,18 +156,23 @@ const ThreadList: React.FC<
                   <ListItemText
                     primary={
                       <>
-                        {thread.is_sticky ? <Chip size="small" label="顶" sx={{ marginRight: 0.6 }} /> : null}
-                        {thread.is_essence ? <Chip size="small" label="精" sx={{ marginRight: 0.6 }} /> : null}
                         <Typography
                           style={{
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            flex: '1',
-                            width: 0,
-                            wordBreak: 'keep-all',
                             opacity: hasViewThread(thread.id) ? 0.6 : 1,
+                            wordBreak: 'break-all',
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 2,
                           }}
                         >
+                          {thread.is_sticky ? (
+                            <Chip size="small" label="顶" sx={{ marginRight: 0.6, verticalAlign: 'top' }} component="span" />
+                          ) : null}
+                          {thread.is_essence ? (
+                            <Chip size="small" label="精" sx={{ marginRight: 0.6, verticalAlign: 'top' }} component="span" />
+                          ) : null}
                           {keywords
                             ? thread.title.split(keywords).map((w, index, arr) =>
                                 index > 0 ? (
@@ -183,14 +188,6 @@ const ThreadList: React.FC<
                         </Typography>
                       </>
                     }
-                    primaryTypographyProps={{
-                      sx: {
-                        display: 'flex',
-                        alignItems: 'center',
-                        whiteSpace: 'nowrap',
-                      },
-                      component: 'div',
-                    }}
                     secondary={
                       <>
                         {keywords ? <ShowThreadContentMatchKeywords keywords={keywords} thread={thread} /> : null}
