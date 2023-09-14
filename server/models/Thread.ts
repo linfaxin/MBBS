@@ -36,8 +36,10 @@ export class Thread extends Model<Partial<Thread>> {
   type: 1;
   /** 是否合法 */
   is_approved: ThreadIsApproved;
-  /** 是否置顶 */
+  /** 是否在所属板块置顶 */
   is_sticky: boolean;
+  /** 是否同时在其他板块置顶，值格式：1,3(逗号分隔的板块 ID) */
+  sticky_at_other_categories: string;
   /** 是否精华 */
   is_essence: boolean;
   /** 是否是草稿箱帖子 */
@@ -164,6 +166,7 @@ export class Thread extends Model<Partial<Thread>> {
     this.deleted_user_id = user.id;
     this.deleted_at = new Date();
     this.is_sticky = false; // 删除时，同步取消置顶
+    this.sticky_at_other_categories = null;
     await this.saveAndUpdateThreadCount();
   }
   async saveAndUpdateThreadCount(options?: SaveOptions<Partial<Thread>>) {
@@ -275,6 +278,9 @@ export async function getThreadModel(db: Sequelize): Promise<typeof Thread> {
       is_sticky: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
+      },
+      sticky_at_other_categories: {
+        type: DataTypes.TEXT,
       },
       is_essence: {
         type: DataTypes.BOOLEAN,

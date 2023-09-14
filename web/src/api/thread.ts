@@ -19,8 +19,10 @@ export interface Thread {
   type: 1;
   /** 是否合法 */
   is_approved: ThreadIsApproved;
-  /** 是否置顶 */
+  /** 是否在所属板块置顶 */
   is_sticky: boolean;
+  /** 是否同时在其他板块置顶，值格式：1,3(逗号分隔的板块 ID) */
+  sticky_at_other_categories: string;
   /** 是否精华 */
   is_essence: boolean;
   /** 是否是草稿箱帖子 */
@@ -221,13 +223,14 @@ export async function setApproved(threadId: number | string, is_approved: number
 }
 
 /** 设置置顶状态 */
-export async function setSticky(threadId: number | string, is_sticky: boolean): Promise<void> {
+export async function setSticky(threadId: number | string, is_sticky: boolean, sticky_at_other_categories?: string): Promise<void> {
   await fetchApi({
     pathOrUrl: 'threads/setSticky',
     method: 'post',
     data: {
       thread_id: threadId,
       is_sticky,
+      sticky_at_other_categories,
     },
   });
 }

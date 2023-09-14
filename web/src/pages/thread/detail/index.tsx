@@ -26,7 +26,8 @@ import { markThreadViewed } from '@/utils/view-thread-records-util';
 import showPromptDialog from '@/utils/show-prompt-dialog';
 import ThreadContentPreview from '@/components/thread-content/thread-content-preview';
 import DoTaskButton from '@/components/do-task-button';
-import { Category, getCategory } from '@/api/category';
+import { Category, getCategory, listCategory } from '@/api/category';
+import CategorySelect from '@/components/category-select';
 
 export default function ThreadDetailPage() {
   const params = useParams() as any;
@@ -111,15 +112,46 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
     });
   };
 
-  const onClickToggleStick = () => {
+  const onClickToggleStick = async () => {
+    if (!thread) return;
+    const allOtherCategories = (await listCategory()).filter((c) => c.id !== thread.category_id);
+    let sticky_at_other_categories = '';
     showAlert({
-      title: '提示',
-      message: thread.is_sticky ? '确定取消置顶吗？' : '确定置顶吗？',
-      cancelText: '取消',
+      title: '设置置顶',
+      message: (
+        <>
+          <Typography sx={{ fontSize: 15, mb: 2, opacity: 0.8 }}>{thread.is_sticky ? '当前帖子已置顶' : '是否置顶当前帖子？'}</Typography>
+          <Box display="flex" alignItems="center">
+            <Typography fontSize={13} sx={{ opacity: 0.8, flexShrink: 0 }}>
+              同时置顶至：
+            </Typography>
+            <CategorySelect
+              label="其他板块"
+              categories={allOtherCategories}
+              multiple
+              TextFieldProps={{
+                variant: 'outlined',
+                fullWidth: true,
+                size: 'small',
+              }}
+              defaultValue={thread.sticky_at_other_categories?.split(',').map((id) => parseInt(id)) || []}
+              onChange={(v) => (sticky_at_other_categories = String(v))}
+            />
+          </Box>
+        </>
+      ),
+      closeIcon: true,
+      cancelText: thread.is_sticky ? '取消置顶' : null,
+      onCancel: async () => {
+        await threadApi.setSticky(threadId, false);
+        showSnackbar('取消置顶成功');
+        loadThread();
+      },
       onOkErrorAlert: true,
+      okText: '确认置顶',
       onOk: async () => {
-        await threadApi.setSticky(threadId, !thread.is_sticky);
-        showSnackbar('设置成功');
+        await threadApi.setSticky(threadId, true, sticky_at_other_categories);
+        showSnackbar('设置置顶成功');
         loadThread();
       },
     });
@@ -170,7 +202,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
         onClick: () => history.push(`/thread/edit/${threadId}${history.location.search || ''}`),
       },
       thread?.can_hide && { label: '删除帖子', onClick: onClickDelete },
-      thread?.can_sticky && { label: thread.is_sticky ? '取消置顶' : '置顶', onClick: onClickToggleStick },
+      thread?.can_sticky && { label: thread.is_sticky ? '修改置顶' : '置顶', onClick: onClickToggleStick },
       thread?.can_essence && { label: thread.is_essence ? '取消精华' : '精华', onClick: onClickToggleEssence },
       thread?.can_set_disable_post && { label: '设置评论开关', onClick: onClickSetDisablePost },
     ].filter(Boolean) as Array<{ label: string; onClick: () => void }>;

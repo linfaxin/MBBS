@@ -156,7 +156,7 @@ const ManageThreads = () => {
                       await threadApi.deleteThread(thread.id);
                       thread.deleted_at = new Date().toJSON();
                       reRender();
-                    } catch (e) {
+                    } catch (e: any) {
                       showAlert(e.message);
                     }
                   }}
@@ -173,7 +173,7 @@ const ManageThreads = () => {
                       await threadApi.restoreDeleteThread(thread.id);
                       thread.deleted_at = null;
                       reRender();
-                    } catch (e) {
+                    } catch (e: any) {
                       showAlert(e.message);
                     }
                   }}
@@ -194,7 +194,7 @@ const ManageThreads = () => {
                     await threadApi.setApproved(thread.id, inputValue);
                     thread.is_approved = parseInt(inputValue);
                     reRender();
-                  } catch (e) {
+                  } catch (e: any) {
                     showAlert(e.message);
                   }
                 }}

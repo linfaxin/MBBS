@@ -12,6 +12,7 @@ export interface OpenAlertDialogProps {
   onOk?: () => void | Promise<void>;
   onOkErrorAlert?: boolean;
   cancelText?: ReactNode;
+  onCancelErrorAlert?: boolean;
   onCancel?: () => void | Promise<void>;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -32,6 +33,7 @@ const OpenAlertDialog: React.FC<OpenAlertDialogProps> = (props) => {
     onCancel,
     defaultOpen = false,
     onOkErrorAlert = false,
+    onCancelErrorAlert = onOkErrorAlert,
     maxDialogWidth = 'md',
     fullWidth,
     onOpenChange,
@@ -96,7 +98,11 @@ const OpenAlertDialog: React.FC<OpenAlertDialogProps> = (props) => {
                         try {
                           await onCancel();
                           doCloseDialog();
-                        } catch (e) {}
+                        } catch (e: any) {
+                          if (onCancelErrorAlert) {
+                            showAlert(e?.message || String(e));
+                          }
+                        }
                         setCancelButtonLoading(false);
                       }
                     : doCloseDialog

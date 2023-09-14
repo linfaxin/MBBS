@@ -73,16 +73,23 @@ export default class ThreadController {
     @CurrentDB() db: Sequelize,
     @BodyParam('thread_id', { required: true }) threadId: number,
     @BodyParam('is_sticky', { required: true }) isSticky: boolean,
+    @BodyParam('sticky_at_other_categories') sticky_at_other_categories: string,
   ) {
     const thread = await getThread(db, threadId);
     if (thread == null) throw new UIError('帖子未找到');
-    const hasPermission =
-      (await currentUser.hasPermission('thread.sticky')) ||
-      (await currentUser.hasPermission(`category${thread.category_id}.thread.sticky`));
-    if (!hasPermission) throw new UIError('无权置顶');
     if (thread.deleted_at) throw new UIError('帖子已被删除');
 
+    const hasPermission = await currentUser.hasOneOfPermissions('thread.sticky', `category${thread.category_id}.thread.sticky`);
+    if (!hasPermission) throw new UIError('无权在当前板块置顶');
+
+    for (const otherCategoryId of (sticky_at_other_categories || '').split(',').map((id) => parseInt(id))) {
+      if (!(await currentUser.hasOneOfPermissions('thread.sticky', `category${otherCategoryId}.thread.sticky`))) {
+        throw new UIError(`无权置顶至板块"${(await getCategoryById(db, otherCategoryId)).name}"`);
+      }
+    }
+
     thread.is_sticky = isSticky;
+    thread.sticky_at_other_categories = isSticky ? sticky_at_other_categories || null : null;
     await thread.save();
     userStickyThreadLogger.log({ isSticky, threadId });
     return true;
@@ -526,18 +533,20 @@ export default class ThreadController {
         : {}),
     };
 
+    const order = `${isDeleted ? '' : '-is_sticky,'}${sort || '-posted_at'}`
+      .split(',')
+      .filter(Boolean)
+      .map((o) => {
+        if (o[0] === '-') {
+          return [o.substring(1), 'DESC'];
+        }
+        return [o];
+      }) as any;
+
     const findThreads = await ThreadModel.findAll({
       where: whereOption,
       paranoid: false,
-      order: `${isDeleted ? '' : '-is_sticky,'}${sort || '-posted_at'}`
-        .split(',')
-        .filter(Boolean)
-        .map((o) => {
-          if (o[0] === '-') {
-            return [o.substring(1), 'DESC'];
-          }
-          return [o];
-        }) as any,
+      order,
       offset,
       limit,
     });
@@ -552,6 +561,35 @@ export default class ThreadController {
       sort,
       totalCount,
     });
+
+    if (categoryId && !keywords && !userId && offset === 0) {
+      // 板块列表帖子第一页 同时返回 来自其他板块 置顶到当前板块的帖子
+      const fromOtherCategoryStickyThreads = await Promise.all(
+        (
+          await ThreadModel.findAll({
+            where: {
+              ...NormalThreadFilter,
+              category_id: {
+                [Op.not]: categoryId,
+              },
+              is_sticky: true,
+              sticky_at_other_categories: {
+                [Op.not]: null,
+              },
+            },
+            order,
+          })
+        )
+          .filter((otherThread) => {
+            return otherThread.sticky_at_other_categories?.split(',').includes(String(categoryId));
+          })
+          .map((t) => {
+            return t.toViewJSON(currentUser, { field_is_liked: false });
+          }),
+      );
+      threads.unshift(...fromOtherCategoryStickyThreads);
+      threads[WrapDataExtraKey] = { totalCount: totalCount + fromOtherCategoryStickyThreads.length };
+    }
     return threads;
   }
 
