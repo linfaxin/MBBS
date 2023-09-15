@@ -122,5 +122,12 @@ export function transformRenderHtmlForUpload(html: string) {
     }
   });
 
+  // 避免空行内容丢失（提交前补上 全角空格）
+  Array.from(parseHTMLTemp.content.querySelectorAll('p[data-block="0"]')).forEach((p) => {
+    if (!p.innerHTML) {
+      p.innerHTML = '　';
+    }
+  });
+
   return parseHTMLTemp.innerHTML;
 }
