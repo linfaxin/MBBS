@@ -80,6 +80,8 @@ export interface SettingKeyValue {
   ui_theme_content_bg_color: string;
   /** 页面背景色 */
   ui_theme_page_bg_color: string;
+  /** 页面背景图 */
+  ui_theme_page_bg_image: string | null;
   /** 自定义字体 */
   ui_font_family: string;
   /** 导航栏背景图 */

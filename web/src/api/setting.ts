@@ -74,9 +74,11 @@ export interface Setting {
   /** 主题是否为 暗色主题 */
   ui_theme_dark_mode: '0' | '1';
   /** 内容背景色 */
-  ui_theme_content_bg_color: string;
+  ui_theme_content_bg_color: string | null;
   /** 页面背景色 */
-  ui_theme_page_bg_color: string;
+  ui_theme_page_bg_color: string | null;
+  /** 页面背景图 */
+  ui_theme_page_bg_image: string | null;
   /** 自定义字体 */
   ui_font_family: string;
   /** 导航栏背景图 */

@@ -5,6 +5,7 @@ import { useScreenWidthUpMD } from '@/utils/use-screen-width';
 import BBSNavMenu from '@/layouts/components/bbs-nav-menu';
 import BBSNavBar from '@/layouts/components/bbs-nav-bar';
 import ApiUI from '@/api-ui';
+import { getResourceUrl } from '@/utils/resource-url';
 import './index.less';
 
 export default function (props: PropsWithChildren<{}>) {
@@ -15,11 +16,18 @@ export default function (props: PropsWithChildren<{}>) {
 
   useEffect(() => {
     if (bbsSetting.ui_theme_page_bg_color) {
-      document.body.style.background = bbsSetting.ui_theme_page_bg_color;
+      document.body.style.backgroundColor = bbsSetting.ui_theme_page_bg_color;
     } else {
-      document.body.style.background = theme.palette.mode === 'dark' ? theme.palette.grey['900'] : theme.palette.grey['100'];
+      document.body.style.backgroundColor = theme.palette.mode === 'dark' ? theme.palette.grey['900'] : theme.palette.grey['100'];
     }
-  }, [theme.palette.mode, bbsSetting.ui_theme_page_bg_color]);
+    if (bbsSetting.ui_theme_page_bg_image) {
+      document.body.style.backgroundImage = `url(${getResourceUrl(bbsSetting.ui_theme_page_bg_image)})`;
+      document.body.style.backgroundRepeat = 'no-repeat';
+      document.body.style.backgroundSize = '100% 100%';
+    } else {
+      document.body.style.backgroundImage = '';
+    }
+  }, [theme.palette.mode, bbsSetting.ui_theme_page_bg_color, bbsSetting.ui_theme_page_bg_image]);
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>

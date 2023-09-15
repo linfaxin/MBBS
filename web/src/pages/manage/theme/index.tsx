@@ -76,7 +76,8 @@ const BaseSetting = () => {
             primary="设置内容背景色"
             secondary={
               <>
-                {theme.palette.background.paper}{' '}
+                {theme.palette.background.paper}
+                {!bbsSetting.ui_theme_content_bg_color ? '(默认) ' : ' '}
                 <span
                   style={{
                     display: 'inline-block',
@@ -89,7 +90,18 @@ const BaseSetting = () => {
               </>
             }
           />
+          {bbsSetting.ui_theme_content_bg_color && (
+            <Button
+              onClick={async () => {
+                await settingApi.set('ui_theme_content_bg_color', null);
+                bbsSetting.update('ui_theme_content_bg_color', null);
+              }}
+            >
+              删除
+            </Button>
+          )}
           <OpenColorPickerDialog
+            alpha
             title="内容背景色"
             defaultColor={theme.palette.background.paper}
             submitFailAlert
@@ -121,6 +133,16 @@ const BaseSetting = () => {
               </>
             }
           />
+          {bbsSetting.ui_theme_page_bg_color && (
+            <Button
+              onClick={async () => {
+                await settingApi.set('ui_theme_page_bg_color', null);
+                bbsSetting.update('ui_theme_page_bg_color', null);
+              }}
+            >
+              删除
+            </Button>
+          )}
           <OpenColorPickerDialog
             title="页面底色"
             defaultColor={formatHexColor(bbsSetting.ui_theme_page_bg_color || document.body.style.background)}
@@ -134,6 +156,43 @@ const BaseSetting = () => {
               <EditIcon />
             </IconButton>
           </OpenColorPickerDialog>
+        </ListItem>
+        <ListItem>
+          <ListItemText
+            primary="设置页面底图"
+            secondary={
+              bbsSetting.ui_theme_page_bg_image ? (
+                <img alt="icon" src={getResourceUrl(bbsSetting.ui_theme_page_bg_image)} style={{ width: 100, height: 100 }} />
+              ) : (
+                '未设置'
+              )
+            }
+          />
+          {bbsSetting.ui_theme_page_bg_image ? (
+            <OpenAlertDialog
+              title="提示"
+              message="确定删除 页面底图 吗？"
+              cancelText="取消"
+              okText="确定"
+              onOkErrorAlert
+              onOk={async () => {
+                await settingApi.batchSet({ ui_theme_page_bg_image: null });
+                bbsSetting.update('ui_theme_page_bg_image', null);
+              }}
+            >
+              <Button>删除</Button>
+            </OpenAlertDialog>
+          ) : null}
+          <UploadResourceButton
+            startIcon={<EditIcon />}
+            beforeUpload={(file) => compressImageFile(file, { maxWidth: 1024, maxHeight: 1024, mimeType: 'image/png' })}
+            onUploaded={async (result) => {
+              await settingApi.set('ui_theme_page_bg_image', result.filePath);
+              bbsSetting.update('ui_theme_page_bg_image', result.filePath);
+            }}
+          >
+            设置
+          </UploadResourceButton>
         </ListItem>
         <ListItem>
           <ListItemText
