@@ -51,12 +51,23 @@ export default function transformWillRenderHtml(html: string, transformAttachmen
     }
   });
 
-  // 将 data-next-node-style 元素的样式设置给相邻下一个元素（扩展Markdown标签的 字体/颜色/对齐 功能）
+  // 将 data-next-node-style 元素的样式设置给相邻下一个元素（扩展了 Markdown 标签的 字体/颜色/对齐 功能）
   Array.from(parseHTMLTemp.content.querySelectorAll('[data-next-node-style]')).forEach((node) => {
     if (!(node instanceof HTMLElement)) return;
     const nextEl = node.nextElementSibling;
     if (!(nextEl instanceof HTMLElement)) return;
     nextEl.style.cssText = node.style.cssText;
+  });
+  // 将隐藏样式 a 标签里的样式 设置给相邻下一个元素（扩展了 Markdown标签的 字体/颜色/对齐 功能）
+  Array.from(parseHTMLTemp.content.querySelectorAll('a')).forEach((styleAnchorElement) => {
+    if (styleAnchorElement.innerText !== '^mbbs_after_style^') {
+      return null;
+    }
+    styleAnchorElement.style.display = 'none';
+    const cssText = styleAnchorElement.hash.replace(/^#/, '');
+    const nextEl = styleAnchorElement.nextElementSibling;
+    if (!(nextEl instanceof HTMLElement)) return;
+    nextEl.style.cssText = cssText;
   });
 
   // 附件下载地址(补上静态资源服务器开头的绝对地址)
@@ -96,7 +107,7 @@ export function transformRenderHtmlForUpload(html: string) {
   // 非 http 开头的 a 链接，补上 http 开头
   Array.from(parseHTMLTemp.content.querySelectorAll('a')).forEach((a) => {
     let url = a.getAttribute('href');
-    if (!url) return;
+    if (!url || url[0] === '#') return;
     url = removeResourceBaseUrl(url);
     if (!/^https?:/.test(url) && url.split('/')[0].includes('.')) {
       a.setAttribute('href', `http://${url}`);

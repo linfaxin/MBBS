@@ -67,18 +67,38 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
     }
   };
 
-  const getNodeStyleElement = (headingNode: HTMLHeadingElement): HTMLElement | null => {
-    const htmlBlockEl = headingNode.previousElementSibling;
+  const getFakeStyleElementForStyleAnchorElement = (styleAnchorElement: HTMLAnchorElement): HTMLElement | null => {
+    if ((styleAnchorElement as any)['_style_node']) {
+      return (styleAnchorElement as any)['_style_node'];
+    }
+    if (styleAnchorElement.innerText !== '^mbbs_after_style^') {
+      return null;
+    }
+
+    const cssText = styleAnchorElement.hash.replace(/^#/, '');
+    if (cssText == null) {
+      return null;
+    }
+    const fakeStyleNode = document.createElement('span');
+    fakeStyleNode.style.cssText = cssText;
+    (styleAnchorElement as any)['_style_node'] = fakeStyleNode;
+    return fakeStyleNode as HTMLElement;
+  };
+  const getNodeStyleElement = (willStyledNode: HTMLElement): HTMLElement | null => {
+    const htmlBlockEl = willStyledNode.previousElementSibling;
     if (!htmlBlockEl) return null;
-    if (htmlBlockEl.getAttribute('data-type') !== 'html-block') return null;
-    const hasStyleNode = htmlBlockEl.querySelector('[data-next-node-style]');
+    let hasStyleNode = htmlBlockEl.querySelector('[data-next-node-style]') || (htmlBlockEl as any)['_style_node'];
+    if (!hasStyleNode && htmlBlockEl.textContent === '^mbbs_after_style^' && htmlBlockEl.tagName === 'A') {
+      hasStyleNode = getFakeStyleElementForStyleAnchorElement(htmlBlockEl as HTMLAnchorElement);
+    }
     if (!(hasStyleNode instanceof HTMLElement)) return null;
     return hasStyleNode;
   };
 
-  const getOrCreateNodeStyleElement = (headingNode: HTMLHeadingElement): HTMLElement => {
-    let hasStyleNode = getNodeStyleElement(headingNode);
-    if (!hasStyleNode) {
+  const getOrCreateNodeStyleElement = (willStyledNode: HTMLElement): HTMLElement => {
+    let hasStyleNode = getNodeStyleElement(willStyledNode);
+    if (!hasStyleNode && willStyledNode instanceof HTMLHeadingElement) {
+      // h1, h2, ... 标签使用 html 隐藏块保留样式
       const htmlBlock = document.createElement('div');
       htmlBlock.style.display = 'none';
       htmlBlock.setAttribute('class', 'vditor-wysiwyg__block');
@@ -89,8 +109,21 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
 <pre class="vditor-wysiwyg__preview" data-render="1"><p data-next-node-style></p></pre>
 `;
       hasStyleNode = htmlBlock.querySelector('[data-next-node-style]') as HTMLElement;
-      if (headingNode.parentElement) {
-        headingNode.parentElement.insertBefore(htmlBlock, headingNode);
+      if (willStyledNode.parentElement) {
+        willStyledNode.parentElement.insertBefore(htmlBlock, willStyledNode);
+      }
+    }
+    if (!hasStyleNode) {
+      // 其他行内块使用 code 隐藏块 保留样式
+      const styleAnchorElement = document.createElement('a');
+      styleAnchorElement.style.display = 'none';
+      styleAnchorElement.href = '#';
+      styleAnchorElement.innerText = '^mbbs_after_style^';
+
+      hasStyleNode = getFakeStyleElementForStyleAnchorElement(styleAnchorElement) as HTMLElement;
+
+      if (willStyledNode.parentElement) {
+        willStyledNode.parentElement.insertBefore(styleAnchorElement, willStyledNode);
       }
     }
     return hasStyleNode;
@@ -99,6 +132,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
   const applyNextNodeStyle = () => {
     const rootContainer = ref.current;
     if (!rootContainer) return;
+
+    // 针对 h1,h2,... 用基于 html-block 块的格式 使样式生效
     rootContainer.querySelectorAll('[data-next-node-style]').forEach((node) => {
       if (!(node instanceof HTMLElement)) return;
       const htmlBlockEl = node.parentElement?.parentElement;
@@ -106,7 +141,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
       if (htmlBlockEl.getAttribute('data-type') !== 'html-block') return;
       htmlBlockEl.style.display = 'none';
 
-      // 当前样式设置入 code 节点内，提交时可取到值
+      // 当前最新样式设置入 code 节点内，提交时可取到值
       const codeEl = htmlBlockEl.querySelector('code');
       if (codeEl) codeEl.innerText = node.outerHTML;
 
@@ -124,6 +159,24 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
       }
       applyStyleNode.innerHTML = `[data-apply-style-id="${applyNextNodeStyleId}"] + * {${node.style.cssText}}`;
     });
+
+    // 针对行内代码块，用基于隐藏样式 a 标签 使样式生效
+    rootContainer.querySelectorAll('a').forEach((anchorEle) => {
+      if (!(anchorEle instanceof HTMLElement)) return;
+      const fakeStyleElement = getFakeStyleElementForStyleAnchorElement(anchorEle);
+
+      if (!fakeStyleElement) return;
+
+      anchorEle.style.display = 'none';
+
+      // 当前最新样式设置入 code 节点内，提交时可取到值
+      anchorEle.setAttribute('href', `#${fakeStyleElement.style.cssText.replace(/\s/g, '')}`);
+
+      const nextEl = anchorEle.nextElementSibling;
+      if (nextEl instanceof HTMLElement) {
+        nextEl.style.cssText = fakeStyleElement.style.cssText;
+      }
+    });
   };
 
   useLayoutEffect(() => {
@@ -134,6 +187,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
       afterInit: (v) => {
         if (afterInit) afterInit(v);
         if (vditor?.afterInit) vditor?.afterInit(v);
+      },
+      onRenderFinish: () => {
         applyNextNodeStyle();
       },
       theme: theme.palette.mode,
@@ -306,7 +361,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
             </IconButton>
           </MouseOverTip>
         )}
-        {currentSelectNode instanceof HTMLHeadingElement && (
+        {(currentSelectNode instanceof HTMLHeadingElement || currentSelectNode?.tagName === 'CODE') && (
           <MouseOverTip tip="字体颜色">
             <IconButton
               size="small"
@@ -316,7 +371,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
                 showColorPickerDialog({
                   title: '字体颜色',
                   alpha: true,
-                  defaultColor: getComputedStyle(nodeStyleElement).color || theme.palette.text.primary,
+                  defaultColor: getComputedStyle(nodeStyleElement).color || nodeStyleElement.style.color || theme.palette.text.primary,
                   onSubmit: (color) => {
                     nodeStyleElement.style.color = color || '';
                     applyNextNodeStyle();
@@ -328,7 +383,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
             </IconButton>
           </MouseOverTip>
         )}
-        {currentSelectNode instanceof HTMLHeadingElement && (
+        {(currentSelectNode instanceof HTMLHeadingElement || currentSelectNode?.tagName === 'CODE') && (
           <MouseOverTip tip="背景颜色">
             <IconButton
               size="small"

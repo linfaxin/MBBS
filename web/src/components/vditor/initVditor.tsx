@@ -14,6 +14,7 @@ export interface InitVditorOption {
   doUploadImages?: (files: File[]) => Promise<undefined | Array<{ file: File; url: string }>>;
   doUploadFiles?: (files: File[]) => Promise<undefined | Array<{ file: File; url: string }>>;
   onClickInsertLink?: () => Promise<{ text: string; link: string }>;
+  onRenderFinish?: () => void;
 }
 
 let uploadImgOrFileIdNext = 1;
@@ -24,7 +25,16 @@ const eventStopPropagation = (e: Event) => {
 
 export default function initVditor(div: HTMLElement, param: InitVditorOption) {
   if (!div) return;
-  const { count, defaultValue, afterInit = () => {}, placeholder = '请输入内容', doUploadImages, doUploadFiles, onClickInsertLink } = param;
+  const {
+    count,
+    defaultValue,
+    afterInit = () => {},
+    placeholder = '请输入内容',
+    doUploadImages,
+    doUploadFiles,
+    onClickInsertLink,
+    onRenderFinish,
+  } = param;
 
   const uploadImgName = `vditor-upload-image-input-${uploadImgOrFileIdNext++}`;
   const uploadFileName = `vditor-upload-file-input-${uploadImgOrFileIdNext++}`;
@@ -280,6 +290,20 @@ export default function initVditor(div: HTMLElement, param: InitVditorOption) {
         }
       });
 
+      if (vditor.vditor.wysiwyg) {
+        let afterRenderTimeoutId: number;
+        Object.defineProperty(vditor.vditor.wysiwyg, 'afterRenderTimeoutId', {
+          get(): any {
+            return afterRenderTimeoutId;
+          },
+          set(v: any) {
+            afterRenderTimeoutId = v;
+            onRenderFinish?.();
+          },
+        });
+      }
+
+      onRenderFinish?.();
       afterInit(vditor);
     },
   });

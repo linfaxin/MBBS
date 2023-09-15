@@ -9,14 +9,14 @@ export default function htmlToPureText(html: string): string {
   const { document } = new JSDOM(html).window;
   document.body.innerHTML = html;
 
-  // 索引隐藏回复可见内容
+  // 索引隐藏 回复可见内容
   document.body.querySelectorAll('blockquote').forEach((blockquoteNode) => {
     if (blockquoteNode.querySelector('p>img[alt="^mbbs_reply_visible_tag^"]')) {
       blockquoteNode.innerHTML = '';
     }
   });
 
-  return document.body.textContent || '';
+  return (document.body.textContent || '').replace(/\^mbbs_after_style\^/g, ''); // 索引隐藏 隐藏样式 a 标签
 }
 
 export function markdownToHtml(markdown: string): string {
