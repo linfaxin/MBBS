@@ -49,12 +49,13 @@ export default function IndexPage() {
       }}
       showInitPageLoading={!!bbsSetting.site_home_page_show_category || !categoriesSorted || categoriesSorted.length === 0}
     >
-      {bbsSetting.ui_tip_home_page?.trim() && (
+      {bbsSetting.ui_tip_home_page?.trim() ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
           <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.ui_tip_home_page} />
         </Box>
+      ) : (
+        <Typography sx={{ fontSize: 'smaller', opacity: 0.5, textAlign: 'center' }}>选择一个分类版块进入</Typography>
       )}
-      <Typography sx={{ fontSize: 'smaller', opacity: 0.5, textAlign: 'center' }}>选择一个分类版块进入</Typography>
       <Grid container spacing={{ xs: 2, sm: 2 }} columns={12} sx={{ paddingTop: 2 }}>
         {(categoriesSorted || []).map((category) => (
           <Grid item xs={12} sm={6} key={category.id}>

@@ -388,7 +388,7 @@ const BaseSetting = () => {
             primary={
               <>
                 首页提示文案
-                <TipIconButton message="会展示在论坛首页，可以自定义一些提示文案" />
+                <TipIconButton message="会展示在论坛首页，可以自定义一些提示文案。设置后，将不显示默认的'选择版块进入'文案提示" />
               </>
             }
             secondary={<MarkdownPureText md={bbsSetting.ui_tip_home_page || '(空)'} />}
