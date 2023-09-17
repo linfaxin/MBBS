@@ -114,7 +114,7 @@ export default class PostController {
         throw new UIError('无权限查看评论');
       }
     }
-    if (!threadId && userId) {
+    if (!threadId && userId && userId !== currentUser?.id) {
       const aimUser = await getUser(db, userId);
       if (!aimUser) throw new UIError('指定用户未找到');
       // 权限检查：查看指定用户所有评论
@@ -181,7 +181,7 @@ export default class PostController {
     if (!postId && !userId && !(await currentUser.isAdmin())) {
       throw new UIError('无权限查看全站回复');
     }
-    if (!postId && userId) {
+    if (!postId && userId && userId !== currentUser?.id) {
       const aimUser = await getUser(db, userId);
       if (!aimUser) throw new UIError('指定用户未找到');
       // 权限检查：查看指定用户所有评论

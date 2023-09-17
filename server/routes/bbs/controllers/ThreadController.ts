@@ -497,7 +497,7 @@ export default class ThreadController {
       throw new UIError('无权查看帖子');
     }
 
-    if (!categoryId && userId) {
+    if (!categoryId && userId && userId !== currentUser?.id) {
       const aimUser = await getUser(db, userId);
       if (!aimUser) throw new UIError('指定用户未找到');
       // 查看指定用户所有帖子权限 检查
