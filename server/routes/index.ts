@@ -86,6 +86,23 @@ router.get('/index.html', (req, res, next) => {
   res.redirect('/');
 });
 
+if (isDevEnv()) {
+  router.get('/umi.js', async (req, res, next) => {
+    res.setHeader('content-type', 'application/javascript; charset=utf-8');
+    res.send(await fetch('http://localhost:8841/umi.js').then((resp) => resp.text()));
+  });
+  router.get('/umi.css', async (req, res, next) => {
+    res.setHeader('content-type', 'text/css; charset=utf-8');
+    res.send(await fetch('http://localhost:8841/umi.css').then((resp) => resp.text()));
+  });
+  router.get('/umi.js.map', (req, res, next) => {
+    res.redirect('http://localhost:8841/umi.js.map');
+  });
+  router.get('/umi.css.map', (req, res, next) => {
+    res.redirect('http://localhost:8841/umi.css.map');
+  });
+}
+
 router.get('/agreement', (req, res, next) => {
   res.render('agreement');
 });
