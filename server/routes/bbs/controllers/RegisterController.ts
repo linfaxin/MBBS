@@ -1,24 +1,22 @@
 import { BodyParam, Get, JsonController, Post, Req } from 'routing-controllers';
 import { v4 as uuidV4 } from 'uuid';
 import { Sequelize } from 'sequelize';
+import { Request } from 'express';
+import svgCaptcha = require('svg-captcha');
+import LRUCache = require('lru-cache');
+import { noop } from 'lodash';
 import CurrentDB from '../decorators/CurrentDB';
 import { isDevEnv } from '../../../utils/env-util';
 import { getUserByName, getUserModel, UserStatus } from '../../../models/User';
 import { hashPassword } from '../../../utils/password-util';
-import { Request } from 'express';
 import { formatReqIP } from '../../../utils/format-utils';
 import CurrentDomain from '../decorators/CurrentDomain';
 import { getDefaultGroup } from '../../../models/Group';
 import { saveUserToken } from '../../../models/UserToken';
 import { getSettingValue } from '../../../models/Settings';
-import svgCaptcha = require('svg-captcha');
-import LRUCache = require('lru-cache');
 import UIError from '../../../utils/ui-error';
 import ReqLog, { ReqLogger } from '../decorators/ReqLog';
-import { mailToUser } from '../../../utils/mail-util';
-import { getDefaultHost } from '../../../utils/bind-host-util';
-import { noop } from 'lodash';
-import { getDBNameFromDB } from '../../../models/db';
+import { insertUserMessage } from '../../../models/UserMessage';
 
 let captchaIdNext = 1;
 const captchaLruCache = new LRUCache<number, string>({
@@ -72,14 +70,13 @@ export default class RegisterController {
     });
 
     if (needValidate && (await getSettingValue(db, '__internal_reviewed_content_notice_admin_email')) === '1') {
-      mailToUser({
-        db,
-        mailKey: 'manageUser',
-        userName: 'admin',
+      insertUserMessage(db, {
         title: '有新注册的用户需要审核',
-        htmlBody: `有新用户 "${nickname}" 申请注册，<br/>请至 <a href="http://${await getDefaultHost(
-          getDBNameFromDB(db),
-        )}/#/manage/user?status=2">论坛管理后台</a> 查看审核`,
+        content: '点击"查看详情"跳转至审核页',
+        link: '/#/manage/user?status=2',
+        user_id: (await getUserByName(db, 'admin')).id,
+        from_user_id: user.id,
+        unread_merge_key: 'manageUser',
       }).catch(noop);
     }
 

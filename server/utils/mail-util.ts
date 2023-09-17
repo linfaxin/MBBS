@@ -122,19 +122,19 @@ async function checkShouldIgnoreMail(mailToUser: User, mailKey: string) {
   return false;
 }
 
-export async function mailToUser(options: Omit<MailOptions, 'email'>) {
+export async function mailToUser(options: Omit<MailOptions, 'email'>): Promise<boolean> {
   const { db, userName, mailKey, userId } = options;
   const user = userId ? await getUser(db, userId) : await getUserByName(db, userName);
 
   // 发送邮件前置检查
   if (await checkShouldIgnoreMail(user, mailKey)) {
-    return;
+    return false;
   }
 
   if (!user) throw new Error('用户未找到');
   if (!user.email) throw new Error('用户未绑定邮箱');
 
-  await mailToEmail({ ...options, email: user.email });
+  return await mailToEmail({ ...options, email: user.email });
 }
 
 let sendMailRecordIdNext = 1;
@@ -149,7 +149,13 @@ const recentSendMailRecords = new LRUCache<number, { dbName: string; mailKey: st
 
 export interface MailOptions {
   db: Sequelize;
-  mailKey: 'manageUser' | 'manageThread' | `manageViewThread${number}` | `viewThread${number}` | `verifyCode${string}`; // 对同一个 email 发送邮件时，相同 mailKey 的邮件短时间内仅会发送一封
+  mailKey:
+    | 'msgCenterUnreadCount'
+    | 'manageUser'
+    | 'manageThread'
+    | `manageViewThread${number}`
+    | `viewThread${number}`
+    | `verifyCode${string}`; // 对同一个 email 发送邮件时，相同 mailKey 的邮件短时间内仅会发送一封
   userName?: string;
   userId?: number;
   email: string;
@@ -157,7 +163,7 @@ export interface MailOptions {
   htmlBody: string;
 }
 
-export async function mailToEmail(options: MailOptions) {
+export async function mailToEmail(options: MailOptions): Promise<boolean> {
   const { db, mailKey, userId, userName, email, title, htmlBody } = options;
   const mailToUser = userId ? await getUser(db, userId) : await getUserByName(db, userName);
 
@@ -167,7 +173,7 @@ export async function mailToEmail(options: MailOptions) {
 
   // 发送邮件前置检查
   if (await checkShouldIgnoreMail(mailToUser, mailKey)) {
-    return;
+    return false;
   }
 
   // 开始发送消息
@@ -183,7 +189,7 @@ export async function mailToEmail(options: MailOptions) {
     for (const record of records) {
       if (record.dbName === dbName && record.email === email && record.mailKey === mailKey && Date.now() - record.time < 5 * 60 * 1000) {
         // mailKey 相同，短时间内不再发送重复邮件
-        return;
+        return false;
       }
       if (record.dbName === dbName) recentSendMailCountPeerDB++;
       if (record.email === email) recentSendMailCountPeerEmail++;
@@ -228,6 +234,8 @@ ${
       db,
       mailToUser,
     );
+
+    return true;
   } catch (e: any) {
     console.error(e);
     getLogger(`mail-records.log`).logWithDBAndUser(

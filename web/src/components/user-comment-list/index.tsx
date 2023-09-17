@@ -53,7 +53,7 @@ const UserPostCommentList: React.FC<
     setCommentList(pageNo === 1 ? list : [...commentList, ...list]);
     setTotalCount(totalCount);
     if (list?.length > 0) {
-      setPageState('user-post-comment-list', pageNo + 1);
+      setPageState('user-post-comment-list.next-page-no', pageNo + 1);
     }
     return {
       hasMore: list.length >= pageSize,

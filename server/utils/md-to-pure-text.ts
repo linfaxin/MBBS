@@ -16,7 +16,9 @@ export default function htmlToPureText(html: string): string {
     }
   });
 
-  return (document.body.textContent || '').replace(/\^mbbs_after_style\^/g, ''); // 索引隐藏 隐藏样式 a 标签
+  return (document.body.textContent || '')
+    .replace(/\^mbbs_after_style\^/g, '') // 索引隐藏 隐藏样式 a 标签
+    .trim(); // 去除前后 空格/空行
 }
 
 export function markdownToHtml(markdown: string): string {

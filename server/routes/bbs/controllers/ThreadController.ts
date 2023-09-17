@@ -2,7 +2,7 @@ import { BodyParam, Delete, Get, JsonController, Param, Post, QueryParam, Req, U
 import { noop } from 'lodash';
 import * as LRUCache from 'lru-cache';
 import CurrentDB from '../decorators/CurrentDB';
-import { getUser, User, UserStatus } from '../../../models/User';
+import { getUser, getUserByName, User, UserStatus } from '../../../models/User';
 import { Op, Sequelize, WhereOptions } from 'sequelize';
 import CurrentUser from '../decorators/CurrentUser';
 import { getGroupPermissions, hasPermission } from '../../../models/GroupPermission';
@@ -21,18 +21,18 @@ import { getPost, getPostModel } from '../../../models/Post';
 import { getCategoryById, getCategoryModel, updateCategoryThreadCount } from '../../../models/Category';
 import { getCreateThreadDailyLimit, getSettingValue, setSettingValue } from '../../../models/Settings';
 import { Request } from 'express';
-import { formatReqIP } from '../../../utils/format-utils';
+import { formatReqIP, formatSubString } from '../../../utils/format-utils';
 import { WrapDataExtraKey } from '../global-interceptors/WrapDataInterceptors';
 import UIError from '../../../utils/ui-error';
 import ReqLog, { ReqLogger } from '../decorators/ReqLog';
 import { markdownHasReplyHiddenContent, markdownToPureText } from '../../../utils/md-to-pure-text';
-import { mailToUser } from '../../../utils/mail-util';
 import CurrentDomain from '../decorators/CurrentDomain';
-import { getDefaultHost } from '../../../utils/bind-host-util';
 import { getDBNameFromDB } from '../../../models/db';
+import { isDevEnv } from '../../../utils/env-util';
+import { insertUserMessage } from '../../../models/UserMessage';
+
 import moment = require('moment');
 import dayjs = require('dayjs');
-import { isDevEnv } from '../../../utils/env-util';
 
 const viewThreadIdCache = new LRUCache<string, true>({
   // <dbName/threadId/ip或userId, true>
@@ -300,14 +300,16 @@ export default class ThreadController {
     if (!shouldNoticeAdmin) return;
 
     const category = await getCategoryById(db, thread.category_id);
-    mailToUser({
-      db,
-      mailKey: `manageViewThread${thread.id}`,
-      userName: 'admin',
-      title: '有用户发布了新帖',
-      htmlBody: `用户 "${currentUser.nickname}" 在板块 "${category.name}" 发布了新帖，<a href="http://${await getDefaultHost(
-        dbName,
-      )}/#/thread/detail/${thread.id}">点击查看</a>`,
+
+    insertUserMessage(db, {
+      title: `有用户发布了新帖"${formatSubString(thread.title, 10)}"`,
+      content: `用户 "${formatSubString(currentUser.nickname, 15)}" 在板块 "${category.name}" 发布了新帖：\n"${formatSubString(
+        thread.title,
+        15,
+      )}"`,
+      link: `/#/thread/detail/${thread.id}`,
+      user_id: (await getUserByName(db, 'admin')).id,
+      from_user_id: thread.user_id,
     }).catch(noop);
   }
 
@@ -388,14 +390,13 @@ export default class ThreadController {
 
     if (!isDraft && needValidate && (await getSettingValue(db, '__internal_reviewed_content_notice_admin_email')) === '1') {
       // 新帖需要审核通知管理员
-      mailToUser({
-        db,
-        mailKey: 'manageThread',
-        userName: 'admin',
+      insertUserMessage(db, {
         title: '有新发布的帖子需要审核',
-        htmlBody: `用户 "${currentUser.nickname}" 发布了帖子 "${title}"<br/>请至 <a href="http://${await getDefaultHost(
-          dbName,
-        )}/#/manage/thread?is_approved=0">论坛管理后台</a> 查看审核`,
+        content: '点击"查看详情"跳转至审核页',
+        link: '/#/manage/thread?is_approved=0',
+        user_id: (await getUserByName(db, 'admin')).id,
+        from_user_id: currentUser.id,
+        unread_merge_key: 'manageThread',
       }).catch(noop);
     }
 
@@ -807,14 +808,13 @@ export default class ThreadController {
     });
 
     if (needValidate && !isDraft && (await getSettingValue(db, '__internal_reviewed_content_notice_admin_email')) === '1') {
-      mailToUser({
-        db,
-        mailKey: 'manageThread',
-        userName: 'admin',
+      insertUserMessage(db, {
         title: '有新修改的帖子需要审核',
-        htmlBody: `用户 "${currentUser.nickname}" 修改了帖子 "${title}"<br/>请至 <a href="http://${await getDefaultHost(
-          dbName,
-        )}/#/manage/thread?is_approved=0">论坛管理后台</a> 查看审核`,
+        content: '点击"查看详情"跳转至审核页',
+        link: '/#/manage/thread?is_approved=0',
+        user_id: (await getUserByName(db, 'admin')).id,
+        from_user_id: thread.user_id,
+        unread_merge_key: 'manageThread',
       }).catch(noop);
     }
     return thread.toViewJSON(currentUser);

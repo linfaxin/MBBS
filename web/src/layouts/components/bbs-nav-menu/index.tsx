@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Theme, useTheme } from '@mui/material';
+import { Badge, Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Theme, useTheme } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import CategoryIcon from '@mui/icons-material/Category';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -17,6 +17,7 @@ const BBSNavMenu: React.FC<{
   className?: string;
 }> = (props) => {
   const { user, refreshUser } = useModel('useLoginUser');
+  const { unreadCount, reloadUnReadCount } = useModel('useMessageCenter');
   const { categoriesSorted } = useModel('useCategories');
   const bbsSetting = useModel('useBBSSetting');
   const theme = useTheme();
@@ -58,15 +59,45 @@ const BBSNavMenu: React.FC<{
         </List>
       </GroupListItem>
       <GroupListItem
-        text="个人中心"
+        text={
+          <Box flex={1}>
+            个人中心
+            <Badge
+              variant="dot"
+              color="error"
+              sx={{ ml: 2, verticalAlign: 'super' }}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              invisible={!unreadCount}
+            />
+          </Box>
+        }
         icon={<AccountCircleIcon />}
         onOpenChanged={(open) => {
-          if (open) refreshUser();
+          if (open) {
+            refreshUser();
+            reloadUnReadCount();
+          }
         }}
       >
         <List component="div" disablePadding>
           <ListItemButton onClick={() => jumpTo('/personal-center')}>
             <ListItemText primary="个人信息" />
+          </ListItemButton>
+          <ListItemButton onClick={() => jumpTo('/personal-message-center')}>
+            <ListItemText primary="消息中心" />
+            <Badge
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              sx={{ mr: 1 }}
+              color="error"
+              invisible={!unreadCount}
+              badgeContent={unreadCount}
+            />
           </ListItemButton>
           {user && (
             <ListItemButton onClick={() => jumpTo(`/user/threads?id=${user.id}`)}>

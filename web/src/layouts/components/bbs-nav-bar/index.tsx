@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useModel } from 'umi';
-import { AppBar, Breadcrumbs, Button, Drawer, IconButton, Toolbar, Typography, useTheme } from '@mui/material';
+import { AppBar, Badge, Breadcrumbs, Button, Drawer, IconButton, Toolbar, Typography, useTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import HideOnScroll from '@/components/hide-on-scroll';
@@ -17,6 +17,7 @@ const BBSNavBar: React.FC = (props) => {
   const navBarContentModel = useModel('useNavBarContent');
   const bbsSetting = useModel('useBBSSetting');
   const { user: loginUser } = useModel('useLoginUser');
+  const { unreadCount } = useModel('useMessageCenter');
   const theme = useTheme();
   const [menuVisible, setMenuVisible] = useState(false);
   const widthUpMD = useScreenWidthUpMD();
@@ -39,7 +40,9 @@ const BBSNavBar: React.FC = (props) => {
             </IconButton>
           ) : (
             <IconButton size="large" edge="start" color="inherit" aria-label="menu" onClick={() => setMenuVisible(!menuVisible)}>
-              <MenuIcon />
+              <Badge invisible={!unreadCount} color="error" variant="dot">
+                <MenuIcon />
+              </Badge>
             </IconButton>
           ))}
         {widthUpMD && (

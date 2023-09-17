@@ -52,7 +52,7 @@ const PostList: React.FC<
     setTotalCount(totalCount);
     setPostList(pageNo === 1 ? list : [...postList, ...list]);
     if (list?.length > 0) {
-      setPageState('thread-list.next-page-no', pageNo + 1);
+      setPageState('post-list.next-page-no', pageNo + 1);
     }
     return {
       hasMore: list.length >= pageSize,
@@ -62,7 +62,7 @@ const PostList: React.FC<
   return (
     <AppPageList
       {...listProps}
-      defaultPageNo={getPageStateWhenPop('thread-list.next-page-no') || 1}
+      defaultPageNo={getPageStateWhenPop('post-list.next-page-no') || 1}
       listReloadKey={`${listReloadKeyId}_${JSON.stringify({ ...queryParam, sort, keywords })}`}
       loadPage={loadPage}
       pullRefreshLoad={enablePullRefreshLoad ? loadPage.bind(this, 1) : undefined}

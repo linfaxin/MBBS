@@ -8,3 +8,4 @@ export * as threadApi from './thread';
 export * as postApi from './post';
 export * as groupApi from './group';
 export * as manageApi from './manage';
+export * as messageApi from './message';

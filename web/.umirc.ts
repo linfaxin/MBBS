@@ -20,6 +20,7 @@ export default defineConfig({
         { path: '/thread/category/:id', component: '@/pages/thread/category' },
         { path: '/thread/search', component: '@/pages/thread/search' },
         { path: '/personal-center', component: '@/pages/personal-center/index' },
+        { path: '/personal-message-center', component: '@/pages/personal-center/message-center' },
         { path: '/user/detail', component: '@/pages/user/detail' },
         { path: '/user/threads', component: '@/pages/user/threads' },
         { path: '/user/posts', component: '@/pages/user/posts' },

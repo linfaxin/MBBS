@@ -32,8 +32,8 @@ import showSnackbar from '@/utils/show-snackbar';
 import AppPage from '@/components/app-page';
 import ApiUI from '@/api-ui';
 import showAlert, { showConfirm } from '@/utils/show-alert';
-import showPromptDialog from '@/utils/show-prompt-dialog';
 import TipIconButton from '@/components/tip-icon-button';
+import showBindEmailDialog from '@/utils/show-bind-email-dialog';
 
 export default function UserIndexPage() {
   const { user, setUser, refreshUser } = useModel('useLoginUser');
@@ -230,68 +230,10 @@ export default function UserIndexPage() {
                 取消绑定
               </Button>
             ) : (
-              <OpenPromptDialog
-                title="设置绑定邮箱"
-                defaultValue={userEmail}
-                inputLabel="邮箱地址"
-                maxInputLength={100}
-                submitFailAlert
-                description="确定后将发送 绑定验证码 到该邮箱地址"
-                onSubmit={async (email) => {
-                  if (!email) {
-                    throw new Error('请输入要绑定的邮箱');
-                  }
-                  if (email === userEmail) {
-                    throw new Error('当前已绑定该邮箱，无需重新绑定');
-                  }
-                  await userApi.sendBindEmailVerifyCode({ email });
-                  showPromptDialog({
-                    title: '请输入收到的验证码',
-                    inputLabel: '验证码',
-                    submitFailAlert: true,
-                    onSubmit: async (verifyCode) => {
-                      await userApi.bindEmail({ email, verify_code: verifyCode });
-                      refreshUser();
-                      showSnackbar('绑定邮箱成功');
-                    },
-                  });
-                }}
-              >
-                <Button variant="contained" size="small" color="primary">
-                  马上绑定
-                </Button>
-              </OpenPromptDialog>
+              <Button variant="contained" size="small" color="primary" onClick={() => showBindEmailDialog({ onSuc: refreshUser })}>
+                马上绑定
+              </Button>
             )}
-          </ListItem>
-        )}
-        {bbsSetting.site_enable_email === '1' && (
-          <ListItem>
-            <ListItemText
-              sx={{ paddingLeft: 2 }}
-              primary={
-                <>
-                  论坛消息通知到邮箱
-                  <TipIconButton message="开启后，你帖子的评论/评论的回复等消息会以邮件形式及时通知到绑定邮箱" />
-                </>
-              }
-              secondary={user.msg_to_email_enable ? '已开启' : '已关闭'}
-            />
-            <Switch
-              checked={!!user.msg_to_email_enable}
-              onChange={async (e) => {
-                const checked = e.target.checked;
-                if (checked && !user.email) {
-                  showAlert('请先绑定邮箱');
-                  return;
-                }
-                await doTaskWithUI({
-                  task: () => userApi.enableMsgToEmail(checked),
-                  failAlert: true,
-                  fullScreenLoading: true,
-                });
-                refreshUser();
-              }}
-            />
           </ListItem>
         )}
         <ListItem>
