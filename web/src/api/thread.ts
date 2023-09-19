@@ -1,5 +1,6 @@
 import { User } from '@/api/base/user';
 import fetchApi from '@/api/base/fetch';
+import { ThreadTag } from '@/api/thread-tag';
 
 /**
  * 帖子模型
@@ -76,6 +77,8 @@ export interface Thread {
   can_set_disable_post: boolean;
   /** 帖子上设置的"评论关闭"字段 */
   disable_post: boolean | null;
+  /** 帖子上的所有标签 */
+  thread_tags: ThreadTag[];
 }
 
 export enum ThreadIsApproved {

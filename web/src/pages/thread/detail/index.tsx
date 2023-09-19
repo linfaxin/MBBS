@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { postApi, threadApi } from '@/api';
 import { history, useModel, useParams, useLocation } from 'umi';
 import copyToClipboard from 'copy-to-clipboard';
-import { Box, Button, ButtonGroup, Typography, useTheme } from '@mui/material';
+import { Box, Button, ButtonGroup, Chip, Typography, useTheme } from '@mui/material';
 import { getResourceUrl } from '@/utils/resource-url';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -28,6 +28,7 @@ import ThreadContentPreview from '@/components/thread-content/thread-content-pre
 import DoTaskButton from '@/components/do-task-button';
 import { Category, getCategory, listCategory } from '@/api/category';
 import CategorySelect from '@/components/category-select';
+import showManageTagDialog from '@/pages/thread/detail/show-manage-tag-dialog';
 
 export default function ThreadDetailPage() {
   const params = useParams() as any;
@@ -205,6 +206,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
       thread?.can_sticky && { label: thread.is_sticky ? '修改置顶' : '置顶', onClick: onClickToggleStick },
       thread?.can_essence && { label: thread.is_essence ? '取消精华' : '精华', onClick: onClickToggleEssence },
       thread?.can_set_disable_post && { label: '设置评论开关', onClick: onClickSetDisablePost },
+      thread?.can_edit && { label: '设置帖子标签', onClick: () => showManageTagDialog(threadId, loadThread) },
     ].filter(Boolean) as Array<{ label: string; onClick: () => void }>;
     if (ApiUI.showThreadDetailMenu) {
       menus = ApiUI.showThreadDetailMenu(thread, menus);
@@ -263,16 +265,17 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
             <MouseOverTip tip="阅读量">
               <span style={{ marginLeft: '2px', opacity: 0.6 }}>{thread?.view_count}</span>
             </MouseOverTip>
-            {thread?.is_sticky ? (
-              <Typography ml={1} fontSize="smaller">
-                置顶
-              </Typography>
-            ) : null}
-            {thread?.is_essence ? (
-              <Typography ml={1} fontSize="smaller">
-                精华
-              </Typography>
-            ) : null}
+            {(thread?.thread_tags || []).map((tag) =>
+              tag.hidden_in_thread_view ? null : (
+                <MouseOverTip tip={tag.description || ''} key={tag.id}>
+                  {tag.icon ? (
+                    <img alt="icon" src={getResourceUrl(tag.icon)} style={{ height: 16, verticalAlign: 'text-bottom', paddingLeft: 6 }} />
+                  ) : (
+                    <Chip size="small" label={tag.name} sx={{ marginLeft: 0.6, verticalAlign: 'top' }} component="span" />
+                  )}
+                </MouseOverTip>
+              ),
+            )}
           </Box>
         </Box>
         {!!threadContentMarkdown && (

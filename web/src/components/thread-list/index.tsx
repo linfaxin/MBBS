@@ -167,12 +167,21 @@ const ThreadList: React.FC<
                             WebkitLineClamp: 2,
                           }}
                         >
-                          {thread.is_sticky ? (
-                            <Chip size="small" label="顶" sx={{ marginRight: 0.6, verticalAlign: 'top' }} component="span" />
-                          ) : null}
-                          {thread.is_essence ? (
-                            <Chip size="small" label="精" sx={{ marginRight: 0.6, verticalAlign: 'top' }} component="span" />
-                          ) : null}
+                          {thread.thread_tags.map((tag) =>
+                            tag.hidden_in_thread_view ? null : (
+                              <React.Fragment key={tag.id}>
+                                {tag.icon ? (
+                                  <img
+                                    alt="icon"
+                                    src={getResourceUrl(tag.icon)}
+                                    style={{ height: 16, verticalAlign: 'text-bottom', paddingRight: 4 }}
+                                  />
+                                ) : (
+                                  <Chip size="small" label={tag.name} sx={{ marginRight: 0.6, verticalAlign: 'top' }} component="span" />
+                                )}
+                              </React.Fragment>
+                            ),
+                          )}
                           {keywords
                             ? thread.title.split(keywords).map((w, index, arr) =>
                                 index > 0 ? (

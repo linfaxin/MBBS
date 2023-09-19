@@ -1,20 +1,23 @@
 import { DataTypes, Model, Op, Sequelize, SaveOptions, WhereOptions } from 'sequelize';
 import { createModelCache } from '../utils/model-cache';
-import moment = require('moment');
 import { getUser, User } from './User';
 import { getPost, getPostModel, Post } from './Post';
 import { hasUserLikedPost } from './LikePostUser';
 import { updateCategoryThreadCount } from './Category';
-import { hasOneOfPermissions } from './GroupPermission';
+import { getGroupPermissions, hasOneOfPermissions } from './GroupPermission';
 import { GROUP_ID_TOURIST } from '../routes/bbs/const';
 import { filterMarkdownHiddenContent, markdownHasReplyHiddenContent, markdownToPureText } from '../utils/md-to-pure-text';
+import { parseInt } from 'lodash';
+import { getThreadTagById, THREAD_TAG_ID_DELETED } from './ThreadTag';
+
+import moment = require('moment');
 
 export enum ThreadIsApproved {
   /** 审核中 */
   checking = 0,
-  /** 正常 */
+  /** 审核通过 */
   ok = 1,
-  /** 回收站 */
+  /** 审核失败 */
   check_failed = 2,
 }
 
@@ -32,9 +35,9 @@ export class Thread extends Model<Partial<Thread>> {
   category_id: number;
   /** 帖子内容 ID */
   first_post_id: number;
-  /** 类型（预留，和 discuzQ 保持一致，目前所有都是1） */
+  /** 类型（预留） */
   type: 1;
-  /** 是否合法 */
+  /** 是否审核通过 */
   is_approved: ThreadIsApproved;
   /** 是否在所属板块置顶 */
   is_sticky: boolean;
@@ -54,6 +57,8 @@ export class Thread extends Model<Partial<Thread>> {
   post_count: number;
   /** 阅读数 */
   view_count: number;
+  /** 帖子标签ID，格式：^1^3^ (^分隔+首尾^ 的标签ID) */
+  thread_tag_ids?: string;
   /** 删除的用户id */
   deleted_user_id: number;
   /** 最后回复时间 */
@@ -66,9 +71,41 @@ export class Thread extends Model<Partial<Thread>> {
   modified_at: Date;
   /** 删除时间 */
   deleted_at: Date;
+  /** 是否能被指定用户流量 */
+  async canViewByUser(currentUser: User | null): Promise<boolean> {
+    if (await currentUser?.isAdmin()) return true;
+    let hasPermission;
+    if (currentUser) {
+      // 已登录用户
+      hasPermission =
+        (await currentUser.hasPermission('viewThreads')) || (await currentUser.hasPermission(`category${this.category_id}.viewThreads`));
+    } else {
+      // 游客
+      const permissions = await getGroupPermissions(this.sequelize, GROUP_ID_TOURIST);
+      hasPermission = permissions.includes('viewThreads') || permissions.includes(`category${this.category_id}.viewThreads`);
+    }
+
+    if (hasPermission && this.thread_tag_ids) {
+      // 再检查标签权限限制
+      const currentUserGroupId = (await currentUser?.getGroupId()) || GROUP_ID_TOURIST;
+      for (const tagId of this.thread_tag_ids
+        .split('^')
+        .filter(Boolean)
+        .map((id) => parseInt(id))) {
+        const threadTag = await getThreadTagById(this.sequelize, tagId);
+        if (!threadTag) continue;
+        if (!threadTag.canReadThreadBy(currentUserGroupId, this.user_id === currentUser?.id)) {
+          return false;
+        }
+      }
+    }
+
+    return hasPermission;
+  }
   /** 是否能被指定用户修改 */
   async canEditByUser(currentUser: User): Promise<boolean> {
     if (!currentUser) return false;
+    if (await currentUser.isAdmin()) return true;
     if (this.user_id === currentUser.id && this.is_draft) {
       return true;
     }
@@ -81,10 +118,26 @@ export class Thread extends Model<Partial<Thread>> {
       // 管理员权限
       hasPermission = await currentUser.hasOneOfPermissions('thread.edit', `category${this.category_id}.thread.edit`);
     }
+
+    if (hasPermission && this.thread_tag_ids) {
+      // 再检查标签权限限制
+      const currentUserGroupId = (await currentUser?.getGroupId()) || GROUP_ID_TOURIST;
+      for (const tagId of this.thread_tag_ids
+        .split('^')
+        .filter(Boolean)
+        .map((id) => parseInt(id))) {
+        const threadTag = await getThreadTagById(this.sequelize, tagId);
+        if (!threadTag) continue;
+        if (!threadTag.canWriteThreadBy(currentUserGroupId, this.user_id === currentUser?.id)) {
+          return false;
+        }
+      }
+    }
     return hasPermission;
   }
   /** 是否能被指定用户软删除 */
   async canHideByUser(currentUser: User): Promise<boolean> {
+    if (await currentUser.isAdmin()) return true;
     if (!currentUser) return false;
     let hasPermission = false;
     if (this.user_id === currentUser.id) {
@@ -116,6 +169,7 @@ export class Thread extends Model<Partial<Thread>> {
     }
 
     let content = firstPost?.content || '';
+    let content_for_indexes = this.content_for_indexes;
     const canEdit = !!viewUser && (await this.canEditByUser(viewUser));
 
     // 返回的 content 字段隐藏回复可见内容（针对 无编辑权限 & 未回复用户）
@@ -127,9 +181,16 @@ export class Thread extends Model<Partial<Thread>> {
       }
     }
 
+    if (!(await this.canViewByUser(viewUser))) {
+      // 对当前用户不可见时，隐藏帖子内容（标题等其他 非内容信息 正常露出）
+      content = '';
+      content_for_indexes = '';
+    }
+
     return {
       ...this.toJSON(),
       content,
+      content_for_indexes,
       user: await (await getUser(this.sequelize, this.user_id)).toViewJSON(),
       like_count: firstPost?.like_count,
       reply_count: firstPost?.reply_count,
@@ -145,7 +206,43 @@ export class Thread extends Model<Partial<Thread>> {
       can_view_posts: viewUser
         ? await viewUser.hasOneOfPermissions('thread.viewPosts', `category${this.category_id}.thread.viewPosts`)
         : await hasOneOfPermissions(this.sequelize, GROUP_ID_TOURIST, 'thread.viewPosts', `category${this.category_id}.thread.viewPosts`),
+      thread_tags: (
+        await Promise.all(
+          (this.thread_tag_ids || '')
+            .split('^')
+            .filter(Boolean)
+            .map((id) => getThreadTagById(this.sequelize, parseInt(id))),
+        )
+      )
+        .filter(Boolean)
+        .map((tag) => tag.toJSON()),
     };
+  }
+  async addTag(tagId: number, save = true) {
+    const tagIdSet = new Set(
+      (this.thread_tag_ids || '')
+        .split('^')
+        .filter(Boolean)
+        .map((id) => parseInt(id)),
+    );
+    tagIdSet.add(tagId);
+    this.thread_tag_ids = `^${Array.from(tagIdSet).join('^')}^`;
+    if (save) {
+      await this.save();
+    }
+  }
+  async removeTag(tagId: number, save = true) {
+    const tagIdSet = new Set(
+      (this.thread_tag_ids || '')
+        .split('^')
+        .filter(Boolean)
+        .map((id) => parseInt(id)),
+    );
+    tagIdSet.delete(tagId);
+    this.thread_tag_ids = `^${Array.from(tagIdSet).join('^')}^`;
+    if (save) {
+      await this.save();
+    }
   }
   async canDeleteByUser(user: User) {
     let hasPermission = false;
@@ -166,7 +263,8 @@ export class Thread extends Model<Partial<Thread>> {
     this.deleted_user_id = user.id;
     this.deleted_at = new Date();
     this.is_sticky = false; // 删除时，同步取消置顶
-    this.sticky_at_other_categories = null;
+    this.sticky_at_other_categories = null; // 删除时，同步取消其他板块置顶
+    await this.addTag(THREAD_TAG_ID_DELETED, false);
     await this.saveAndUpdateThreadCount();
   }
   async saveAndUpdateThreadCount(options?: SaveOptions<Partial<Thread>>) {
@@ -297,6 +395,9 @@ export async function getThreadModel(db: Sequelize): Promise<typeof Thread> {
         type: DataTypes.STRING,
       },
       content_for_indexes: {
+        type: DataTypes.TEXT,
+      },
+      thread_tag_ids: {
         type: DataTypes.TEXT,
       },
       post_count: {

@@ -28,6 +28,7 @@ export default defineConfig({
         { path: '/manage/base', component: '@/pages/manage/base' },
         { path: '/manage/user', component: '@/pages/manage/user' },
         { path: '/manage/thread', component: '@/pages/manage/thread' },
+        { path: '/manage/thread-tag', component: '@/pages/manage/thread-tag' },
         { path: '/manage/category', component: '@/pages/manage/category' },
         { path: '/manage/group', component: '@/pages/manage/group' },
         { path: '/manage/permission', component: '@/pages/manage/permission' },

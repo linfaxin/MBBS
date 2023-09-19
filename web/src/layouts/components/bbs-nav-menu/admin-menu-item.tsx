@@ -2,15 +2,17 @@ import React from 'react';
 import { Divider, List, ListItemButton, ListItemText } from '@mui/material';
 import GroupListItem from '@/components/group-list-item';
 import { useModel } from 'umi';
+import { GROUP_ID_ADMIN } from '@/consts';
 
 const AdminMenuItem = (props: { jumpTo: (route: string) => void }) => {
   const { user } = useModel('useLoginUser');
   const { jumpTo } = props;
-  if (user?.username !== 'admin') return null;
+  const isAdmin = user?.username === 'admin' || user?.group?.id === GROUP_ID_ADMIN;
+  if (!isAdmin) return null;
   return (
     <>
       <Divider />
-      <GroupListItem text={<ListItemText primary="管理后台" secondary="仅 admin 可见" />}>
+      <GroupListItem text={<ListItemText primary="管理后台" secondary="仅系统管理员可见" />}>
         <List component="div" disablePadding>
           <ListItemButton onClick={() => jumpTo('/manage')}>
             <ListItemText primary="后台首页" />
@@ -31,6 +33,9 @@ const AdminMenuItem = (props: { jumpTo: (route: string) => void }) => {
             </ListItemButton>
             <ListItemButton onClick={() => jumpTo('/manage/thread')}>
               <ListItemText primary="帖子管理" />
+            </ListItemButton>
+            <ListItemButton onClick={() => jumpTo('/manage/thread-tag')}>
+              <ListItemText primary="帖子标签管理" />
             </ListItemButton>
           </GroupListItem>
           <GroupListItem text="用户管理">

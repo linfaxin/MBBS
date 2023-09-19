@@ -11,7 +11,7 @@ import { getResourceUrl } from '@/utils/resource-url';
 import { compressImageFile } from '@/utils/compress-image-util';
 import UploadResourceButton from '@/components/upload-resource-button';
 import { useRequest } from 'ahooks';
-import { UserStatusCanChangeToMap } from '@/consts';
+import { GROUP_ID_ADMIN, UserStatusCanChangeToMap } from '@/consts';
 
 const ENUM_MAP_USER_STATE: Record<UserStatus, string> = {
   [UserStatus.Normal]: '正常',
@@ -83,25 +83,29 @@ const OpenEditUserDialog: React.FC<
                 sx={{ marginTop: 2 }}
               />
             </Field>
-            <Field name="group_id" rules={[{ required: true, message: '请选择一个角色' }]} initialValue={user.group?.id || ''}>
-              <TextField
-                margin="dense"
-                label="角色"
-                placeholder="请选择"
-                fullWidth
-                variant="outlined"
-                select
-                error={!!form.getFieldError('group_id')?.length}
-                helperText={(form.getFieldError('group_id') || [])[0]}
-                sx={{ marginTop: 2 }}
-              >
-                {(groups || []).map((group) => (
-                  <MenuItem key={group.id} value={group.id}>
-                    {group.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Field>
+            {user?.group?.id !== GROUP_ID_ADMIN && (
+              <Field name="group_id" rules={[{ required: true, message: '请选择一个角色' }]} initialValue={user.group?.id || ''}>
+                <TextField
+                  margin="dense"
+                  label="角色"
+                  placeholder="请选择"
+                  fullWidth
+                  variant="outlined"
+                  select
+                  error={!!form.getFieldError('group_id')?.length}
+                  helperText={(form.getFieldError('group_id') || [])[0]}
+                  sx={{ marginTop: 2 }}
+                >
+                  {(groups || [])
+                    .filter((g) => g.id !== GROUP_ID_ADMIN)
+                    .map((group) => (
+                      <MenuItem key={group.id} value={group.id}>
+                        {group.name}
+                      </MenuItem>
+                    ))}
+                </TextField>
+              </Field>
+            )}
             <Field name="status" rules={[{ required: true, message: '请选择一个用户状态' }]} initialValue={String(user.status)}>
               <TextField
                 margin="dense"

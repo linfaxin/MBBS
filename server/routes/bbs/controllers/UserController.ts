@@ -9,7 +9,7 @@ import UIError from '../../../utils/ui-error';
 import { getGroupUserIds } from '../../../models/GroupUser';
 import { WrapDataExtraKey } from '../global-interceptors/WrapDataInterceptors';
 import { hasPermission } from '../../../models/GroupPermission';
-import { GROUP_ID_TOURIST } from '../const';
+import { GROUP_ID_ADMIN, GROUP_ID_TOURIST } from '../const';
 import ReqLog, { ReqLogger } from '../decorators/ReqLog';
 import * as LRUCache from 'lru-cache';
 import { mailToEmail } from '../../../utils/mail-util';
@@ -57,10 +57,16 @@ export default class UserController {
     @BodyParam('user_id', { required: true }) userId: number,
     @BodyParam('group_id', { required: true }) groupId: number,
   ) {
+    if (groupId === GROUP_ID_ADMIN || groupId === GROUP_ID_TOURIST) {
+      throw new UIError('不支持设置为该用户角色');
+    }
     if (!(await currentUser.hasPermission('user.edit.group'))) {
       throw new UIError('无权修改');
     }
     const aimUser = await getUser(db, userId);
+    if (await aimUser.isAdmin()) {
+      throw new UIError('无权修改');
+    }
     const beforeGroupId = await aimUser.getGroupId();
     await aimUser.setGroupId(groupId);
     userGroupChangeLogger.log({ userId: aimUser.id, beforeGroupId, newGroupId: groupId });
@@ -295,6 +301,9 @@ export default class UserController {
     if (!modifyRequest) return user.toViewJSON();
 
     if ('group_id' in modifyRequest) {
+      if (modifyRequest.group_id === GROUP_ID_ADMIN || modifyRequest.group_id === GROUP_ID_TOURIST) {
+        throw new UIError('不支持设置为该用户角色');
+      }
       const beforeGroupId = await user.getGroupId();
       if (modifyRequest.group_id !== beforeGroupId) {
         if (!(await currentUser.hasPermission('user.edit.group'))) {

@@ -15,7 +15,7 @@ const BaseSetting = () => {
   return (
     <AppPage title="关闭论坛" parentPage={[{ title: '管理后台', href: '/manage' }]}>
       <Alert severity="info" sx={{ marginBottom: 2 }}>
-        论坛关闭后，将禁止游客和所有用户进入论坛。关闭后可以用 admin 账号登录进此页面重新开启。
+        论坛关闭后，将禁止游客和所有用户进入论坛。关闭后可以用系统管理员账号登录进此页面重新开启。
       </Alert>
       <List sx={{ background: theme.palette.background.paper, marginTop: 2 }} component="nav">
         <ListItem>

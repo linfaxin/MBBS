@@ -19,6 +19,7 @@ import showSnackbar from '@/utils/show-snackbar';
 import OpenPromptDialog from '@/components/open-prompt-dialog';
 import SearchIcon from '@mui/icons-material/Search';
 import { useModel } from '@@/plugin-model/useModel';
+import { GROUP_ID_ADMIN } from '@/consts';
 
 const UserPostCommentList: React.FC<
   Partial<PageListProps> & {
@@ -98,14 +99,14 @@ const UserPostCommentList: React.FC<
               回复数：{totalCount}
               {keywords ? `(搜索：${keywords})` : ''}
             </Typography>
-            {loginUserModel.user?.username === 'admin' && (
+            {loginUserModel.user?.group?.id === GROUP_ID_ADMIN && (
               <OpenPopoverMenu
                 options={[
                   {
                     label: (
                       <div>
                         <div>删除显示的 {commentList.length} 条回复</div>
-                        <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅 admin 可见</div>
+                        <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅系统管理员可见</div>
                       </div>
                     ),
                     onClick: () => {

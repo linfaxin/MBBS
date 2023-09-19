@@ -75,7 +75,7 @@ export default class GroupController {
       throw new UIError('未找到角色');
     }
     if (groupDefault && groupId === GROUP_ID_ADMIN) {
-      throw new UIError('不能设置 论坛管理员 为默认角色');
+      throw new UIError('不能设置 系统管理员 为默认角色');
     }
 
     const GroupModel = await getGroupModel(db);
@@ -98,17 +98,7 @@ export default class GroupController {
 
   @Get('/listGroup')
   async listGroup(@CurrentDB() db: Sequelize, @CurrentUser() currentUser: User) {
-    let groups = await listGroup(db);
-    if (!groups.some((g) => g.id === GROUP_ID_ADMIN)) {
-      // 自动添加 admin 的角色分组（补齐旧数据）
-      const GroupModel = await getGroupModel(db);
-      const defaultGroup = GroupModel.build({
-        id: GROUP_ID_ADMIN,
-        name: '论坛管理员',
-      });
-      await defaultGroup.save();
-      groups = await listGroup(db);
-    }
+    const groups = await listGroup(db);
     return (groups || []).map((group) => group.toJSON());
   }
 }

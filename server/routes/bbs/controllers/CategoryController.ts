@@ -21,6 +21,8 @@ export default class CategoryController {
     @BodyParam('hidden') hidden: boolean,
     @BodyParam('disable_post') disable_post: boolean,
     @BodyParam('threads_default_sort') threads_default_sort: string,
+    @BodyParam('posts_default_sort') posts_default_sort: string,
+    @BodyParam('sort_thread_tag_ids') sort_thread_tag_ids: string,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -28,7 +30,17 @@ export default class CategoryController {
       throw new UIError('分类版块名称已存在');
     }
     const CategoryModel = await getCategoryModel(db);
-    const category = await CategoryModel.create({ icon, name, description, sort, hidden, disable_post, threads_default_sort });
+    const category = await CategoryModel.create({
+      icon,
+      name,
+      description,
+      sort,
+      hidden,
+      disable_post,
+      threads_default_sort,
+      posts_default_sort,
+      sort_thread_tag_ids,
+    });
     return category.toJSON();
   }
 
@@ -64,6 +76,7 @@ export default class CategoryController {
     @BodyParam('disable_post') disable_post: boolean,
     @BodyParam('threads_default_sort') threads_default_sort: string,
     @BodyParam('posts_default_sort') posts_default_sort: string,
+    @BodyParam('sort_thread_tag_ids') sort_thread_tag_ids: string,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -74,7 +87,7 @@ export default class CategoryController {
 
     const CategoryModel = await getCategoryModel(db);
     await CategoryModel.update(
-      { icon, name, description, sort, hidden, disable_post, threads_default_sort, posts_default_sort },
+      { icon, name, description, sort, hidden, disable_post, threads_default_sort, posts_default_sort, sort_thread_tag_ids },
       { where: { id: categoryId } },
     );
 

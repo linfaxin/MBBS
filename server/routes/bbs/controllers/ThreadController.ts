@@ -30,6 +30,7 @@ import CurrentDomain from '../decorators/CurrentDomain';
 import { getDBNameFromDB } from '../../../models/db';
 import { isDevEnv } from '../../../utils/env-util';
 import { insertUserMessage } from '../../../models/UserMessage';
+import { THREAD_TAG_ID_DELETED, THREAD_TAG_ID_ESSENCE, THREAD_TAG_ID_STICKY } from '../../../models/ThreadTag';
 
 import moment = require('moment');
 import dayjs = require('dayjs');
@@ -89,6 +90,11 @@ export default class ThreadController {
     }
 
     thread.is_sticky = isSticky;
+    if (isSticky) {
+      await thread.addTag(THREAD_TAG_ID_STICKY, false);
+    } else {
+      await thread.removeTag(THREAD_TAG_ID_STICKY, false);
+    }
     thread.sticky_at_other_categories = isSticky ? sticky_at_other_categories || null : null;
     await thread.save();
     userStickyThreadLogger.log({ isSticky, threadId });
@@ -112,6 +118,11 @@ export default class ThreadController {
     if (thread.deleted_at) throw new UIError('帖子已被删除');
 
     thread.is_essence = isEssence;
+    if (isEssence) {
+      await thread.addTag(THREAD_TAG_ID_ESSENCE, false);
+    } else {
+      await thread.removeTag(THREAD_TAG_ID_ESSENCE, false);
+    }
     await thread.save();
     userEssenceThreadLogger.log({ isEssence, threadId });
     return true;
@@ -278,6 +289,7 @@ export default class ThreadController {
 
     thread.deleted_user_id = null;
     thread.deleted_at = null;
+    await thread.removeTag(THREAD_TAG_ID_DELETED, false);
     await thread.saveAndUpdateThreadCount();
 
     userRestoreDeleteThreadLogger.log({ threadId: id });
@@ -447,6 +459,7 @@ export default class ThreadController {
     @QueryParam('is_sticky') isSticky: boolean,
     @QueryParam('is_approved') isApprovedArrStr: string,
     @QueryParam('is_deleted') isDeleted: boolean,
+    @QueryParam('thread_tag_id') thread_tag_id: string,
     @QueryParam('created_at_begin') createdAtBegin: string,
     @QueryParam('created_at_end') createdAtEnd: string,
     @QueryParam('page_offset') offset = 0,
@@ -523,6 +536,13 @@ export default class ThreadController {
         ? {
             content_for_indexes: {
               [Op.like]: `%${keywords}%`,
+            },
+          }
+        : {}),
+      ...(thread_tag_id
+        ? {
+            sort_thread_tag_ids: {
+              [Op.like]: `%^${thread_tag_id}^%`,
             },
           }
         : {}),
@@ -654,9 +674,6 @@ export default class ThreadController {
   ) {
     const thread = await getThread(db, id);
     if (thread == null) throw new UIError('帖子未找到');
-    if (thread.deleted_at) {
-      throw new UIError('帖子已删除');
-    }
     if (thread.is_approved === ThreadIsApproved.checking && currentUser?.id !== thread.user_id) {
       throw new UIError('帖子审核中');
     }
@@ -666,17 +683,12 @@ export default class ThreadController {
     if (thread.is_draft && currentUser?.id !== thread.user_id) {
       throw new UIError('帖子编辑草稿中，尚未发布');
     }
-    let hasPermission;
-    if (currentUser) {
-      // 已登录用户
-      hasPermission =
-        (await currentUser.hasPermission('viewThreads')) || (await currentUser.hasPermission(`category${thread.category_id}.viewThreads`));
-    } else {
-      // 游客
-      const permissions = await getGroupPermissions(db, GROUP_ID_TOURIST);
-      hasPermission = permissions.includes('viewThreads') || permissions.includes(`category${thread.category_id}.viewThreads`);
+    if (!(await thread.canViewByUser(currentUser))) {
+      if (thread.deleted_at) {
+        throw new UIError('帖子已删除');
+      }
+      throw new UIError('无权查看帖子');
     }
-    if (!hasPermission) throw new UIError('无权查看帖子');
 
     const addViewCountKey = `${dbName}/${thread.id}/${currentUser?.id || formatReqIP(request.ip)}`;
     if (
@@ -728,6 +740,9 @@ export default class ThreadController {
       }
     }
     if (!(await thread.canEditByUser(currentUser))) {
+      if (thread.deleted_at) {
+        throw new UIError('帖子已删除');
+      }
       throw new UIError('无权修改帖子');
     }
 

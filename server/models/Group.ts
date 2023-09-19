@@ -1,5 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { createModelCache } from '../utils/model-cache';
+import { GROUP_ID_ADMIN } from '../routes/bbs/const';
 
 /**
  * 用户角色模型
@@ -106,7 +107,19 @@ export async function getGroupModel(db: Sequelize): Promise<typeof Group> {
     },
   );
 
-  waitDBSync.set(db, DBGroup.sync({ alter: { drop: false } }));
+  waitDBSync.set(
+    db,
+    DBGroup.sync({ alter: { drop: false } }).then(async () => {
+      // 补齐初始化数据
+      if (!(await DBGroup.findOne({ where: { id: GROUP_ID_ADMIN } }))) {
+        // 自动添加 admin 的角色分组
+        await DBGroup.create({
+          id: GROUP_ID_ADMIN,
+          name: '系统管理员',
+        });
+      }
+    }),
+  );
   await waitDBSync.get(db);
   waitDBSync.delete(db);
   return DBGroup;

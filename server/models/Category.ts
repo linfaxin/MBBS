@@ -27,6 +27,8 @@ export class Category extends Model<Partial<Category>> {
   threads_default_sort: string;
   /** 板块内帖子评论默认排序方式 */
   posts_default_sort: string;
+  /** 板块内支持的可筛选标签，格式：1,3,4 （逗号分隔的标签ID） */
+  sort_thread_tag_ids: string;
   /** 创建时间 */
   created_at: Date;
   /** 更新时间 */
@@ -129,6 +131,9 @@ export async function getCategoryModel(db: Sequelize): Promise<typeof Category> 
         type: DataTypes.TEXT,
       },
       posts_default_sort: {
+        type: DataTypes.TEXT,
+      },
+      sort_thread_tag_ids: {
         type: DataTypes.TEXT,
       },
     },

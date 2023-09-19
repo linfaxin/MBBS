@@ -26,7 +26,7 @@ export class UserMessage extends Model<Partial<UserMessage>> {
   /** 创建时间 */
   created_at: Date;
   /** 更新时间 */
-  updated_at?: Date;
+  updated_at: Date;
   /** 消息已读时间 */
   read_at?: Date;
 }

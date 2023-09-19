@@ -7,6 +7,7 @@ import { threadApi, userApi } from '@/api';
 import OpenPopoverMenu from '@/components/open-popover-menu';
 import { showConfirm } from '@/utils/show-alert';
 import showSnackbar from '@/utils/show-snackbar';
+import { GROUP_ID_ADMIN } from '@/consts';
 
 export default function UserPostsPage() {
   const { user: loginUser } = useModel('useLoginUser');
@@ -20,14 +21,14 @@ export default function UserPostsPage() {
         queryParam={{ user_id: String(id) }}
         showCategoryName
         renderAfterListTitleThreadCount={(threads, reloadThreads) =>
-          loginUser?.username === 'admin' ? (
+          loginUser?.group?.id === GROUP_ID_ADMIN ? (
             <OpenPopoverMenu
               options={[
                 {
                   label: (
                     <div>
                       <div>删除当前列表 {threads.length} 个帖子</div>
-                      <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅 admin 可见</div>
+                      <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅系统管理员可见</div>
                     </div>
                   ),
                   onClick: () => {

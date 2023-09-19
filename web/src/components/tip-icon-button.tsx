@@ -12,6 +12,7 @@ const TipIconButton = (props: { message: string }) => {
     <IconButton color="primary" size="small">
       <HelpIcon
         sx={{
+          flexShrink: 0,
           width: 18,
           color: '#999',
           transform: 'translate(0, -1px)',

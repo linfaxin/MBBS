@@ -13,6 +13,7 @@ import { getGroupModel } from './Group';
 import { AllGlobalPermissions, getGroupPermissionModel } from './GroupPermission';
 import { setSettingValue } from './Settings';
 import { isDevEnv } from '../utils/env-util';
+import { getThreadTagModel } from './ThreadTag';
 
 const fs = require('fs');
 const fse = require('fs-extra');
@@ -79,6 +80,7 @@ export async function getDB(dbName: string): Promise<Sequelize> {
   });
   db[DBPathSymbol] = dbPath;
   dbCache.set(dbPath, db);
+  getThreadTagModel(db); // 初始化帖子标签 & 补齐帖子标签
   return db;
 }
 
@@ -132,7 +134,7 @@ export async function createDB(adminPassword: string): Promise<Sequelize> {
     const GroupModel = await getGroupModel(db);
     await GroupModel.build({
       id: GROUP_ID_ADMIN,
-      name: '论坛管理员',
+      name: '系统管理员',
     }).save();
 
     const defaultGroupId = GROUP_ID_DEFAULT;

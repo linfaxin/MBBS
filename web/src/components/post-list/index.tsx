@@ -15,6 +15,7 @@ import OpenPopoverMenu from '@/components/open-popover-menu';
 import { useModel } from '@@/plugin-model/useModel';
 import showSnackbar from '@/utils/show-snackbar';
 import { showConfirm } from '@/utils/show-alert';
+import { GROUP_ID_ADMIN } from '@/consts';
 
 const PostList: React.FC<
   Partial<PageListProps> & {
@@ -114,14 +115,14 @@ const PostList: React.FC<
               评论数：{totalCount}
               {keywords ? `(搜索：${keywords})` : ''}
             </Typography>
-            {loginUserModel.user?.username === 'admin' && (
+            {loginUserModel.user?.group?.id === GROUP_ID_ADMIN && (
               <OpenPopoverMenu
                 options={[
                   {
                     label: (
                       <div>
                         <div>删除显示的 {postList.length} 条评论</div>
-                        <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅 admin 可见</div>
+                        <div style={{ fontSize: 12, opacity: 0.7 }}>该功能仅系统管理员可见</div>
                       </div>
                     ),
                     onClick: () => {

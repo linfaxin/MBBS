@@ -8,7 +8,7 @@ import { groupApi, permissionApi, userApi } from '@/api';
 import UploadResourceButton from '@/components/upload-resource-button';
 import { getResourceUrl } from '@/utils/resource-url';
 import { compressImageFile } from '@/utils/compress-image-util';
-import { ENUM_MAP_USER_STATE, UserStatusCanChangeToMap } from '@/consts';
+import { ENUM_MAP_USER_STATE, GROUP_ID_ADMIN, UserStatusCanChangeToMap } from '@/consts';
 import { formatTime } from '@/utils/format-util';
 import { User, UserStatus } from '@/api/base/user';
 import { useRequest } from 'ahooks';
@@ -211,7 +211,9 @@ export default function UserDetailPage() {
             <OpenPromptDialog
               title="修改用户角色"
               defaultValue={String(user.status)}
-              options={(groups || []).map((group) => ({ label: group.name, value: String(group.id) }))}
+              options={(groups || [])
+                .filter((g) => g.id !== GROUP_ID_ADMIN)
+                .map((group) => ({ label: group.name, value: String(group.id) }))}
               onSubmit={async (inputValue) => {
                 await doTaskWithUI({
                   task: async () => {

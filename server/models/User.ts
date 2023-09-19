@@ -79,7 +79,7 @@ export class User extends Model<Partial<User>> {
   updated_at: Date;
   /** 获取当前用户的 分组id */
   async getGroupId(): Promise<number> {
-    if (await this.isAdmin()) return GROUP_ID_ADMIN;
+    if (this.username === 'admin') return GROUP_ID_ADMIN;
     return getUserGroupId(this.sequelize, this.id);
   }
   /** 设置当前用户的 分组id */
@@ -88,7 +88,7 @@ export class User extends Model<Partial<User>> {
   }
   /** 是否是管理员 */
   async isAdmin(): Promise<boolean> {
-    return this.username === 'admin';
+    return this.username === 'admin' || (await this.getGroupId()) === GROUP_ID_ADMIN;
   }
   /** 当前用户是否有权限 */
   hasPermission(permission: PermissionType): Promise<boolean> {
@@ -148,7 +148,7 @@ export class User extends Model<Partial<User>> {
     const { showRealEmail } = option || {};
     let group: Partial<Group>;
     if (await this.isAdmin()) {
-      group = { name: '论坛管理员' };
+      group = { id: GROUP_ID_ADMIN, name: '系统管理员' };
     }
     const groupId = await this.getGroupId();
     if (groupId) {
