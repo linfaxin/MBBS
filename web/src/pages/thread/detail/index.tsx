@@ -249,7 +249,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
                 <img
                   alt="icon"
                   src={getResourceUrl(thread.user.group.icon)}
-                  style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
+                  style={{ height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
                 />
               )}
             </span>

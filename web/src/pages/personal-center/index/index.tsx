@@ -193,7 +193,7 @@ export default function UserIndexPage() {
                   <img
                     alt="icon"
                     src={getResourceUrl(user.group.icon)}
-                    style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 4 }}
+                    style={{ height: 16, verticalAlign: 'text-bottom', paddingLeft: 4 }}
                   />
                 )}
               </>

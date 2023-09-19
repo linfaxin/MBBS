@@ -76,7 +76,7 @@ const PostCommentList: React.FC<
                   <img
                     alt="icon"
                     src={getResourceUrl(comment.user.group.icon)}
-                    style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
+                    style={{ height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
                   />
                 )}
               </span>
@@ -96,7 +96,7 @@ const PostCommentList: React.FC<
                       <img
                         alt="icon"
                         src={getResourceUrl(comment.comment_user.group.icon)}
-                        style={{ width: 16, height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
+                        style={{ height: 16, verticalAlign: 'text-bottom', paddingLeft: 2 }}
                       />
                     )}
                   </span>

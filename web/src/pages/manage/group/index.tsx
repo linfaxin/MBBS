@@ -33,9 +33,7 @@ const ManageCategory = () => {
               primary={
                 <>
                   {groupAdmin.name}
-                  {!!groupAdmin.icon && (
-                    <img alt="icon" src={getResourceUrl(groupAdmin.icon)} style={{ width: 20, height: 20, paddingLeft: 4 }} />
-                  )}
+                  {!!groupAdmin.icon && <img alt="icon" src={getResourceUrl(groupAdmin.icon)} style={{ height: 20, paddingLeft: 4 }} />}
                   <OpenEditGroupDialog
                     title="修改角色"
                     group={groupAdmin}
@@ -89,7 +87,7 @@ const ManageCategory = () => {
                 primary={
                   <>
                     {group.name}
-                    {!!group.icon && <img alt="icon" src={getResourceUrl(group.icon)} style={{ width: 20, height: 20, paddingLeft: 4 }} />}
+                    {!!group.icon && <img alt="icon" src={getResourceUrl(group.icon)} style={{ height: 20, paddingLeft: 4 }} />}
                     <OpenEditGroupDialog
                       title="修改角色"
                       group={group}
