@@ -36,6 +36,14 @@ export async function listEditableTagForThread(threadId: string | number): Promi
   return await fetchApi(`threadTag/listEditableTagForThread?thread_id=${threadId}`).then((resp) => resp.data);
 }
 
+/** 列出指定板块的所有可使用标签 */
+export async function listEditableTagForCategory(categoryId?: string | number): Promise<Array<ThreadTag>> {
+  if (!categoryId) {
+    return await fetchApi(`threadTag/listEditableTagForAllCategory`).then((resp) => resp.data);
+  }
+  return await fetchApi(`threadTag/listEditableTagForCategory?category_id=${categoryId}`).then((resp) => resp.data);
+}
+
 /** 添加一个标签 */
 export async function addTag(fields: Partial<ThreadTag>): Promise<ThreadTag> {
   return fetchApi({

@@ -129,6 +129,22 @@ export default class ThreadTagController {
       .map((m) => m.toJSON());
   }
 
+  @Get('/listEditableTagForCategory')
+  async listEditableTagForCategory(
+    @CurrentDB() db: Sequelize,
+    @CurrentUser({ required: true }) currentUser: User,
+    @QueryParam('category_id', { required: true }) categoryId: number,
+  ) {
+    const ThreadTagModel = await getThreadTagModel(db);
+    return (await ThreadTagModel.findAll()).filter((tag) => tag.canUseInCategory(categoryId)).map((m) => m.toJSON());
+  }
+
+  @Get('/listEditableTagForAllCategory')
+  async listEditableTagForAllCategory(@CurrentDB() db: Sequelize, @CurrentUser({ required: true }) currentUser: User) {
+    const ThreadTagModel = await getThreadTagModel(db);
+    return (await ThreadTagModel.findAll()).filter((tag) => !tag.limit_use_in_categories).map((m) => m.toJSON());
+  }
+
   @Post('/bindTagForThread')
   async bindTagForThread(
     @CurrentDB() db: Sequelize,

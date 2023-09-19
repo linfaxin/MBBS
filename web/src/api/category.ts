@@ -2,6 +2,7 @@ import fetchApi from '@/api/base/fetch';
 import { permissionApi } from '.';
 import { ThreadSortKey } from '@/api/thread';
 import { PostSortKey } from '@/api/post';
+import { ThreadTag } from '@/api/thread-tag';
 
 /**
  * 分类板块
@@ -28,6 +29,10 @@ export interface Category {
   threads_default_sort?: ThreadSortKey;
   /** 板块帖子评论 默认排序方式 */
   posts_default_sort?: PostSortKey;
+  /** 板块帖子标签筛选ID，格式：1,3,4(逗号分隔的 标签ID) */
+  filter_thread_tag_ids: string;
+  /** 板块帖子标签筛选 */
+  filter_thread_tags: ThreadTag[];
   /** 创建时间 */
   created_at: string;
   /** 更新时间 */

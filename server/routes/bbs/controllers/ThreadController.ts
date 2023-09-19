@@ -459,7 +459,7 @@ export default class ThreadController {
     @QueryParam('is_sticky') isSticky: boolean,
     @QueryParam('is_approved') isApprovedArrStr: string,
     @QueryParam('is_deleted') isDeleted: boolean,
-    @QueryParam('thread_tag_id') thread_tag_id: string,
+    @QueryParam('filter_thread_tag_id') filter_thread_tag_id: string,
     @QueryParam('created_at_begin') createdAtBegin: string,
     @QueryParam('created_at_end') createdAtEnd: string,
     @QueryParam('page_offset') offset = 0,
@@ -539,10 +539,10 @@ export default class ThreadController {
             },
           }
         : {}),
-      ...(thread_tag_id
+      ...(filter_thread_tag_id
         ? {
-            sort_thread_tag_ids: {
-              [Op.like]: `%^${thread_tag_id}^%`,
+            thread_tag_ids: {
+              [Op.like]: `%^${filter_thread_tag_id}^%`,
             },
           }
         : {}),

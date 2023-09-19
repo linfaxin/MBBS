@@ -1,6 +1,7 @@
-import { Model, Sequelize, DataTypes, Transactionable } from 'sequelize';
+import { Op, Model, Sequelize, DataTypes, Transactionable } from 'sequelize';
 import { createModelCache } from '../utils/model-cache';
 import { getThreadModel, NormalThreadFilter } from './Thread';
+import { getThreadTagById, THREAD_TAG_ID_ESSENCE } from './ThreadTag';
 
 /**
  * 帖子分类
@@ -28,11 +29,26 @@ export class Category extends Model<Partial<Category>> {
   /** 板块内帖子评论默认排序方式 */
   posts_default_sort: string;
   /** 板块内支持的可筛选标签，格式：1,3,4 （逗号分隔的标签ID） */
-  sort_thread_tag_ids: string;
+  filter_thread_tag_ids: string;
   /** 创建时间 */
   created_at: Date;
   /** 更新时间 */
   updated_at: Date;
+  async toViewJSON() {
+    return {
+      ...this.toJSON(),
+      filter_thread_tags: (
+        await Promise.all(
+          (this.filter_thread_tag_ids || '')
+            .split(',')
+            .filter(Boolean)
+            .map((tagId) => getThreadTagById(this.sequelize, parseInt(tagId))),
+        )
+      )
+        .filter(Boolean)
+        .map((tag) => tag?.toJSON()),
+    };
+  }
 }
 const CategoryCache = createModelCache(Category, {
   max: 100,
@@ -133,7 +149,7 @@ export async function getCategoryModel(db: Sequelize): Promise<typeof Category> 
       posts_default_sort: {
         type: DataTypes.TEXT,
       },
-      sort_thread_tag_ids: {
+      filter_thread_tag_ids: {
         type: DataTypes.TEXT,
       },
     },
@@ -149,7 +165,24 @@ export async function getCategoryModel(db: Sequelize): Promise<typeof Category> 
     },
   );
 
-  waitDBSync.set(db, DBCategory.sync({ alter: { drop: false } }));
+  waitDBSync.set(
+    db,
+    DBCategory.sync({ alter: { drop: false } }).then(async () => {
+      // 补齐板块默认的标签筛选条件
+      await DBCategory.update(
+        {
+          filter_thread_tag_ids: String(THREAD_TAG_ID_ESSENCE),
+        },
+        {
+          where: {
+            filter_thread_tag_ids: {
+              [Op.is]: null,
+            },
+          },
+        },
+      );
+    }),
+  );
   await waitDBSync.get(db);
   waitDBSync.delete(db);
   return DBCategory;

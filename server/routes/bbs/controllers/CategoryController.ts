@@ -22,7 +22,7 @@ export default class CategoryController {
     @BodyParam('disable_post') disable_post: boolean,
     @BodyParam('threads_default_sort') threads_default_sort: string,
     @BodyParam('posts_default_sort') posts_default_sort: string,
-    @BodyParam('sort_thread_tag_ids') sort_thread_tag_ids: string,
+    @BodyParam('filter_thread_tag_ids') filter_thread_tag_ids: string,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -39,9 +39,9 @@ export default class CategoryController {
       disable_post,
       threads_default_sort,
       posts_default_sort,
-      sort_thread_tag_ids,
+      filter_thread_tag_ids,
     });
-    return category.toJSON();
+    return category.toViewJSON();
   }
 
   @Post('/removeCategory')
@@ -76,7 +76,7 @@ export default class CategoryController {
     @BodyParam('disable_post') disable_post: boolean,
     @BodyParam('threads_default_sort') threads_default_sort: string,
     @BodyParam('posts_default_sort') posts_default_sort: string,
-    @BodyParam('sort_thread_tag_ids') sort_thread_tag_ids: string,
+    @BodyParam('filter_thread_tag_ids') filter_thread_tag_ids: string,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -87,7 +87,7 @@ export default class CategoryController {
 
     const CategoryModel = await getCategoryModel(db);
     await CategoryModel.update(
-      { icon, name, description, sort, hidden, disable_post, threads_default_sort, posts_default_sort, sort_thread_tag_ids },
+      { icon, name, description, sort, hidden, disable_post, threads_default_sort, posts_default_sort, filter_thread_tag_ids },
       { where: { id: categoryId } },
     );
 
@@ -118,6 +118,6 @@ export default class CategoryController {
   @Get('/listCategory')
   async listCategory(@CurrentDB() db: Sequelize, @CurrentUser() currentUser: User, @BodyParam('with_hidden') withHidden: boolean) {
     const CategoryModel = await getCategoryModel(db);
-    return (await CategoryModel.findAll()).map((m) => m.toJSON());
+    return Promise.all((await CategoryModel.findAll()).map((m) => m.toViewJSON()));
   }
 }

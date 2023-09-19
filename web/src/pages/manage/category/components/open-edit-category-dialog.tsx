@@ -8,6 +8,9 @@ import { getResourceUrl } from '@/utils/resource-url';
 import { compressImageFile } from '@/utils/compress-image-util';
 import UploadResourceButton from '@/components/upload-resource-button';
 import { Category } from '@/api/category';
+import ThreadTagSelect from '@/components/thread-tag-select';
+import { useRequest } from 'ahooks';
+import { threadTagApi } from '@/api';
 
 const OpenEditCategoryDialog: React.FC<
   Partial<OpenAlertDialogProps> & {
@@ -16,6 +19,7 @@ const OpenEditCategoryDialog: React.FC<
   }
 > = (props) => {
   const { category, doSubmitCategory, ...otherProps } = props;
+  const { data: editableThreadTags } = useRequest(() => threadTagApi.listEditableTagForCategory(category?.id));
 
   let innerForm: FormInstance;
   const EditCategoryForm = () => {
@@ -130,6 +134,21 @@ const OpenEditCategoryDialog: React.FC<
                 <MenuItem value="-created_at">最新发布</MenuItem>
                 <MenuItem value="-like_count">最多点赞</MenuItem>
               </TextField>
+            </Field>
+            <Field name="filter_thread_tag_ids" initialValue={category?.filter_thread_tag_ids || ''}>
+              {() => (
+                <ThreadTagSelect
+                  label="可筛选标签"
+                  TextFieldProps={{ fullWidth: true, sx: { mt: 1 } }}
+                  value={((form.getFieldValue('filter_thread_tag_ids') as string) || '')
+                    .split(',')
+                    .filter(Boolean)
+                    .map((id) => parseInt(id))}
+                  onChange={(value) => form.setFieldsValue({ filter_thread_tag_ids: [].concat(value as any).join(',') })}
+                  multiple
+                  threadTags={editableThreadTags || []}
+                />
+              )}
             </Field>
             <Field name="hidden" initialValue={!!category?.hidden} valuePropName="checked">
               <FormControlLabel
