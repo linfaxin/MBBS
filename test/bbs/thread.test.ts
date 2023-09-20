@@ -116,10 +116,9 @@ test('thread-crud', async () => {
   expect(threadList.length).toBe(1);
   expect(threadList[0].id).toBe(createdThread2.id);
 
-  await expect(() =>
-    testFetchJSON(testDomain, `bbs/threads/${createdThread.id}`, {
-      method: 'get',
-      headers: { 'Content-Type': 'application/json', ...defaultHeaders, [HEADER_TOKEN]: userAdmin.token },
-    }),
-  ).rejects.toThrowError(/Error/);
+  const thread1Resp = await testFetchJSON(testDomain, `bbs/threads/${createdThread.id}`, {
+    method: 'get',
+    headers: { 'Content-Type': 'application/json', ...defaultHeaders, [HEADER_TOKEN]: userAdmin.token },
+  });
+  expect(thread1Resp.data.deleted_at).toBeTruthy();
 });
