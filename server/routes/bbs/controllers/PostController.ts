@@ -290,7 +290,7 @@ export default class PostController {
     if (currentUser.id !== thread.user_id) {
       insertUserMessage(db, {
         title: `你的帖子"${formatSubString(thread.title, 15)}"有了新的回复`,
-        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的帖子"${formatSubString(thread.title, 15)}"：\n
+        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的帖子：\n
 ${formatSubString(markdownToPureText(content), 20)}`,
         link: `/#/thread/detail/${thread.id}`,
         user_id: thread.user_id,
@@ -348,10 +348,7 @@ ${formatSubString(markdownToPureText(content), 20)}`,
     if (currentUser.id !== post.user_id) {
       insertUserMessage(db, {
         title: `你的评论"${formatSubString(markdownToPureText(post.content), 10)}"有了新的回复`,
-        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的评论"${formatSubString(
-          markdownToPureText(post.content),
-          15,
-        )}":
+        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的评论:
 ${formatSubString(content, 20)}`,
         link: `/#/thread/detail/${thread.id}`,
         user_id: post.user_id,
@@ -364,10 +361,7 @@ ${formatSubString(content, 20)}`,
       // 指定了目标回复
       insertUserMessage(db, {
         title: `你的回复"${formatSubString(markdownToPureText(replyCommentPost.content), 10)}"有了新的回复`,
-        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的回复"${formatSubString(
-          markdownToPureText(replyCommentPost.content),
-          15,
-        )}":
+        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的回复:
 ${formatSubString(content, 20)}`,
         link: `/#/thread/detail/${thread.id}`,
         user_id: replyCommentPost.user_id,

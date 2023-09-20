@@ -315,10 +315,7 @@ export default class ThreadController {
 
     insertUserMessage(db, {
       title: `有用户发布了新帖"${formatSubString(thread.title, 10)}"`,
-      content: `用户 "${formatSubString(currentUser.nickname, 15)}" 在板块 "${category.name}" 发布了新帖：\n"${formatSubString(
-        thread.title,
-        15,
-      )}"`,
+      content: `用户 "${formatSubString(currentUser.nickname, 15)}" 在板块 "${category.name}" 发布了新帖`,
       link: `/#/thread/detail/${thread.id}`,
       user_id: (await getUserByName(db, 'admin')).id,
       from_user_id: thread.user_id,
