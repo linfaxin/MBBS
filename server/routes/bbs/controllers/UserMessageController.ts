@@ -52,7 +52,7 @@ export default class CategoryController {
   @Get('/listMessage')
   async listMessage(
     @CurrentDB() db: Sequelize,
-    @CurrentUser() currentUser: User,
+    @CurrentUser({ required: true }) currentUser: User,
     @QueryParam('page_offset') offset = 0,
     @QueryParam('page_limit') limit = 20,
     @QueryParam('sort') sort: string, // [keyof UserMessage | `-${keyof UserMessage}`].join(',')
@@ -97,6 +97,9 @@ export default class CategoryController {
 
   @Get('/unreadMessageCount')
   async unreadMessageCount(@CurrentDB() db: Sequelize, @CurrentUser() currentUser: User) {
+    if (!currentUser) {
+      return 0;
+    }
     const UserMessageModel = await getUserMessageModel(db);
     return await UserMessageModel.count({
       where: {
