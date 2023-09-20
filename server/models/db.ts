@@ -132,10 +132,6 @@ export async function createDB(adminPassword: string): Promise<Sequelize> {
 
     // 创建初始化角色
     const GroupModel = await getGroupModel(db);
-    await GroupModel.build({
-      id: GROUP_ID_ADMIN,
-      name: '系统管理员',
-    }).save();
 
     const defaultGroupId = GROUP_ID_DEFAULT;
     const defaultGroup = GroupModel.build({
