@@ -3,7 +3,7 @@ import { v4 as uuidV4 } from 'uuid';
 import * as LRUCache from 'lru-cache';
 import { Request } from 'express';
 import * as dayjs from 'dayjs';
-import { DB_NAME, DBDataDir, GROUP_ID_ADMIN, GROUP_ID_DEFAULT, GROUP_ID_TOURIST } from '../routes/bbs/const';
+import { DB_NAME, DBDataDir, GROUP_ID_DEFAULT, GROUP_ID_TOURIST } from '../routes/bbs/const';
 import { clearAllModelCache } from '../utils/model-cache';
 import { getUserModel } from './User';
 import { hashPassword } from '../utils/password-util';
@@ -13,7 +13,7 @@ import { getGroupModel } from './Group';
 import { AllGlobalPermissions, getGroupPermissionModel } from './GroupPermission';
 import { setSettingValue } from './Settings';
 import { isDevEnv } from '../utils/env-util';
-import { getThreadTagModel } from './ThreadTag';
+import { getThreadTagModel, THREAD_TAG_ID_ESSENCE } from './ThreadTag';
 
 const fs = require('fs');
 const fse = require('fs-extra');
@@ -127,6 +127,7 @@ export async function createDB(adminPassword: string): Promise<Sequelize> {
       name: '默认分类',
       thread_count: 0,
       sort: 1,
+      filter_thread_tag_ids: String(THREAD_TAG_ID_ESSENCE),
     });
     await defaultCategory.save();
 
