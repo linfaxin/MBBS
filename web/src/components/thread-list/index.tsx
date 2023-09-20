@@ -110,7 +110,7 @@ const ThreadList: React.FC<
         </Typography>
       }
       renderPageEmpty={
-        <Typography textAlign="center" p={2}>
+        <Typography textAlign="center" p={2} component="div">
           {keywords || filterThreadTagId ? (
             <>
               <span>未搜索到帖子</span>

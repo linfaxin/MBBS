@@ -267,7 +267,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
             </MouseOverTip>
             {(thread?.thread_tags || []).map((tag) =>
               tag.hidden_in_thread_view ? null : (
-                <MouseOverTip tip={tag.description || ''} key={tag.id}>
+                <MouseOverTip tip={tag.description || tag.name || ''} key={tag.id}>
                   {tag.icon ? (
                     <img alt="icon" src={getResourceUrl(tag.icon)} style={{ height: 16, verticalAlign: 'text-bottom', paddingLeft: 6 }} />
                   ) : (

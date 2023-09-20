@@ -7,7 +7,6 @@ import { updateCategoryThreadCount } from './Category';
 import { getGroupPermissions, hasOneOfPermissions } from './GroupPermission';
 import { GROUP_ID_TOURIST } from '../routes/bbs/const';
 import { filterMarkdownHiddenContent, markdownHasReplyHiddenContent, markdownToPureText } from '../utils/md-to-pure-text';
-import { parseInt } from 'lodash';
 import { getThreadTagById, THREAD_TAG_ID_DELETED } from './ThreadTag';
 
 import moment = require('moment');
@@ -71,7 +70,7 @@ export class Thread extends Model<Partial<Thread>> {
   modified_at: Date;
   /** 删除时间 */
   deleted_at: Date;
-  /** 是否能被指定用户流量 */
+  /** 是否能被指定用户浏览 */
   async canViewByUser(currentUser: User | null): Promise<boolean> {
     if (await currentUser?.isAdmin()) return true;
     let hasPermission;
@@ -137,8 +136,8 @@ export class Thread extends Model<Partial<Thread>> {
   }
   /** 是否能被指定用户软删除 */
   async canHideByUser(currentUser: User): Promise<boolean> {
-    if (await currentUser.isAdmin()) return true;
     if (!currentUser) return false;
+    if (await currentUser.isAdmin()) return true;
     let hasPermission = false;
     if (this.user_id === currentUser.id) {
       // 软删自己的帖子

@@ -67,7 +67,7 @@ const PermissionScopeRadio: React.FC<
           label={<Typography pl={1}>{isCategoryPermission ? '全局允许' : '允许'}</Typography>}
         />
         {isCategoryPermission && (
-          <FormControlLabel value="2" control={<Radio size="small" sx={{ p: 0 }} />} label={<Typography pl={1}>仅指定版块</Typography>} />
+          <FormControlLabel value="2" control={<Radio size="small" sx={{ p: 0 }} />} label={<Typography pl={1}>限指定版块</Typography>} />
         )}
       </RadioGroup>
       {Array.isArray(value) && (

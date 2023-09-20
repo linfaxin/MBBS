@@ -524,7 +524,6 @@ export default class ThreadController {
     const whereOption: WhereOptions<Partial<Thread>> = {
       ...NormalThreadFilter,
       ...(threadId ? { id: threadId } : {}),
-      ...(categoryId ? { category_id: categoryId } : {}),
       category_id: {
         [Op.in]: filterInCategoryIds,
       },
