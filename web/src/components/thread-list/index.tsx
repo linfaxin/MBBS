@@ -111,11 +111,16 @@ const ThreadList: React.FC<
       }
       renderPageEmpty={
         <Typography textAlign="center" p={2}>
-          {keywords ? (
+          {keywords || filterThreadTagId ? (
             <>
-              未搜索到帖子
-              <br />
-              <Button onClick={setKeywords.bind(this, '')}>清空搜索关键字</Button>
+              <span>未搜索到帖子</span>
+              <div style={{ height: 20 }} />
+              <div hidden={!keywords}>
+                <Button onClick={setKeywords.bind(this, '')}>清空搜索关键字</Button>
+              </div>
+              <div hidden={!filterThreadTagId}>
+                <Button onClick={setFilterThreadTagId.bind(this, '')}>清空筛选标签</Button>
+              </div>
             </>
           ) : (
             <span style={{ opacity: 0.6 }}>暂无帖子</span>
