@@ -136,7 +136,7 @@ export default function UserMessageCenterPage() {
         useBodyScroll
         renderListNoMoreFoot={
           <Typography textAlign="center" p={2} fontSize="smaller" sx={{ opacity: 0.5 }}>
-            回复加载完毕
+            加载完毕
           </Typography>
         }
         renderPageEmpty={
