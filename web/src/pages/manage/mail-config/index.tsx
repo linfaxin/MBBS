@@ -89,9 +89,9 @@ const BaseSetting = () => {
   };
 
   return (
-    <AppPage title="邮件设置" parentPage={[{ title: '管理后台', href: '/manage' }]}>
+    <AppPage title="邮件/消息设置" parentPage={[{ title: '管理后台', href: '/manage' }]}>
       <Alert severity="info" sx={{ marginBottom: 2 }}>
-        开启邮件功能后，论坛用户可以自主绑定邮箱、用邮箱忘记密码登录、论坛回复通知到邮箱。
+        开启邮件功能后，论坛用户可以自主绑定邮箱、用邮箱忘记密码登录、未读消息同步到邮箱。
       </Alert>
       <List
         subheader={<ListSubheader component="div">邮件设置</ListSubheader>}
@@ -132,8 +132,8 @@ const BaseSetting = () => {
           <ListItemText
             primary={
               <>
-                审核消息通知到管理员邮箱
-                <TipIconButton message="开启后，有新发布的需要审核帖子或新注册的需要审核用户，会通知到管理员账号绑定的邮箱（需先在个人中心绑定邮箱）" />
+                审核消息通知到系统管理员
+                <TipIconButton message="开启后，有新的待审核帖子或用户时，会以消息形式通知到系统管理员" />
               </>
             }
             secondary={bbsSetting.__internal_reviewed_content_notice_admin_email === '1' ? '已开启' : '已关闭'}
@@ -142,20 +142,6 @@ const BaseSetting = () => {
             checked={bbsSetting.__internal_reviewed_content_notice_admin_email === '1'}
             onChange={async (e) => {
               const checked = e.target.checked;
-              if (checked && bbsSetting.site_enable_email !== '1') {
-                showAlert('请先开启 邮件消息通知功能');
-                return;
-              }
-              if (checked && !loginUser?.email) {
-                showAlert({
-                  title: '管理员未绑定邮箱',
-                  message: '请先至个人中心绑定邮箱',
-                  cancelText: '取消',
-                  okText: '去绑定',
-                  onOk: () => history.push('/personal-center'),
-                });
-                return;
-              }
               await doTaskWithUI({
                 task: () => settingApi.set('__internal_reviewed_content_notice_admin_email', checked ? '1' : '0'),
                 failAlert: true,
@@ -169,8 +155,8 @@ const BaseSetting = () => {
           <ListItemText
             primary={
               <>
-                新帖通知到管理员邮箱
-                <TipIconButton message="开启后，论坛内发布了新帖会及时通知到管理员账号绑定的邮箱（需先在个人中心绑定邮箱）" />
+                新帖通知到系统管理员
+                <TipIconButton message="开启后，论坛内发布了新帖会及时以消息形式通知到系统管理员" />
               </>
             }
             secondary={
@@ -184,13 +170,9 @@ const BaseSetting = () => {
           <IconButton
             color="primary"
             onClick={() => {
-              if (bbsSetting.site_enable_email !== '1') {
-                showAlert('请先开启 邮件消息通知功能');
-                return;
-              }
               let __internal_new_thread_notice_admin_email = bbsSetting.__internal_new_thread_notice_admin_email;
               showAlert({
-                title: '新帖通知到管理员邮箱',
+                title: '新帖通知到系统管理员',
                 message: (
                   <GlobalOrCategoryRadio
                     textGlobalOff="关闭"
@@ -210,16 +192,6 @@ const BaseSetting = () => {
                 onOkErrorAlert: true,
                 okText: '确定',
                 onOk: async () => {
-                  if (__internal_new_thread_notice_admin_email && !loginUser?.email) {
-                    showAlert({
-                      title: '管理员未绑定邮箱',
-                      message: '请先至个人中心绑定邮箱',
-                      cancelText: '取消',
-                      okText: '去绑定',
-                      onOk: () => history.push('/personal-center'),
-                    });
-                    return;
-                  }
                   await settingApi.set('__internal_new_thread_notice_admin_email', __internal_new_thread_notice_admin_email);
                   bbsSetting.update('__internal_new_thread_notice_admin_email', __internal_new_thread_notice_admin_email);
                 },

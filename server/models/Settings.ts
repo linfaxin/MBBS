@@ -89,9 +89,9 @@ export interface SettingKeyValue {
   /** 导航菜单背景图 */
   ui_nav_menu_bg_image: string;
   // 服务端内部字段（以 __ 开头的字段 默认不会返回给前端）
-  /** 板块新帖通知到管理员邮箱 */
+  /** 板块新帖消息形式 通知到管理员 */
   __internal_new_thread_notice_admin_email: 'all' | string; // 板块ID1,板块ID2
-  /** 审核帖子/用户通知到管理员邮箱 */
+  /** 审核帖子/用户消息形式 通知到管理员 */
   __internal_reviewed_content_notice_admin_email: '0' | '1';
   /** 是否校验 referer */
   __internal_check_referer: '0' | '1';
@@ -204,7 +204,18 @@ async function getSettingModel(db: Sequelize): Promise<typeof SettingModel> {
     },
   );
 
-  waitDBSync.set(db, DBSetting.sync({ alter: { drop: false } }));
+  waitDBSync.set(
+    db,
+    DBSetting.sync({ alter: { drop: false } }).then(async () => {
+      // 默认开启：审核消息同步到管理员
+      if (!(await DBSetting.findOne({ where: { key: '__internal_reviewed_content_notice_admin_email' } }))) {
+        await DBSetting.create({
+          key: '__internal_reviewed_content_notice_admin_email',
+          value: '1',
+        });
+      }
+    }),
+  );
   await waitDBSync.get(db);
   waitDBSync.delete(db);
   return DBSetting;

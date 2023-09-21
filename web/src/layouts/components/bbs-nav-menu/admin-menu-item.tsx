@@ -48,7 +48,7 @@ const AdminMenuItem = (props: { jumpTo: (route: string) => void }) => {
           </GroupListItem>
           <GroupListItem text="高级功能">
             <ListItemButton onClick={() => jumpTo('/manage/mail-config')}>
-              <ListItemText primary="邮件设置" />
+              <ListItemText primary="邮件/消息" />
             </ListItemButton>
             <ListItemButton onClick={() => jumpTo('/manage/bind-host')}>
               <ListItemText primary="绑定域名" />
