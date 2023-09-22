@@ -168,19 +168,29 @@ export async function getCategoryModel(db: Sequelize): Promise<typeof Category> 
   waitDBSync.set(
     db,
     DBCategory.sync({ alter: { drop: false } }).then(async () => {
-      // 补齐板块默认的标签筛选条件
-      await DBCategory.update(
-        {
-          filter_thread_tag_ids: String(THREAD_TAG_ID_ESSENCE),
-        },
-        {
-          where: {
-            filter_thread_tag_ids: {
-              [Op.is]: null,
+      try {
+        // 补齐板块默认的标签筛选条件
+        if (
+          await DBCategory.findOne({
+            where: { filter_thread_tag_ids: { [Op.is]: null } },
+          })
+        ) {
+          await DBCategory.update(
+            {
+              filter_thread_tag_ids: String(THREAD_TAG_ID_ESSENCE),
             },
-          },
-        },
-      );
+            {
+              where: {
+                filter_thread_tag_ids: {
+                  [Op.is]: null,
+                },
+              },
+            },
+          );
+        }
+      } catch (e) {
+        // 忽略报错
+      }
     }),
   );
   await waitDBSync.get(db);
