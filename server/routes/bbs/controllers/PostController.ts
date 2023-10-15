@@ -381,7 +381,14 @@ ${formatSubString(content, 20)}`,
     @CurrentDB() db: Sequelize,
     @BodyParam('ids') ids: string,
   ) {
-    const posts = (await Promise.all(ids.split(',').map((id) => getPost(db, parseInt(id))))).filter(Boolean);
+    const posts = (
+      await Promise.all(
+        ids
+          .split(',')
+          .filter(Boolean)
+          .map((id) => getPost(db, parseInt(id))),
+      )
+    ).filter(Boolean);
     const result = {
       sucIds: [] as number[],
       failIds: [] as number[],

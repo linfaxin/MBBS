@@ -83,7 +83,10 @@ export default class ThreadController {
     const hasPermission = await currentUser.hasOneOfPermissions('thread.sticky', `category${thread.category_id}.thread.sticky`);
     if (!hasPermission) throw new UIError('无权在当前板块置顶');
 
-    for (const otherCategoryId of (sticky_at_other_categories || '').split(',').map((id) => parseInt(id))) {
+    for (const otherCategoryId of (sticky_at_other_categories || '')
+      .split(',')
+      .filter(Boolean)
+      .map((id) => parseInt(id))) {
       if (!(await currentUser.hasOneOfPermissions('thread.sticky', `category${otherCategoryId}.thread.sticky`))) {
         throw new UIError(`无权置顶至板块"${(await getCategoryById(db, otherCategoryId)).name}"`);
       }
@@ -467,6 +470,7 @@ export default class ThreadController {
 
     const isApprovedArr: ThreadIsApproved[] = (isApprovedArrStr || '')
       .split(',')
+      .filter(Boolean)
       .map((s) => parseInt(s))
       .filter((n) => !isNaN(n));
     // 仅管理员可以查看 审核中/已删除 帖子
@@ -635,7 +639,14 @@ export default class ThreadController {
     @CurrentDB() db: Sequelize,
     @BodyParam('ids') ids: string,
   ) {
-    const threads = (await Promise.all(ids.split(',').map((id) => getThread(db, parseInt(id))))).filter(Boolean);
+    const threads = (
+      await Promise.all(
+        ids
+          .split(',')
+          .filter(Boolean)
+          .map((id) => getThread(db, parseInt(id))),
+      )
+    ).filter(Boolean);
     const result = {
       sucIds: [] as number[],
       failIds: [] as number[],

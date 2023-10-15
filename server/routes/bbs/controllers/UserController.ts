@@ -208,7 +208,10 @@ export default class UserController {
     }
     const inGroupUserIds = [];
     if (groupIdArrStr) {
-      const groupIds = groupIdArrStr.split(',').map((str) => parseInt(str));
+      const groupIds = groupIdArrStr
+        .split(',')
+        .filter(Boolean)
+        .map((str) => parseInt(str));
       for (const groupId of groupIds) {
         inGroupUserIds.push(...(await getGroupUserIds(db, groupId)));
       }
@@ -221,7 +224,10 @@ export default class UserController {
     }
     let statusArr: UserStatus[];
     if (statusArrStr) {
-      statusArr = statusArrStr.split(',').map((str) => parseInt(str));
+      statusArr = statusArrStr
+        .split(',')
+        .filter(Boolean)
+        .map((str) => parseInt(str));
     }
     const whereOption: WhereOptions<Partial<User>> = {
       ...(inGroupUserIds.length ? { id: { [Op.in]: inGroupUserIds } } : {}),

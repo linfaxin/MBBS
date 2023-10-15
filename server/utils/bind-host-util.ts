@@ -3,7 +3,7 @@ import { getSettingValue, setSettingValue } from '../models/Settings';
 
 export async function getBindHosts(dbName: string): Promise<string[]> {
   const db = await getDB(dbName);
-  return ((await getSettingValue(db, '__internal_bind_hosts')) || '').split(',');
+  return ((await getSettingValue(db, '__internal_bind_hosts')) || '').split(',').filter(Boolean);
 }
 
 export async function getDefaultHost(dbName: string): Promise<string> {
