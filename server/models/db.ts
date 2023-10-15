@@ -10,7 +10,7 @@ import { hashPassword } from '../utils/password-util';
 import { saveUserToken } from './UserToken';
 import { getCategoryModel } from './Category';
 import { getGroupModel } from './Group';
-import { AllGlobalPermissions, getGroupPermissionModel } from './GroupPermission';
+import { AllGlobalPermissions, DefaultNormalUserPermissions, DefaultTouristUserPermissions, setGroupPermissions } from './GroupPermission';
 import { setSettingValue } from './Settings';
 import { isDevEnv } from '../utils/env-util';
 import { getThreadTagModel, THREAD_TAG_ID_ESSENCE } from './ThreadTag';
@@ -143,35 +143,12 @@ export async function createDB(adminPassword: string): Promise<Sequelize> {
     await defaultGroup.save();
 
     // 创建默认分组的权限
-    const GroupPermissionModel = await getGroupPermissionModel(db);
-    await GroupPermissionModel.bulkCreate([
-      { group_id: defaultGroupId, permission: 'user.view' },
-      { group_id: defaultGroupId, permission: 'user.view.threads' },
-      { group_id: defaultGroupId, permission: 'user.view.posts' },
-      { group_id: defaultGroupId, permission: 'viewThreads' },
-      { group_id: defaultGroupId, permission: 'createThread' },
-      { group_id: defaultGroupId, permission: 'thread.createHiddenContent' },
-      { group_id: defaultGroupId, permission: 'thread.viewPosts' },
-      { group_id: defaultGroupId, permission: 'thread.reply' },
-      { group_id: defaultGroupId, permission: 'thread.like' },
-      { group_id: defaultGroupId, permission: 'thread.likePosts' },
-      { group_id: defaultGroupId, permission: 'thread.editOwnThread' },
-      { group_id: defaultGroupId, permission: 'thread.editOwnPost' },
-      { group_id: defaultGroupId, permission: 'thread.hideOwnThread' },
-      { group_id: defaultGroupId, permission: 'thread.stickyOwnThreadPost' },
-      { group_id: defaultGroupId, permission: 'thread.hideOwnPost' },
-      { group_id: defaultGroupId, permission: 'attachment.create.0' },
-      { group_id: defaultGroupId, permission: 'attachment.create.1' },
-    ]);
+    await setGroupPermissions(db, defaultGroupId, DefaultNormalUserPermissions);
 
     // 异步创建论坛的一些数据，不阻塞用户等待
     Promise.resolve().then(async () => {
       // 创建游客默认权限
-      await GroupPermissionModel.bulkCreate([
-        { group_id: GROUP_ID_TOURIST, permission: 'user.view' },
-        { group_id: GROUP_ID_TOURIST, permission: 'viewThreads' },
-        { group_id: GROUP_ID_TOURIST, permission: 'thread.viewPosts' },
-      ]);
+      await setGroupPermissions(db, GROUP_ID_TOURIST, DefaultTouristUserPermissions);
 
       // 设置创建时间
       await setSettingValue(db, { created_at: dayjs().format('YYYY-MM-DD HH:mm:ss') });
@@ -179,7 +156,7 @@ export async function createDB(adminPassword: string): Promise<Sequelize> {
       // 设置管理员角色和权限
       const managerGroup = await GroupModel.create({ name: '管理员' });
       const managerGroupId = managerGroup.id;
-      await GroupPermissionModel.bulkCreate(AllGlobalPermissions.map((p) => ({ group_id: managerGroupId, permission: p })));
+      await setGroupPermissions(db, managerGroupId, AllGlobalPermissions);
     });
     return db;
   } catch (e) {

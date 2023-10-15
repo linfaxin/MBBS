@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import CurrentDB from '../decorators/CurrentDB';
 import { User } from '../../../models/User';
 import CurrentDomain from '../decorators/CurrentDomain';
-import { PermissionType, setGroupPermissions } from '../../../models/GroupPermission';
+import { DefaultNormalUserPermissions, PermissionType, setGroupPermissions } from '../../../models/GroupPermission';
 import CurrentUser from '../decorators/CurrentUser';
 import { createGroup, getGroupById, getGroupByName, getGroupModel, listGroup, removeGroup } from '../../../models/Group';
 import { getGroupUserIds } from '../../../models/GroupUser';
@@ -26,6 +26,9 @@ export default class GroupController {
       throw new UIError('角色名已存在');
     }
     const group = await createGroup(db, groupName);
+    if (!permissions) {
+      permissions = DefaultNormalUserPermissions;
+    }
     if (permissions?.length) {
       await setGroupPermissions(db, group.id, permissions);
     }

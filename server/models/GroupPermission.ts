@@ -69,6 +69,28 @@ export const AllGlobalPermissions: PermissionType[] = [
   'user.view',
 ];
 
+export const DefaultNormalUserPermissions: PermissionType[] = [
+  'user.view',
+  'user.view.threads',
+  'user.view.posts',
+  'viewThreads',
+  'createThread',
+  'thread.createHiddenContent',
+  'thread.viewPosts',
+  'thread.reply',
+  'thread.like',
+  'thread.likePosts',
+  'thread.editOwnThread',
+  'thread.editOwnPost',
+  'thread.hideOwnThread',
+  'thread.stickyOwnThreadPost',
+  'thread.hideOwnPost',
+  'attachment.create.0',
+  'attachment.create.1',
+];
+
+export const DefaultTouristUserPermissions: PermissionType[] = ['user.view', 'viewThreads', 'thread.viewPosts'];
+
 /**
  * 分组拥有的权限
  */
