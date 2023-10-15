@@ -64,8 +64,10 @@ export function getLogger(logFileName: `${string}.log`, logOptions?: Options) {
   if (!logPrinters[logFileName]) {
     logPrinters[logFileName] = new Logger(
       createStream(logFileName, {
-        interval: '1d', // rotate daily
-        maxSize: '10M', // 1个日志文件最大 10M
+        interval: '1d', // 以天分隔日志文件
+        size: '1M', // 单天日志文件最大 1M
+        maxSize: '10M', // 所有日期下 该日志文件最大 10M
+        maxFiles: 15, // 最多记录 15 天的数据
         path: logPath,
         ...logOptions,
       }),
