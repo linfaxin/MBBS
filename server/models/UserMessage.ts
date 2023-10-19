@@ -1,7 +1,9 @@
+import * as dayjs from 'dayjs';
 import { Model, Sequelize, DataTypes, Op } from 'sequelize';
 import { mailToUser } from '../utils/mail-util';
 import { getDefaultHost } from '../utils/bind-host-util';
 import { getDBNameFromDB } from './db';
+import { formatSubString } from '../utils/format-utils';
 
 /**
  * 用户消息模型
@@ -52,6 +54,8 @@ export async function insertUserMessage(
     // 无需自己触发消息给自己
     return;
   }
+  msgData.content = `${dayjs().format('YYYY-MM-DD HH:mm:ss')}\n${msgData.content || ''}`; // 消息内容开头加入当前时间
+
   const UserMessageModel = await getUserMessageModel(db);
 
   const shouldSendMail =
@@ -76,7 +80,9 @@ export async function insertUserMessage(
 
   if (unReadSameKeyMsg) {
     // 有相同未读 key 的消息，无需插入新消息（避免相同消息过多）
+    const mergedContent = formatSubString(`${msgData.content}\n\n${unReadSameKeyMsg.content}`, 500);
     Object.assign(unReadSameKeyMsg, msgData);
+    unReadSameKeyMsg.content = mergedContent;
 
     if (shouldSendMail) {
       try {

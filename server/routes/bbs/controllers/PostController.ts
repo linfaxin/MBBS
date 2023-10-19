@@ -289,8 +289,8 @@ export default class PostController {
 
     if (currentUser.id !== thread.user_id) {
       insertUserMessage(db, {
-        title: `你的帖子"${formatSubString(thread.title, 15)}"有了新的回复`,
-        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的帖子：\n
+        title: `你的帖子"${formatSubString(thread.title, 15)}"有了新的评论`,
+        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的帖子：
 ${formatSubString(markdownToPureText(content), 20)}`,
         link: `/#/thread/detail/${thread.id}`,
         user_id: thread.user_id,
@@ -345,7 +345,11 @@ ${formatSubString(markdownToPureText(content), 20)}`,
     await thread.save();
     userCreateCommentLogger.log({ postId, commentPostId, contentLength: content.length, content: formatSubString(content, 100) });
 
+    const hasNotifyUserIds = new Set<number>();
+
+    // 通知评论所属用户
     if (currentUser.id !== post.user_id) {
+      hasNotifyUserIds.add(post.user_id);
       insertUserMessage(db, {
         title: `你的评论"${formatSubString(markdownToPureText(post.content), 10)}"有了新的回复`,
         content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你的评论:
@@ -357,7 +361,9 @@ ${formatSubString(content, 20)}`,
       }).catch(noop);
     }
 
-    if (commentPostId && currentUser.id !== replyCommentPost.user_id && replyCommentPost.user_id !== post.user_id) {
+    // 通知回复目户
+    if (commentPostId && currentUser.id !== replyCommentPost.user_id && !hasNotifyUserIds.has(replyCommentPost.user_id)) {
+      hasNotifyUserIds.add(replyCommentPost.user_id);
       // 指定了目标回复
       insertUserMessage(db, {
         title: `你的回复"${formatSubString(markdownToPureText(replyCommentPost.content), 10)}"有了新的回复`,
@@ -367,6 +373,20 @@ ${formatSubString(content, 20)}`,
         user_id: replyCommentPost.user_id,
         from_user_id: currentUser.id,
         unread_merge_key: `viewThread${thread.id}.post${post.id}`,
+      }).catch(noop);
+    }
+
+    // 通知楼主
+    if (currentUser.id !== thread.user_id && !hasNotifyUserIds.has(thread.user_id)) {
+      hasNotifyUserIds.add(thread.user_id);
+      insertUserMessage(db, {
+        title: `你的帖子"${formatSubString(thread.title, 15)}"有了新的回复`,
+        content: `用户"${formatSubString(currentUser.nickname, 15)}"回复了你帖子里的评论：\n
+${formatSubString(markdownToPureText(content), 20)}`,
+        link: `/#/thread/detail/${thread.id}`,
+        user_id: thread.user_id,
+        from_user_id: currentUser.id,
+        unread_merge_key: `viewThread${thread.id}`,
       }).catch(noop);
     }
 
