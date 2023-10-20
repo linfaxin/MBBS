@@ -229,10 +229,10 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
           </Typography>
           <OpenPopoverMenu options={threadMenus} />
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 1, marginBottom: 2, fontSize: 'smaller' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginTop: 1, marginBottom: 2, fontSize: 'smaller' }}>
           <AppLink
             href={`/user/detail?id=${thread?.user?.id}`}
-            sx={{ display: 'flex', alignItems: 'center', flexShrink: 1, overflow: 'hidden', whiteSpace: 'nowrap' }}
+            sx={{ display: 'flex', alignItems: 'center', flexShrink: 1, overflow: 'hidden', whiteSpace: 'nowrap', marginRight: 1.2 }}
           >
             <img
               alt="avatar"
@@ -256,8 +256,8 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
               )}
             </span>
           </AppLink>
-          <Box sx={{ display: 'flex', alignItems: 'center', flex: 'none' }}>
-            <MoreTimeIcon fontSize="small" opacity={0.5} sx={{ marginLeft: 1.2 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%', flex: 'none' }}>
+            <MoreTimeIcon fontSize="small" opacity={0.5} />
             <MouseOverTip tip={`创建时间：${formatTime(thread?.created_at)}\n修改时间：${formatTime(thread?.modified_at)}`}>
               <span style={{ marginLeft: '2px', opacity: 0.6 }}>{formatTimeFriendly(thread?.created_at)}</span>
             </MouseOverTip>
