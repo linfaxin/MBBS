@@ -49,13 +49,13 @@ const PermissionPage = () => {
               <PermissionScopeRadio />
             </Field>
           </ListItem>
-          <ListItem>
+          <ListItem divider>
             <ListItemText primary="查看其他用户信息" />
             <Field name="user.view" initialValue={permissions.includes('user.view')}>
               <PermissionScopeRadio isCategoryPermission={false} />
             </Field>
           </ListItem>
-          <ListItem>
+          <ListItem divider>
             <ListItemText primary="查看指定用户所有帖子" />
             <Field name="user.view.threads" initialValue={permissions.includes('user.view.threads')}>
               <PermissionScopeRadio isCategoryPermission={false} />
