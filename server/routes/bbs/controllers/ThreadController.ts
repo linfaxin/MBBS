@@ -507,7 +507,7 @@ export default class ThreadController {
       }
     }
     if (!filterInCategoryIds.length) {
-      if (!currentUser) throw new UIError('游戏无权查看帖子，请先登录');
+      if (!currentUser) throw new UIError('游客无权查看帖子，请先登录');
       throw new UIError('无权查看帖子');
     }
 
