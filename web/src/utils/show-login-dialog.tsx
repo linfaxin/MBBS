@@ -456,7 +456,7 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
             window.addEventListener(
               'message',
               async (event) => {
-                if (event.origin !== 'http://mbbs.zdjl.site') return;
+                if (!/mbbs\.zdjl\.site/.test(event.origin)) return;
                 if (String(event.data).indexOf(newWindowMessage) === 0) {
                   try {
                     const messageDataStr = String(event.data).substr(newWindowMessage.length).replace(/^\#/, '');
