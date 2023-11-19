@@ -214,7 +214,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
       menus = ApiUI.showThreadDetailMenu(thread, menus);
     }
     return menus;
-  }, [thread]);
+  }, [thread, editableTags]);
 
   return (
     <AppPage
