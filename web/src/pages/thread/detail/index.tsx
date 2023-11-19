@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useMemo, useState } from 'react';
-import { postApi, threadApi } from '@/api';
+import { postApi, threadApi, threadTagApi } from '@/api';
 import { history, useModel, useParams, useLocation } from 'umi';
 import copyToClipboard from 'copy-to-clipboard';
 import { Box, Button, ButtonGroup, Chip, Typography, useTheme } from '@mui/material';
@@ -22,6 +22,7 @@ import PostList from '@/components/post-list';
 import doTaskWithUI from '@/utils/do-task-with-ui';
 import OpenPopupMarkdownEditor from '@/components/open-popup-markdown-editor';
 import ApiUI from '@/api-ui';
+import { useRequest } from 'ahooks';
 import { markThreadViewed } from '@/utils/view-thread-records-util';
 import showPromptDialog from '@/utils/show-prompt-dialog';
 import ThreadContentPreview from '@/components/thread-content/thread-content-preview';
@@ -42,6 +43,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
   const [thread, setThread] = usePageState<Thread>('thread-detail');
   const [postListReloadKey, setPostListReloadKey] = useState(1);
   const [threadCategory, setThreadCategory] = useState<Category>();
+  const { data: editableTags } = useRequest(() => threadTagApi.listEditableTagForThread(threadId));
   const theme = useTheme();
   const umiLocation = useLocation();
   const openReplyDialog = !!umiLocation.search.match(/openReply=1/);
@@ -206,7 +208,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
       thread?.can_sticky && { label: thread.is_sticky ? '修改置顶' : '置顶', onClick: onClickToggleStick },
       thread?.can_essence && { label: thread.is_essence ? '取消精华' : '精华', onClick: onClickToggleEssence },
       thread?.can_set_disable_post && { label: '设置评论开关', onClick: onClickSetDisablePost },
-      thread?.can_edit && { label: '设置帖子标签', onClick: () => showManageTagDialog(threadId, loadThread) },
+      (thread?.can_edit || !!editableTags?.length) && { label: '设置帖子标签', onClick: () => showManageTagDialog(threadId, loadThread) },
     ].filter(Boolean) as Array<{ label: string; onClick: () => void }>;
     if (ApiUI.showThreadDetailMenu) {
       menus = ApiUI.showThreadDetailMenu(thread, menus);
