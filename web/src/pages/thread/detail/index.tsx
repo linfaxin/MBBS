@@ -308,7 +308,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
         />
       ) : (
         <Typography textAlign="center" p={2} fontSize="smaller" sx={{ opacity: 0.5 }}>
-          共 {thread?.post_count || ''} 条评论，无查看权限
+          共 {thread?.reply_count || ''} 条评论，无查看权限
         </Typography>
       )}
       <Box sx={{ height: 56 }} />

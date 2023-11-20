@@ -30,7 +30,10 @@ export interface Thread {
   is_draft: boolean;
   /** 帖子名称 */
   title: string;
-  /** 帖子回复数量（默认第一条回复为帖子本身的内容，所以数量至少为1） */
+  /**
+   * 帖子回复数量（默认第一条回复为帖子本身的内容，所以数量至少为1）
+   * @deprecated 请使用 reply_count
+   */
   post_count: number;
   /** 阅读数 */
   view_count: number;
