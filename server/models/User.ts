@@ -176,6 +176,7 @@ const UserCache = createModelCache(User, {
 });
 
 export async function getUser(db: Sequelize, userId: number): Promise<User> {
+  if (!userId) return null;
   return UserCache.getInCache(db, userId) || (await getUserModel(db)).findByPk(userId);
 }
 
