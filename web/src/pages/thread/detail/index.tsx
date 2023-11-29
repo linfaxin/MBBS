@@ -30,6 +30,7 @@ import DoTaskButton from '@/components/do-task-button';
 import { Category, getCategory, listCategory } from '@/api/category';
 import CategorySelect from '@/components/category-select';
 import showManageTagDialog from '@/pages/thread/detail/show-manage-tag-dialog';
+import { getLoginUser } from '@/api/base/user';
 
 export default function ThreadDetailPage() {
   const params = useParams() as any;
@@ -43,7 +44,10 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
   const [thread, setThread] = usePageState<Thread>('thread-detail');
   const [postListReloadKey, setPostListReloadKey] = useState(1);
   const [threadCategory, setThreadCategory] = useState<Category>();
-  const { data: editableTags } = useRequest(() => threadTagApi.listEditableTagForThread(threadId));
+  const { data: editableTags } = useRequest(async () => {
+    if (!getLoginUser()) return [];
+    return await threadTagApi.listEditableTagForThread(threadId);
+  });
   const theme = useTheme();
   const umiLocation = useLocation();
   const openReplyDialog = !!umiLocation.search.match(/openReply=1/);
