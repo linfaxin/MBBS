@@ -121,13 +121,16 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
 
   const onClickToggleStick = async () => {
     if (!thread) return;
-    const allOtherCategories = (await listCategory()).filter((c) => c.id !== thread.category_id);
+    const allCategories = await listCategory();
+    const allOtherCategories = allCategories.filter((c) => c.id !== thread.category_id);
+    const currentCategory = allCategories.filter((c) => c.id === thread.category_id)[0];
     let sticky_at_other_categories = '';
     showAlert({
       title: '设置置顶',
       message: (
         <>
           <Typography sx={{ fontSize: 15, mb: 2, opacity: 0.8 }}>{thread.is_sticky ? '当前帖子已置顶' : '是否置顶当前帖子？'}</Typography>
+          <Typography sx={{ fontSize: 15, mb: 2, opacity: 0.8 }}>当前所属板块：{currentCategory?.name}</Typography>
           <Box display="flex" alignItems="center">
             <Typography fontSize={13} sx={{ opacity: 0.8, flexShrink: 0 }}>
               同时置顶至：
