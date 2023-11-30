@@ -145,7 +145,7 @@ export async function markMessageRead(db: Sequelize, user_id: number, msgId: num
     throw new Error('未找到目标消息');
   }
   unReadMsg.read_at = new Date();
-  await unReadMsg.save();
+  await unReadMsg.save({ silent: true });
   return unReadMsg;
 }
 
@@ -156,6 +156,7 @@ export async function markAllUnReadMessageRead(db: Sequelize, user_id: number) {
       read_at: new Date(),
     },
     {
+      silent: true,
       where: {
         user_id: user_id, // 指定用户
         read_at: { [Op.is]: null }, // 未读
