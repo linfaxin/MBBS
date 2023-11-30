@@ -127,7 +127,7 @@ export class Thread extends Model<Partial<Thread>> {
         .map((id) => parseInt(id))) {
         const threadTag = await getThreadTagById(this.sequelize, tagId);
         if (!threadTag) continue;
-        if (!threadTag.canWriteThreadBy(currentUserGroupId, this.user_id === currentUser?.id)) {
+        if (!threadTag.canWriteThreadBy(currentUserGroupId, hasPermission, this.user_id === currentUser?.id)) {
           return false;
         }
       }

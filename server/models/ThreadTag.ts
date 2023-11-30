@@ -90,14 +90,14 @@ export class ThreadTag extends Model<Partial<ThreadTag>> {
     return false;
   }
   /** 是否能被指定角色ID修改标签帖子 */
-  canWriteThreadBy(groupId: number, isUserThreadOwner: boolean): boolean {
+  canWriteThreadBy(groupId: number, defaultHasPermission: boolean, isUserThreadOwner: boolean): boolean {
     if (groupId === GROUP_ID_ADMIN) {
       return true;
     }
     const allowGroupIds = (this.limit_thread_write_groups || '').split(',').filter(Boolean);
     if (!allowGroupIds.length) {
-      // 未限制角色，仅帖子作者可写
-      return isUserThreadOwner;
+      // 未限制角色，返回 默认的修改帖子权限
+      return defaultHasPermission;
     }
     if (allowGroupIds.includes(String(groupId))) {
       // 是指定的角色
