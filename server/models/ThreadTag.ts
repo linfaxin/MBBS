@@ -37,11 +37,20 @@ export class ThreadTag extends Model<Partial<ThreadTag>> {
   /** 是否能被角色在指定板块使用该标签 */
   canUseByGroupAndCategory(userGroupID: number, categoryId: number, isUserThreadOwner: boolean): boolean {
     if (this.id < 100) {
+      if (userGroupID === GROUP_ID_ADMIN && this.id === THREAD_TAG_ID_READONLY) {
+        // 仅 admin 可以设置 只读 标签
+        return true;
+      }
       // 系统预置标签(ID<100)不允许手动添加
       return false;
     }
+    if (!this.canUseInCategory(categoryId)) {
+      // 不能在当前板块使用的标签
+      return false;
+    }
+
     if (userGroupID === GROUP_ID_ADMIN) {
-      return this.canUseInCategory(categoryId);
+      return true;
     }
     const allowGroupIds = (this.limit_use_by_groups || '').split(',').filter(Boolean);
     if (!allowGroupIds.length) {
