@@ -1,11 +1,11 @@
 import { history, useModel } from 'umi';
 import React, { useState } from 'react';
 import { threadApi, userApi } from '@/api';
-import { Alert, Button, List, ListItem, ListItemText, ListSubheader, Typography, useTheme } from '@mui/material';
+import { Button, List, ListItem, ListItemText, ListSubheader, Typography, useTheme } from '@mui/material';
 import { UserStatus } from '@/api/base/user';
 import AppLink from '@/components/app-link';
 import AppPage from '@/components/app-page';
-import { AllEnumThreadIsApproved, ThreadIsApproved } from '@/api/thread';
+import { ThreadIsApproved } from '@/api/thread';
 import TipIconButton from '@/components/tip-icon-button';
 
 export default function ManagePage() {
@@ -29,8 +29,8 @@ export default function ManagePage() {
         }
         userApi.countUser({ status: UserStatus.Checking }).then(setCheckingUserCount);
         threadApi.countThread({ is_approved: ThreadIsApproved.checking }).then(setCheckingThreadCount);
-        userApi.countUser().then(setTotalUserCount);
-        threadApi.countThread({ is_approved: AllEnumThreadIsApproved.join(',') }).then(setTotalThreadCount);
+        userApi.countUser({ status: UserStatus.Normal }).then(setTotalUserCount);
+        threadApi.countThread({ is_approved: ThreadIsApproved.ok }).then(setTotalThreadCount);
       }}
       showInitPageLoading={false}
     >
@@ -65,7 +65,7 @@ export default function ManagePage() {
             primary={
               <>
                 总用户量
-                <TipIconButton message="包含了全部状态（正常、禁用、审核中、审核失败）的用户量" />
+                <TipIconButton message="仅统计正常状态的用户量" />
               </>
             }
             secondary={totalUserCount}
@@ -76,7 +76,7 @@ export default function ManagePage() {
             primary={
               <>
                 总帖子量
-                <TipIconButton message="包含了全部状态（正常、审核中、审核失败）的帖子" />
+                <TipIconButton message="仅统计正常状态的帖子量" />
               </>
             }
             secondary={totalThreadCount}
