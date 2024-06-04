@@ -392,6 +392,7 @@ const BaseSetting = () => {
                     person_daily_create_thread_category_map: JSON.stringify(configValueCategoryMapValue),
                   });
                   bbsSetting.update('person_daily_create_thread_category', configValueAllCategories);
+                  bbsSetting.update('person_daily_create_thread_category_map', JSON.stringify(configValueCategoryMapValue));
                 },
               });
             }}
