@@ -285,7 +285,7 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
                 <TextField
                   margin="dense"
                   label="登录账号"
-                  placeholder="请输入"
+                  placeholder="请输入英文或数字"
                   fullWidth
                   variant="outlined"
                   name="username"
