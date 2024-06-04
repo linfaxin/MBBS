@@ -181,12 +181,12 @@ const PostCommentList: React.FC<
           size="small"
           failAlert
           task={async () => {
-            const { list, totalCount } = await postApi.listComments({
+            const { list, totalCount: newTotalCount } = await postApi.listComments({
               post_id: postId,
               page_offset: 0,
-              page_limit: 100,
+              page_limit: totalCount,
             });
-            setTotalCount(totalCount);
+            setTotalCount(newTotalCount);
             setCommentList(list);
           }}
         >
