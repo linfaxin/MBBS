@@ -230,6 +230,11 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
             <Typography textAlign="center">
               {bbsSetting.site_enable_third_platform_login === '1' ? '请通过授权登录自动完成注册' : '论坛配置异常（未开启三方授权登录）'}
             </Typography>
+            {bbsSetting.ui_tip_register?.trim() && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 2, pb: 2 }}>
+                <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.ui_tip_register} />
+              </Box>
+            )}
           </Box>
         );
       }
