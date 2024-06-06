@@ -16,6 +16,7 @@ const BBSNavMenu: React.FC<{
   sx?: SxProps<Theme>;
   className?: string;
 }> = (props) => {
+  const navBarContentModel = useModel('useNavBarContent');
   const { user, refreshUser } = useModel('useLoginUser');
   const { unreadCount, reloadUnReadCount } = useModel('useMessageCenter');
   const { categoriesSorted } = useModel('useCategories');
@@ -51,7 +52,11 @@ const BBSNavMenu: React.FC<{
       <GroupListItem text="分类版块" icon={<CategoryIcon />} defaultOpen>
         <List component="div" disablePadding>
           {categoriesSorted?.map((c) => (
-            <ListItemButton key={c.id} onClick={() => jumpTo(`/thread/category/${c.id}`)}>
+            <ListItemButton
+              key={c.id}
+              onClick={() => jumpTo(`/thread/category/${c.id}`)}
+              selected={navBarContentModel.hasCategory(c.id) || location.hash === `#/thread/category/${c.id}`}
+            >
               <ListItemText primary={c.name} />
               <span style={{ opacity: 0.5 }}>{c.thread_count || 0}</span>
             </ListItemButton>

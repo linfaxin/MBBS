@@ -81,6 +81,7 @@ const AppPage: React.FC<
                   {
                     title: category.name,
                     href: `/thread/category/${category.id}`,
+                    categoryId: category.id,
                   },
                   { title },
                 ]

@@ -1,7 +1,11 @@
 import { ReactNode, useState } from 'react';
 import ApiUI from '@/api-ui';
 
-export declare type NavBarContent = Array<{ title: string; href?: string }>;
+export declare type NavBarContent = Array<{
+  title: string;
+  href?: string;
+  categoryId?: number;
+}>;
 
 export default function useNavBarContent() {
   const [content, setContent] = useState<NavBarContent>([]);
@@ -29,6 +33,9 @@ export default function useNavBarContent() {
       }
       setContent(content);
       ApiUI.onTopBarTitleChange?.([...content].pop()?.title);
+    },
+    hasCategory(categoryId: number) {
+      return content.some((item) => item.categoryId === categoryId);
     },
   };
 }
