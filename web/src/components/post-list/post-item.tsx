@@ -135,22 +135,20 @@ const PostItem: React.FC<{
         >
           <Button color="inherit">回复</Button>
         </OpenPromptDialog>
-        {post.can_like && (
-          <DoTaskButton
-            startIcon={post.is_liked ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
-            loadingPosition="start"
-            color="inherit"
-            failAlert
-            task={async () => {
-              await postApi.setLike({ post_id: post.id, is_like: !post.is_liked });
-              post.is_liked = !post.is_liked;
-              post.like_count = post.is_liked ? post.like_count + 1 : post.like_count - 1;
-              setPostList([...postList]);
-            }}
-          >
-            {post.like_count}
-          </DoTaskButton>
-        )}
+        <DoTaskButton
+          startIcon={post.is_liked ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
+          loadingPosition="start"
+          color="inherit"
+          failAlert
+          task={async () => {
+            await postApi.setLike({ post_id: post.id, is_like: !post.is_liked });
+            post.is_liked = !post.is_liked;
+            post.like_count = post.is_liked ? post.like_count + 1 : post.like_count - 1;
+            setPostList([...postList]);
+          }}
+        >
+          {post.like_count}
+        </DoTaskButton>
       </Box>
     </Box>
   );
