@@ -56,6 +56,21 @@ const ManageCategory = () => {
                   </Button>
                 </OpenEditCategoryDialog>
                 <OpenPopupMarkdownEditor
+                  title="自定义板块页文案"
+                  defaultValue={category.home_ui_tip || ''}
+                  placeholder="会展示在板块的首页，可以自定义一些提示文案"
+                  onSubmitFailAlert
+                  onSubmit={async (inputValue) => {
+                    await categoryApi.setCategoryHomeUITip(category.id, inputValue);
+                    reloadCategory(); // 更新其他地方展示的菜单
+                    showSnackbar('设置成功');
+                  }}
+                >
+                  <Button variant="contained" fullWidth size="small" sx={{ marginTop: 1 }}>
+                    自定义板块页文案
+                  </Button>
+                </OpenPopupMarkdownEditor>
+                <OpenPopupMarkdownEditor
                   title="设置发帖默认模版"
                   defaultValue={category.create_thread_template || ''}
                   placeholder="在板块发帖时，默认会使用该模版的内容做为编辑初始内容"

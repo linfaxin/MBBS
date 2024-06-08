@@ -12,6 +12,7 @@ import AppPage from '@/components/app-page';
 import { usePageState } from '@/utils/use-page-history-hooks';
 import { Category } from '@/api/category';
 import showAlert from '@/utils/show-alert';
+import MarkdownPreview from '@/components/vditor/markdown-preview';
 
 export default function CategoryThreadsPage() {
   const params = useParams() as any;
@@ -64,6 +65,11 @@ function CategoryThreadsPageComponent(props: { categoryId: string | number }) {
         </Box>
       </Card>
       {!isWidthUpDM && <Divider orientation="horizontal" />}
+      {category?.home_ui_tip?.trim() && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', mt: 2, mb: 2 }}>
+          <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={category?.home_ui_tip} />
+        </Box>
+      )}
       {category && (
         <ThreadList
           queryParam={{ category_id: categoryId, sort: category.threads_default_sort }}

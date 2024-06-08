@@ -20,6 +20,8 @@ export class Category extends Model<Partial<Category>> {
   thread_count: number;
   /** 分类创建帖子时的 默认内容模版 */
   create_thread_template: string;
+  /** 板块首页自定义内容 */
+  home_ui_tip: string;
   /** 是否隐藏 */
   hidden: boolean;
   /** 是否板块级别关闭评论 */
@@ -129,6 +131,9 @@ export async function getCategoryModel(db: Sequelize): Promise<typeof Category> 
         type: DataTypes.TEXT,
       },
       create_thread_template: {
+        type: DataTypes.TEXT,
+      },
+      home_ui_tip: {
         type: DataTypes.TEXT,
       },
       sort: {

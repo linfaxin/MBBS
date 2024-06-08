@@ -115,6 +115,27 @@ export default class CategoryController {
     return true;
   }
 
+  @Post('/setCategoryHomeUITip')
+  async setCategoryHomeUITip(
+    @CurrentDB() db: Sequelize,
+    @CurrentUser({ required: true }) currentUser: User,
+    @CurrentDomain() domain: string,
+    @BodyParam('category_id', { required: true }) categoryId: number,
+    @BodyParam('home_ui_tip') homeUITip: string,
+  ) {
+    if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
+
+    const category = await getCategoryById(db, categoryId);
+    if (!category) {
+      throw new UIError('未找到分类');
+    }
+
+    const CategoryModel = await getCategoryModel(db);
+    await CategoryModel.update({ home_ui_tip: homeUITip }, { where: { id: categoryId } });
+
+    return true;
+  }
+
   @Get('/listCategory')
   async listCategory(@CurrentDB() db: Sequelize, @CurrentUser() currentUser: User, @BodyParam('with_hidden') withHidden: boolean) {
     const CategoryModel = await getCategoryModel(db);

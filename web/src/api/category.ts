@@ -21,6 +21,8 @@ export interface Category {
   thread_count: number;
   /** 分类创建帖子时的 默认内容模版 */
   create_thread_template: string;
+  /** 板块首页自定义内容 */
+  home_ui_tip: string;
   /** 是否隐藏 */
   hidden: boolean;
   /** 是否关闭板块评论功能 */
@@ -122,6 +124,17 @@ export async function setCategoryCreateThreadTemplate(category_id: string | numb
     data: {
       category_id,
       ...param,
+    },
+  });
+}
+
+export async function setCategoryHomeUITip(category_id: string | number, homeUITip: string): Promise<void> {
+  await fetchApi({
+    pathOrUrl: 'category/setCategoryHomeUITip',
+    method: 'post',
+    data: {
+      category_id,
+      home_ui_tip: homeUITip,
     },
   });
 }
