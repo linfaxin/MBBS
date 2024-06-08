@@ -10,7 +10,7 @@ import UIError from '../../../utils/ui-error';
 @JsonController('/setting')
 export default class SettingController {
   @Get('/getAll')
-  async getAll(@CurrentDB() db: Sequelize, @CurrentUser() currentUser: User) {
+  async getAll(@CurrentDB() db: Sequelize, @CurrentUser({ enableOnSiteClose: true }) currentUser: User) {
     const allSetting = await getAllSettings(db);
 
     if (!currentUser || !(await currentUser.isAdmin())) {

@@ -98,10 +98,21 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
         >
           {() => (
             <>
-              {bbsSetting.ui_tip_login?.trim() && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
-                  <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.ui_tip_login} />
+              {bbsSetting.site_close === '1' ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 200, p: 2 }}>
+                  <Typography textAlign="center" pb={2}>
+                    论坛已关闭
+                  </Typography>
+                  {bbsSetting.site_close_msg?.trim() && (
+                    <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.site_close_msg} />
+                  )}
                 </Box>
+              ) : (
+                bbsSetting.ui_tip_login?.trim() && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+                    <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.ui_tip_login} />
+                  </Box>
+                )
               )}
               <Field name="username" rules={[{ required: true, message: '请输入登录账号' }]} initialValue="">
                 <TextField
@@ -212,6 +223,16 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
     };
 
     const RegisterPanel = () => {
+      if (bbsSetting.site_close === '1') {
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 200, p: 2 }}>
+            <Typography textAlign="center" pb={2}>
+              论坛已关闭
+            </Typography>
+            {bbsSetting.site_close_msg?.trim() && <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.site_close_msg} />}
+          </Box>
+        );
+      }
       if (bbsSetting.register_close === '1') {
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 200, p: 2 }}>
@@ -235,16 +256,6 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
                 <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.ui_tip_register} />
               </Box>
             )}
-          </Box>
-        );
-      }
-      if (bbsSetting.site_close === '1') {
-        return (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 200, p: 2 }}>
-            <Typography textAlign="center" pb={2}>
-              论坛已关闭
-            </Typography>
-            {bbsSetting.site_close_msg?.trim() && <MarkdownPreview style={{ fontSize: 'inherit' }} markdown={bbsSetting.site_close_msg} />}
           </Box>
         );
       }
@@ -698,16 +709,20 @@ export default function showLoginDialog(option?: { closeIcon?: boolean }): Promi
           </Box>
           {currentIndex === 0 && <LoginPanel />}
           {currentIndex === 1 && <RegisterPanel />}
-          <Box display="flex" alignItems="center" mt={1}>
-            <Box display="flex" alignItems="center" flex={1}>
-              {bbsSetting.site_enable_third_platform_login === '1' && <ThirdLoginLine />}
-            </Box>
-            {bbsSetting.site_enable_email === '1' && (
-              <Button color="inherit" sx={{ opacity: 0.6, fontWeight: 'normal' }} onClick={showInputEmailToResetPasswordDialog}>
-                忘记密码?
-              </Button>
-            )}
-          </Box>
+          {bbsSetting.site_close !== '1' && (
+            <>
+              <Box display="flex" alignItems="center" mt={2}>
+                <Box display="flex" alignItems="center" flex={1}>
+                  {bbsSetting.site_enable_third_platform_login === '1' && <ThirdLoginLine />}
+                </Box>
+                {bbsSetting.site_enable_email === '1' && (
+                  <Button color="inherit" sx={{ opacity: 0.6, fontWeight: 'normal' }} onClick={showInputEmailToResetPasswordDialog}>
+                    忘记密码?
+                  </Button>
+                )}
+              </Box>
+            </>
+          )}
         </>
       );
     };

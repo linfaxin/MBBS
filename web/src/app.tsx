@@ -51,7 +51,7 @@ export async function render(_doRender: Function) {
       }
     }
 
-    const needLoginFirst = setting.site_need_login_first === '1' || /^#\/manage/.test(location.hash);
+    const needLoginFirst = setting.site_need_login_first === '1' || setting.site_close === '1' || /^#\/manage/.test(location.hash);
 
     if (needLoginFirst && !loginUser) {
       const doLoginBeforeRender = () => {
