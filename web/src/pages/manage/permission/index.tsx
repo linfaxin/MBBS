@@ -87,12 +87,6 @@ const PermissionPage = () => {
               </Field>
             </ListItem>
             <ListItem divider>
-              <ListItemText primary="发布评论/回复" />
-              <Field name="thread.reply" initialValue={getPermissionScopeValue(permissions, 'thread.reply')}>
-                <PermissionScopeRadio />
-              </Field>
-            </ListItem>
-            <ListItem divider>
               <ListItemText primary="修改自己的帖子" />
               <Field name="thread.editOwnThread" initialValue={getPermissionScopeValue(permissions, 'thread.editOwnThread')}>
                 <PermissionScopeRadio />
@@ -101,6 +95,18 @@ const PermissionPage = () => {
             <ListItem divider>
               <ListItemText primary="删除自己的帖子" />
               <Field name="thread.hideOwnThread" initialValue={getPermissionScopeValue(permissions, 'thread.hideOwnThread')}>
+                <PermissionScopeRadio />
+              </Field>
+            </ListItem>
+            <ListItem divider>
+              <ListItemText primary="发帖免审核" secondary="如果论坛开启了发帖审核，可以在此设置当前角色在指定板块发帖免审核" />
+              <Field name="thread.ignoreCreateValidate" initialValue={getPermissionScopeValue(permissions, 'thread.ignoreCreateValidate')}>
+                <PermissionScopeRadio />
+              </Field>
+            </ListItem>
+            <ListItem divider>
+              <ListItemText primary="发布评论/回复" />
+              <Field name="thread.reply" initialValue={getPermissionScopeValue(permissions, 'thread.reply')}>
                 <PermissionScopeRadio />
               </Field>
             </ListItem>

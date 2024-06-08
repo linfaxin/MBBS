@@ -354,9 +354,13 @@ export default class ThreadController {
     const ThreadModel = await getThreadModel(db);
 
     const settingValue_create_thread_validate = await getSettingValue(db, 'create_thread_validate');
-    const needValidate =
+    let needValidate =
       '1' === settingValue_create_thread_validate ||
       [].concat(JSON.parse(settingValue_create_thread_validate || '[]')).includes(categoryId);
+    if (needValidate && (await currentUser.hasOneOfPermissions(`category${categoryId}.thread.ignoreCreateValidate`))) {
+      // 在该板块发帖免审核权限
+      needValidate = false;
+    }
 
     const createdThread = await db.transaction(async (t) => {
       const thread = await ThreadModel.create(
@@ -775,9 +779,15 @@ export default class ThreadController {
       '1' === settingValue_create_thread_validate ||
       [].concat(JSON.parse(settingValue_create_thread_validate || '[]')).includes(categoryId);
 
-    const managePermission = await currentUser.hasOneOfPermissions('thread.edit', `category${thread.category_id}.thread.edit`);
-    if (managePermission) {
-      // 有全局编辑帖子权限，则无需审核
+    if (needValidate) {
+      const managePermission = await currentUser.hasOneOfPermissions('thread.edit', `category${thread.category_id}.thread.edit`);
+      if (managePermission) {
+        // 有全局编辑帖子权限，则无需审核
+        needValidate = false;
+      }
+    }
+    if (needValidate && (await currentUser.hasOneOfPermissions(`category${thread.category_id}.thread.ignoreCreateValidate`))) {
+      // 在该板块发帖免审核权限
       needValidate = false;
     }
 

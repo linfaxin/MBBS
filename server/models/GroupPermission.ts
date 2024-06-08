@@ -22,7 +22,8 @@ declare type CategoryPermissionType =
   | 'thread.like' // 帖子点赞
   | 'thread.reply' // 帖子评论
   | 'thread.sticky' // 帖子置顶
-  | 'thread.viewPosts'; // 浏览帖子评论
+  | 'thread.viewPosts' // 浏览帖子评论
+  | 'thread.ignoreCreateValidate'; // 发帖免审核
 
 declare type GlobalPermissionType =
   | 'attachment.create.0' // 全局上传附件/视频
