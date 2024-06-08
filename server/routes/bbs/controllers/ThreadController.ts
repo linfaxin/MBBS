@@ -204,10 +204,12 @@ export default class ThreadController {
     await thread.saveAndUpdateThreadCount();
 
     // 审核消息提示
-    if (isApproved === ThreadIsApproved.ok && currentUser.id !== thread.user_id) {
+    if (isApproved !== ThreadIsApproved.checking && currentUser.id !== thread.user_id) {
       insertUserMessage(db, {
-        title: `你的帖子"${formatSubString(thread.title, 15)}"被审核通过了`,
-        content: `管理员"${formatSubString(currentUser.nickname, 15)}"审核通过了该贴`,
+        title: `你的帖子"${formatSubString(thread.title, 15)}"审核${isApproved === ThreadIsApproved.ok ? '通过了' : '未通过'}`,
+        content: `管理员"${formatSubString(currentUser.nickname, 15)}"将该贴设置为${
+          isApproved === ThreadIsApproved.ok ? '审核通过' : '审核未通过'
+        }`,
         link: `/#/thread/detail/${thread.id}`,
         user_id: thread.user_id,
         from_user_id: currentUser.id,
@@ -483,6 +485,17 @@ export default class ThreadController {
         user_id: (await getUserByName(db, 'admin')).id,
         from_user_id: currentUser.id,
         unread_merge_key: 'manageThread',
+      }).catch(noop);
+    }
+
+    if (!isDraft && needValidate) {
+      // 审核中的帖子在消息中心通知当前用户（有入口可以查看帖子详情/审核状态）
+      insertUserMessage(db, {
+        title: `你的帖子"${formatSubString(createdThread.title, 15)}"正在审核中`,
+        content: `请耐心等待管理员审核`,
+        link: `/#/thread/detail/${createdThread.id}`,
+        user_id: createdThread.user_id,
+        unread_merge_key: `viewThread${createdThread.id}.setApproved`,
       }).catch(noop);
     }
 
@@ -917,6 +930,17 @@ export default class ThreadController {
         user_id: (await getUserByName(db, 'admin')).id,
         from_user_id: thread.user_id,
         unread_merge_key: 'manageThread',
+      }).catch(noop);
+    }
+
+    if (!thread.is_draft && needValidate) {
+      // 审核中的帖子在消息中心通知当前用户（有入口可以查看帖子详情/审核状态）
+      insertUserMessage(db, {
+        title: `你的帖子"${formatSubString(thread.title, 15)}"正在审核中`,
+        content: `请耐心等待管理员审核`,
+        link: `/#/thread/detail/${thread.id}`,
+        user_id: thread.user_id,
+        unread_merge_key: `viewThread${thread.id}.setApproved`,
       }).catch(noop);
     }
     return thread.toViewJSON(currentUser);

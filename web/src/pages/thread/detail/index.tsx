@@ -11,7 +11,7 @@ import MoreTimeIcon from '@mui/icons-material/MoreTime';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import AppPage from '@/components/app-page';
 import { removeThreadInHistoryData, updateThreadInHistoryData, usePageState } from '@/utils/use-page-history-hooks';
-import { Thread } from '@/api/thread';
+import { Thread, ThreadIsApproved } from '@/api/thread';
 import { formatTime, formatTimeFriendly } from '@/utils/format-util';
 import AppLink from '@/components/app-link';
 import OpenPopoverMenu from '@/components/open-popover-menu';
@@ -284,6 +284,16 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
                   )}
                 </MouseOverTip>
               ),
+            )}
+            {thread?.is_approved === ThreadIsApproved.checking && (
+              <MouseOverTip tip="帖子正在审核中">
+                <Chip size="small" label="审核中" sx={{ marginLeft: 0.6, verticalAlign: 'top' }} component="span" />
+              </MouseOverTip>
+            )}
+            {thread?.is_approved === ThreadIsApproved.check_failed && (
+              <MouseOverTip tip="帖子审核失败">
+                <Chip size="small" label="审核失败" sx={{ marginLeft: 0.6, verticalAlign: 'top' }} component="span" />
+              </MouseOverTip>
             )}
           </Box>
         </Box>
