@@ -63,6 +63,19 @@ export default class ThreadController {
 
     // 数据处理
     await setUserLikePost(db, firstPost, currentUser.id, isLike);
+
+    // 点赞消息提示
+    if (isLike && currentUser.id !== thread.user_id) {
+      insertUserMessage(db, {
+        title: `你的帖子"${formatSubString(thread.title, 15)}"被点赞了`,
+        content: `用户"${formatSubString(currentUser.nickname, 15)}"点赞了你的帖子`,
+        link: `/#/thread/detail/${thread.id}`,
+        user_id: thread.user_id,
+        from_user_id: currentUser.id,
+        unread_merge_key: `viewThread${thread.id}.setLike`,
+      }).catch(noop);
+    }
+
     userLikeThreadLogger.log({ isLike, threadId, title: thread.title });
     return true;
   }
@@ -98,8 +111,35 @@ export default class ThreadController {
     } else {
       await thread.removeTag(THREAD_TAG_ID_STICKY, false);
     }
+    const sticky_at_other_categories_before_set = thread.sticky_at_other_categories;
     thread.sticky_at_other_categories = isSticky ? sticky_at_other_categories || null : null;
     await thread.save();
+
+    // 置顶消息提示
+    if (currentUser.id !== thread.user_id) {
+      const belongCategoryIds = new Set(
+        [thread.category_id].concat(
+          ((isSticky ? sticky_at_other_categories : sticky_at_other_categories_before_set) || '')
+            .split(',')
+            .filter(Boolean)
+            .map((id) => parseInt(id)),
+        ),
+      );
+      const belongCategoryNames = await Promise.all(
+        Array.from(belongCategoryIds).map((cid) => getCategoryById(db, cid).then((c) => c.name)),
+      );
+      insertUserMessage(db, {
+        title: `你的帖子"${formatSubString(thread.title, 15)}"被${isSticky ? '置顶' : '取消置顶'}了`,
+        content: `管理员"${formatSubString(currentUser.nickname, 15)}"${
+          isSticky ? '置顶' : '取消置顶'
+        }了你的帖子\n板块：${belongCategoryNames.join(', ')}`,
+        link: `/#/thread/detail/${thread.id}`,
+        user_id: thread.user_id,
+        from_user_id: currentUser.id,
+        unread_merge_key: `viewThread${thread.id}.setSticky`,
+      }).catch(noop);
+    }
+
     userStickyThreadLogger.log({ isSticky, threadId });
     return true;
   }
@@ -120,6 +160,8 @@ export default class ThreadController {
     if (!hasPermission) throw new UIError('无权设置精华');
     if (thread.deleted_at) throw new UIError('帖子已被删除');
 
+    if (thread.is_essence === isEssence) return true; // 状态未变
+
     thread.is_essence = isEssence;
     if (isEssence) {
       await thread.addTag(THREAD_TAG_ID_ESSENCE, false);
@@ -127,6 +169,19 @@ export default class ThreadController {
       await thread.removeTag(THREAD_TAG_ID_ESSENCE, false);
     }
     await thread.save();
+
+    // 加精消息提示
+    if (currentUser.id !== thread.user_id) {
+      insertUserMessage(db, {
+        title: `你的帖子"${formatSubString(thread.title, 15)}"被${isEssence ? '加精' : '取消加精'}了`,
+        content: `管理员"${formatSubString(currentUser.nickname, 15)}"${isEssence ? '' : '取消'}设置该贴为精华帖子`,
+        link: `/#/thread/detail/${thread.id}`,
+        user_id: thread.user_id,
+        from_user_id: currentUser.id,
+        unread_merge_key: `viewThread${thread.id}.setEssence`,
+      }).catch(noop);
+    }
+
     userEssenceThreadLogger.log({ isEssence, threadId });
     return true;
   }
@@ -143,8 +198,23 @@ export default class ThreadController {
     const thread = await getThread(db, threadId);
     if (thread == null) throw new UIError('帖子未找到');
 
+    if (thread.is_approved === isApproved) return true; // 状态未变
+
     thread.is_approved = isApproved;
     await thread.saveAndUpdateThreadCount();
+
+    // 审核消息提示
+    if (isApproved === ThreadIsApproved.ok && currentUser.id !== thread.user_id) {
+      insertUserMessage(db, {
+        title: `你的帖子"${formatSubString(thread.title, 15)}"被审核通过了`,
+        content: `管理员"${formatSubString(currentUser.nickname, 15)}"审核通过了该贴`,
+        link: `/#/thread/detail/${thread.id}`,
+        user_id: thread.user_id,
+        from_user_id: currentUser.id,
+        unread_merge_key: `viewThread${thread.id}.setApproved`,
+      }).catch(noop);
+    }
+
     userApprovedThreadLogger.log({ isApproved, threadId });
     return true;
   }

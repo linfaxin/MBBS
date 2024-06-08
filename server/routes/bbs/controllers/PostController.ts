@@ -40,6 +40,19 @@ export default class PostController {
       throw new UIError('无权限点赞');
     }
     await setUserLikePost(db, post, currentUser.id, isLike);
+
+    // 评论点赞消息提示
+    if (isLike && currentUser.id !== post.user_id) {
+      insertUserMessage(db, {
+        title: `你的评论"${formatSubString(markdownToPureText(post.content), 10)}"被点赞了`,
+        content: `用户"${formatSubString(currentUser.nickname, 15)}"点赞了你的评论`,
+        link: `/#/thread/detail/${thread.id}`,
+        user_id: post.user_id,
+        from_user_id: currentUser.id,
+        unread_merge_key: `viewThread${thread.id}.post${post.id}.setLike`,
+      }).catch(noop);
+    }
+
     userLikePostLogger.log({ postId, isLike });
     return true;
   }
@@ -74,6 +87,19 @@ export default class PostController {
 
     post.is_sticky = isSticky;
     await post.save();
+
+    // 评论置顶消息提示
+    if (currentUser.id !== post.user_id) {
+      insertUserMessage(db, {
+        title: `你的评论"${formatSubString(markdownToPureText(post.content), 10)}"被${isSticky ? '置顶' : '取消置顶'}了`,
+        content: `用户"${formatSubString(currentUser.nickname, 15)}"${isSticky ? '置顶' : '取消置顶'}了你的评论`,
+        link: `/#/thread/detail/${thread.id}`,
+        user_id: post.user_id,
+        from_user_id: currentUser.id,
+        unread_merge_key: `viewThread${thread.id}.post${post.id}.setSticky`,
+      }).catch(noop);
+    }
+
     userStickyThreadLogger.log({ isSticky, threadId: thread.id, postId });
     return true;
   }
