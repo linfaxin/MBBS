@@ -69,7 +69,7 @@ export default function initVditor(div: HTMLElement, param: InitVditorOption) {
             tipPosition: 'ne',
             tip: '插入图片',
             className: 'right',
-            icon: `<input name='${uploadImgName}' type='file' accept='image/*'>
+            icon: `<input name='${uploadImgName}' type='file' accept='image/*' multiple>
 <svg viewBox='0 0 1137 1024' xmlns='http://www.w3.org/2000/svg' width='142.1' height='128' style="pointer-events: none">
   <path d='M913 1024H225C102 1024 0 932 0 822V202C0 92 102 0 225 0h688c123 0 225 92 225 202v620c0 110-102 202-225 202zM225 81c-75 0-135 54-135 121v620c0 67 60 121 135 121h688c75 0 135-54 135-121V202c0-67-60-121-135-121H225z'/>
   <path d='M762 1024L364 604 63 911 0 852l312-318a73 73 0 01100-3l3 3 407 431-60 59z'/>
