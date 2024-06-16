@@ -31,6 +31,7 @@ export class Logger {
   logWithDB(content: object, currentDB: Sequelize): void {
     content = {
       ...content,
+      _log_db_name: getDBNameFromDB(currentDB),
       _log_db_path: getDBPathFromDB(currentDB),
     };
     this.log(content);

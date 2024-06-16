@@ -3,7 +3,7 @@ import { Options } from 'rotating-file-stream';
 import { getUser, User } from '../../../models/User';
 import { getDB, getDBNameFromApiRequest, hasDB } from '../../../models/db';
 import { HEADER_TOKEN } from '../const';
-import { getUserIdFromToken } from '../../../models/UserToken';
+import { getUserTokenByToken } from '../../../models/UserToken';
 import { getLogger } from '../../../utils/log-util';
 import { formatReqIP } from '../../../utils/format-utils';
 
@@ -25,7 +25,7 @@ export default function ReqLog(logFileName: `${string}.log`, logOptions?: Option
         const db = await getDB(dbName);
         let user: User;
         if (token) {
-          const userId = await getUserIdFromToken(db, token);
+          const userId = (await getUserTokenByToken(db, token))?.user_id;
           if (userId) {
             user = await getUser(db, userId);
           }

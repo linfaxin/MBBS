@@ -39,7 +39,7 @@ async function clearExpiredToken(db: Sequelize) {
 const dbLastClearTokenTime = Symbol('dbLastClearTokenTime');
 function checkClearExpiredToken(db: Sequelize) {
   if (!db[dbLastClearTokenTime]) {
-    db[dbLastClearTokenTime] = Date.now();
+    db[dbLastClearTokenTime] = 0;
   }
   if (Date.now() - db[dbLastClearTokenTime] > 12 * 60 * 60 * 1000) {
     // 距离上次清理超过 12 小时
@@ -60,27 +60,31 @@ async function getRememberDayCount(db: Sequelize): Promise<number> {
   return dayCount;
 }
 
-export async function getUserIdFromToken(db: Sequelize, token: string): Promise<number> {
+export async function loginByUserToken(db: Sequelize, token: string): Promise<{ userId: number; newLogin?: boolean }> {
   if (!token) return null;
   try {
     const userToken = UserTokenCache.getInCache(db, token) || (await (await getUserTokenModel(db)).findOne({ where: { token } }));
     if (userToken != null) {
       if (userToken.expired_at == null) {
         // 永不过期 token
-        return userToken.user_id;
+        return { userId: userToken.user_id };
       }
       if (userToken.expired_at.getTime() < Date.now()) {
         // 已过期
         await userToken.destroy();
         return null;
       }
+      let newLogin = false;
+
       const dayCount = await getRememberDayCount(db);
       if (userToken.expired_at.getTime() - Date.now() < (dayCount * 24 * 60 * 60 * 1000) / 2) {
         // token 有效期已过一半，续满
         userToken.expired_at = new Date(Date.now() + dayCount * 24 * 60 * 60 * 1000);
         await userToken.save();
+        // token 续期 等同为新登录
+        newLogin = true;
       }
-      return userToken.user_id;
+      return { userId: userToken.user_id, newLogin };
     }
     return null;
   } finally {
@@ -107,6 +111,10 @@ export async function saveUserToken(db: Sequelize, userId: number, token: string
       expired_at,
     });
   }
+}
+
+export async function getUserTokenByToken(db: Sequelize, token: string): Promise<UserToken> {
+  return UserTokenCache.getInCache(db, token) || (await (await getUserTokenModel(db)).findOne({ where: { token } }));
 }
 
 export async function getValidUserTokens(db: Sequelize, user_id: number): Promise<UserToken[]> {
