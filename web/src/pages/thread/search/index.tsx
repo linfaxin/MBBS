@@ -19,7 +19,7 @@ export default function ThreadsSearchPage() {
   }, [categories]);
 
   return (
-    <AppPage title="全站搜索">
+    <AppPage title="全站搜索帖子">
       <ThreadList queryParam={{ keywords: String(keywords) }} filterableThreadTags={allFilterableThreadTags} />
     </AppPage>
   );

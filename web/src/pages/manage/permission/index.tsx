@@ -50,6 +50,12 @@ const PermissionPage = () => {
             </Field>
           </ListItem>
           <ListItem divider>
+            <ListItemText primary="搜索用户" />
+            <Field name="user.search" initialValue={permissions.includes('user.search')}>
+              <PermissionScopeRadio isCategoryPermission={false} />
+            </Field>
+          </ListItem>
+          <ListItem divider>
             <ListItemText primary="查看其他用户信息" />
             <Field name="user.view" initialValue={permissions.includes('user.view')}>
               <PermissionScopeRadio isCategoryPermission={false} />

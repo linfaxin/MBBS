@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Card, Divider, Grid, IconButton, Typography } from '@mui/material';
+import { Box, Card, Divider, Grid, IconButton, MenuItem, Select, Typography } from '@mui/material';
 import { useModel, history } from 'umi';
 import SearchIcon from '@mui/icons-material/Search';
 import { getResourceUrl } from '@/utils/resource-url';
@@ -10,6 +10,7 @@ import AppLink from '@/components/app-link';
 import AppPage from '@/components/app-page';
 import MarkdownPreview from '@/components/vditor/markdown-preview';
 import showPromptDialog from '@/utils/show-prompt-dialog';
+import style from '@/components/thread-list/index.less';
 
 export default function IndexPage() {
   const widthUpMD = useScreenWidthUpMD();
@@ -25,13 +26,36 @@ export default function IndexPage() {
           color="inherit"
           size="large"
           sx={{ marginRight: -1 }}
-          onClick={() =>
+          onClick={() => {
+            let searchType = 'thread';
             showPromptDialog({
               title: '全站搜索',
               inputLabel: '搜索关键字',
-              onSubmit: (input) => history.push(`/thread/search?keywords=${encodeURIComponent(input || '')}`),
-            })
-          }
+              TextFieldProps: {
+                InputProps: {
+                  startAdornment: (
+                    <Select
+                      size="small"
+                      className={style.sort_select_button}
+                      sx={{ fontSize: 'smaller', pt: '5px', height: '32px' }}
+                      defaultValue={searchType}
+                      onChange={(e) => (searchType = e.target.value as string)}
+                    >
+                      <MenuItem value="thread">帖子</MenuItem>
+                      <MenuItem value="user">用户</MenuItem>
+                    </Select>
+                  ),
+                },
+              },
+              onSubmit: (input) => {
+                if (searchType === 'thread') {
+                  history.push(`/thread/search?keywords=${encodeURIComponent(input || '')}`);
+                } else if (searchType === 'user') {
+                  history.push(`/user/search?keywords=${encodeURIComponent(input || '')}`);
+                }
+              },
+            });
+          }}
         >
           <SearchIcon />
         </IconButton>

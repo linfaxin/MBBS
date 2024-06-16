@@ -83,6 +83,7 @@ export async function listUser(param: {
   user_id?: number;
   username?: string;
   nickname?: string;
+  nickname_like?: string;
   group_id?: Array<number | string>;
   status?: UserStatus[];
   page_offset: number;

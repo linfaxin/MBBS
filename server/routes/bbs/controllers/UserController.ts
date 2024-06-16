@@ -195,6 +195,7 @@ export default class UserController {
     @QueryParam('user_id') userid: number,
     @QueryParam('username') username: string,
     @QueryParam('nickname') nickname: string,
+    @QueryParam('nickname_like') nicknameLike: string,
     @QueryParam('group_id') groupIdArrStr: string,
     @QueryParam('status') statusArrStr: string,
     @QueryParam('page_offset') offset = 0,
@@ -202,6 +203,9 @@ export default class UserController {
   ) {
     if (!(await currentUser.hasPermission('user.view'))) {
       throw new UIError('无权查看用户信息');
+    }
+    if (!(await currentUser.hasPermission('user.search'))) {
+      throw new UIError('无权搜索用户');
     }
     if (limit > 100) {
       throw new BadRequestError('limit should <= 100');
@@ -235,6 +239,7 @@ export default class UserController {
       ...(username ? { username } : {}),
       ...(nickname ? { nickname } : {}),
       ...(statusArr ? { status: { [Op.in]: statusArr } } : {}),
+      ...(nicknameLike ? { nickname: { [Op.like]: `%${nicknameLike}%` } } : {}),
     };
     const UserModel = await getUserModel(db);
     const findUsers = await UserModel.findAll({

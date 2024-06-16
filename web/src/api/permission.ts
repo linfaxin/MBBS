@@ -31,7 +31,8 @@ export declare type GlobalPermissionType =
   | 'user.edit.base' // 全局修改用户基本信息
   | 'user.view' // 全局用户信息查看权限
   | 'user.view.threads' // 查看指定用户的所有帖子
-  | 'user.view.posts'; // 查看指定用户的所有评论
+  | 'user.view.posts' // 查看指定用户的所有评论
+  | 'user.search'; // 全局搜索用户
 
 export declare type PermissionType =
   | GlobalPermissionType // 全局通用权限
