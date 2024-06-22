@@ -16,6 +16,7 @@ export declare type CategoryPermissionType =
   | 'thread.hideOwnThreadAllPost' // 删除自己发布帖子的他人评论
   | 'thread.stickyOwnThreadPost' // 置顶自己帖子下的评论
   | 'thread.hidePosts' // 删除所有评论/回复
+  | 'thread.disableThreadPosts' // 禁用帖子评论功能
   | 'thread.likePosts' // 评论点赞
   | 'thread.like' // 帖子点赞
   | 'thread.reply' // 帖子评论

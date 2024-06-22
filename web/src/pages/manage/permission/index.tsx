@@ -205,6 +205,12 @@ const PermissionPage = () => {
               </Field>
             </ListItem>
             <ListItem divider>
+              <ListItemText primary="设置帖子评论功能开关" />
+              <Field name="thread.disableThreadPosts" initialValue={getPermissionScopeValue(permissions, 'thread.disableThreadPosts')}>
+                <PermissionScopeRadio />
+              </Field>
+            </ListItem>
+            <ListItem divider>
               <ListItemText primary="帖子加精" />
               <Field name="thread.essence" initialValue={getPermissionScopeValue(permissions, 'thread.essence')}>
                 <PermissionScopeRadio />

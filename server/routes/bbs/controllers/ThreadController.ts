@@ -228,9 +228,11 @@ export default class ThreadController {
     @BodyParam('thread_id', { required: true }) threadId: number,
     @BodyParam('disable_post') disablePost: boolean | null,
   ) {
-    if (!(await currentUser.isAdmin())) throw new UIError('无权修改');
     const thread = await getThread(db, threadId);
     if (thread == null) throw new UIError('帖子未找到');
+    if (!(await currentUser.hasOneOfPermissions('thread.disableThreadPosts', `category${thread.category_id}.thread.disableThreadPosts`))) {
+      throw new UIError('无权修改');
+    }
 
     thread.disable_post = disablePost;
     await thread.save();

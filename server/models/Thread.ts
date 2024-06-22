@@ -201,7 +201,9 @@ export class Thread extends Model<Partial<Thread>> {
       can_reply: !!viewUser && (await viewUser.hasOneOfPermissions('thread.reply', `category${this.category_id}.thread.reply`)),
       can_essence: !!viewUser && (await viewUser.hasOneOfPermissions('thread.essence', `category${this.category_id}.thread.essence`)),
       can_sticky: !!viewUser && (await viewUser.hasOneOfPermissions('thread.sticky', `category${this.category_id}.thread.sticky`)),
-      can_set_disable_post: !!viewUser && (await viewUser.isAdmin()),
+      can_set_disable_post:
+        !!viewUser &&
+        (await viewUser.hasOneOfPermissions('thread.disableThreadPosts', `category${this.category_id}.thread.disableThreadPosts`)),
       can_view_posts: viewUser
         ? await viewUser.hasOneOfPermissions('thread.viewPosts', `category${this.category_id}.thread.viewPosts`)
         : await hasOneOfPermissions(this.sequelize, GROUP_ID_TOURIST, 'thread.viewPosts', `category${this.category_id}.thread.viewPosts`),
