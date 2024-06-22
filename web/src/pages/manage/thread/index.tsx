@@ -10,7 +10,7 @@ import { ThreadIsApproved } from '@/api/thread';
 import ThreadList from '@/components/thread-list';
 import OpenAlertDialog from '@/components/open-alert-dialog';
 import showAlert from '@/utils/show-alert';
-import OpenPromptDialog from '@/components/open-prompt-dialog';
+import OpenSetApprovedDialog from '@/pages/manage/thread/components/open-set-approved-dialog';
 
 const ManageThreads = () => {
   const theme = useTheme();
@@ -181,34 +181,13 @@ const ManageThreads = () => {
                   <Button>撤销删除</Button>
                 </OpenAlertDialog>
               )}
-              <OpenPromptDialog
-                title="设置审核状态"
-                defaultValue={String(thread.is_approved)}
-                options={[
-                  { value: String(ThreadIsApproved.checking), label: '审核中' },
-                  { value: String(ThreadIsApproved.ok), label: '审核通过' },
-                  { value: String(ThreadIsApproved.check_failed), label: '审核不通过' },
-                ]}
-                onSubmit={async (inputValue) => {
-                  try {
-                    await threadApi.setApproved(thread.id, inputValue);
-                    thread.is_approved = parseInt(inputValue);
-                    reRender();
-                  } catch (e: any) {
-                    showAlert(e.message);
-                  }
+              <OpenSetApprovedDialog
+                thread={thread}
+                onThreadChange={(newThread) => {
+                  Object.assign(thread, newThread);
+                  reRender();
                 }}
-              >
-                <Button>
-                  {
-                    {
-                      [ThreadIsApproved.checking]: '审核',
-                      [ThreadIsApproved.ok]: '审核通过',
-                      [ThreadIsApproved.check_failed]: '审核不通过',
-                    }[thread.is_approved]
-                  }
-                </Button>
-              </OpenPromptDialog>
+              />
             </>
           )}
         />

@@ -193,12 +193,13 @@ export default class ThreadController {
     @CurrentDB() db: Sequelize,
     @BodyParam('thread_id', { required: true }) threadId: number,
     @BodyParam('is_approved', { required: true }) isApproved: ThreadIsApproved,
+    @BodyParam('approve_fail_reason') approveFailReason: string,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权修改');
     const thread = await getThread(db, threadId);
     if (thread == null) throw new UIError('帖子未找到');
 
-    if (thread.is_approved === isApproved) return true; // 状态未变
+    if (thread.is_approved === isApproved && !approveFailReason) return true; // 状态未变
 
     thread.is_approved = isApproved;
     await thread.saveAndUpdateThreadCount();
@@ -209,7 +210,7 @@ export default class ThreadController {
         title: `你的帖子"${formatSubString(thread.title, 15)}"审核${isApproved === ThreadIsApproved.ok ? '通过了' : '未通过'}`,
         content: `管理员"${formatSubString(currentUser.nickname, 15)}"将该贴设置为${
           isApproved === ThreadIsApproved.ok ? '审核通过' : '审核未通过'
-        }`,
+        }。${isApproved === ThreadIsApproved.check_failed && approveFailReason ? `原因:\n${approveFailReason}` : ''}`,
         link: `/#/thread/detail/${thread.id}`,
         user_id: thread.user_id,
         from_user_id: currentUser.id,

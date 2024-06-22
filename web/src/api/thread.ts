@@ -218,13 +218,14 @@ export async function restoreDeleteThread(threadId: number | string): Promise<vo
 }
 
 /** 设置审核状态 */
-export async function setApproved(threadId: number | string, is_approved: number | string): Promise<void> {
+export async function setApproved(threadId: number | string, is_approved: number | string, approve_fail_reason?: string): Promise<void> {
   await fetchApi({
     pathOrUrl: 'threads/setApproved',
     method: 'post',
     data: {
       thread_id: threadId,
       is_approved,
+      approve_fail_reason,
     },
   });
 }

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { ReactNode, useRef, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, MenuItem, TextField } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Breakpoint } from '@mui/system';
@@ -6,8 +6,9 @@ import { TextFieldProps } from '@mui/material/TextField/TextField';
 import { showErrorAlert } from '@/utils/show-alert';
 
 export interface OpenPromptDialogProps {
-  title?: string;
-  description?: string;
+  title?: ReactNode;
+  description?: ReactNode;
+  descriptionBelow?: ReactNode;
   inputLabel?: string;
   defaultValue?: string;
   multiline?: boolean;
@@ -31,6 +32,7 @@ const OpenPromptDialog: React.FC<
   const {
     title = '请输入',
     description,
+    descriptionBelow,
     defaultValue,
     maxInputLength,
     multiline,
@@ -109,6 +111,7 @@ const OpenPromptDialog: React.FC<
               }
             }}
             onChange={(e) => {
+              TextFieldProps?.onChange?.(e);
               inputValueRef.current = e.target.value;
               if (maxInputLength && inputValueRef.current?.length > maxInputLength) {
                 setValidationError(`最多输入 ${maxInputLength} 个字符`);
@@ -123,6 +126,7 @@ const OpenPromptDialog: React.FC<
               </MenuItem>
             ))}
           </TextField>
+          <DialogContentText>{descriptionBelow}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={doCloseDialog}>取消</Button>
