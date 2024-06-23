@@ -31,6 +31,7 @@ import { hasViewThread } from '@/utils/view-thread-records-util';
 import ShowThreadContentMatchKeywords from './show-thread-content-match-keywords';
 import { ThreadTag } from '@/api/thread-tag';
 import OpenPopoverMenu from '@/components/open-popover-menu';
+import { getCategoryFullName } from '@/api/category';
 import style from './index.less';
 
 const ThreadList: React.FC<
@@ -271,7 +272,7 @@ const ThreadList: React.FC<
                           </span>
                           {showCategoryName && (
                             <span style={{ marginLeft: 12, opacity: 0.6 }}>
-                              {(categories || []).find((c) => c.id == thread.category_id)?.name}
+                              {getCategoryFullName((categories || []).find((c) => c.id == thread.category_id))}
                             </span>
                           )}
                           <span style={{ flex: 1 }} />

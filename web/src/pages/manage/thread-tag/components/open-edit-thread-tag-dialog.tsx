@@ -90,8 +90,7 @@ const OpenEditThreadTagDialog: React.FC<
                 sx={{ marginTop: 1 }}
               />
             </Field>
-            {threadTag && threadTag.id < 100 ? // 系统预置标签（ID<100）无需限制使用板块和角色（是系统代码层面自动添加的标签）
-            null : (
+            {threadTag && threadTag.id < 100 ? null : ( // 系统预置标签（ID<100）无需限制使用板块和角色（是系统代码层面自动添加的标签）
               <>
                 <Box display="flex" alignItems="center" mt={1}>
                   <span style={{ flexShrink: 0 }}>限制使用板块：</span>
@@ -103,7 +102,7 @@ const OpenEditThreadTagDialog: React.FC<
                           .split(',')
                           .filter(Boolean)
                           .map((id) => parseInt(id))}
-                        onChange={(value) => form.setFieldsValue({ limit_use_in_categories: [].concat(value as any).join(',') })}
+                        onChange={(value) => form.setFieldsValue({ limit_use_in_categories: [].concat((value as any) || []).join(',') })}
                         multiple
                         categories={categories || []}
                       />

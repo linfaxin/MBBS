@@ -71,23 +71,18 @@ const AppPage: React.FC<
 
   useEffect(() => {
     if (parentPageCategoryId) {
-      categoryApi
-        .listCategory()
-        .then((list) => list.find((item) => String(item.id) == parentPageCategoryId))
-        .then((category) => {
-          navBarContentModel.setContent(
-            category
-              ? [
-                  {
-                    title: category.name,
-                    href: `/thread/category/${category.id}`,
-                    categoryId: category.id,
-                  },
-                  { title },
-                ]
-              : title,
-          );
-        });
+      categoryApi.getCategory(parentPageCategoryId).then((category) => {
+        const navBarContents: NavBarContent = [{ title }];
+        while (category) {
+          navBarContents.unshift({
+            title: category.name,
+            href: `/thread/category/${category.id}`,
+            categoryId: category.id,
+          });
+          category = category.parent;
+        }
+        navBarContentModel.setContent(navBarContents);
+      });
     } else {
       navBarContentModel.setContent(parentPage ? [...parentPage, { title }] : title);
     }
@@ -99,11 +94,12 @@ const AppPage: React.FC<
   }, [navBarActionButton]);
 
   useEffect(() => {
+    if (requestNavBackButton === navBarContentModel.navBackBtn) return;
     if (requestNavBackButton) {
       navBarContentModel.setNavBackBtn(true);
       return () => navBarContentModel.setNavBackBtn(false);
     }
-  }, []);
+  }, [requestNavBackButton]);
 
   return (
     <Box

@@ -8,6 +8,7 @@ import AppPage from '@/components/app-page';
 import { Thread, ThreadIsApproved } from '@/api/thread';
 import { useRequest } from 'ahooks';
 import MarkdownThreadContentEditor from '@/components/thread-content/thread-content-editor';
+import { CategoryLinked, getCategoryFullName } from '@/api/category';
 
 export default function EditThreadPage() {
   const { id: threadId } = useParams() as any;
@@ -47,9 +48,9 @@ export default function EditThreadPage() {
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
           >
-            {(categories || []).map((c) => (
+            {(categories || []).map((c: CategoryLinked) => (
               <MenuItem key={c.id} value={c.id}>
-                {c.name}
+                {getCategoryFullName(c)}
               </MenuItem>
             ))}
           </TextField>

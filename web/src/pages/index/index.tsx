@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Card, Divider, Grid, IconButton, MenuItem, Select, Typography } from '@mui/material';
 import { useModel, history } from 'umi';
 import SearchIcon from '@mui/icons-material/Search';
@@ -11,12 +11,14 @@ import AppPage from '@/components/app-page';
 import MarkdownPreview from '@/components/vditor/markdown-preview';
 import showPromptDialog from '@/utils/show-prompt-dialog';
 import style from '@/components/thread-list/index.less';
+import { getCategoryTotalThreadCount } from '@/api/category';
 
 export default function IndexPage() {
   const widthUpMD = useScreenWidthUpMD();
   const widthUpSM = useScreenWidthUpSM();
   const bbsSetting = useModel('useBBSSetting');
   const { categoriesSorted, reloadCategory } = useModel('useCategories');
+  const categoryRootItems = useMemo(() => categoriesSorted?.filter((c) => !c.parent), [categoriesSorted]);
 
   return (
     <AppPage
@@ -81,7 +83,7 @@ export default function IndexPage() {
         <Typography sx={{ fontSize: 'smaller', opacity: 0.5, textAlign: 'center' }}>选择一个分类版块进入</Typography>
       )}
       <Grid container spacing={{ xs: 2, sm: 2 }} columns={12} sx={{ paddingTop: 2 }}>
-        {(categoriesSorted || []).map((category) => (
+        {(categoryRootItems || []).map((category) => (
           <Grid item xs={12} sm={6} key={category.id}>
             <AppLink href={`/thread/category/${category.id}`} sx={{ width: '100%' }}>
               <PaperClickable>
@@ -97,7 +99,7 @@ export default function IndexPage() {
                         {category.name}
                       </Typography>
                       <Typography variant="subtitle1" color="text.secondary" component="div" fontSize="smaller">
-                        帖子数：{category.thread_count || 0}
+                        帖子数：{getCategoryTotalThreadCount(category)}
                       </Typography>
                     </Box>
                   </Box>

@@ -11,6 +11,7 @@ import ThreadList from '@/components/thread-list';
 import OpenAlertDialog from '@/components/open-alert-dialog';
 import showAlert from '@/utils/show-alert';
 import OpenSetApprovedDialog from '@/pages/manage/thread/components/open-set-approved-dialog';
+import { getCategoryFullName } from '@/api/category';
 
 const ManageThreads = () => {
   const theme = useTheme();
@@ -87,7 +88,7 @@ const ManageThreads = () => {
               <TextField label="分类版块" variant="outlined" fullWidth size="small" select>
                 {(categories || []).map((c) => (
                   <MenuItem key={c.id} value={c.id}>
-                    {c.name}
+                    {getCategoryFullName(c)}
                   </MenuItem>
                 ))}
               </TextField>
@@ -138,6 +139,7 @@ const ManageThreads = () => {
       {filterValues && (
         <ThreadList
           listReloadKey={filterValues}
+          showCategoryName
           queryParam={{
             ...filterValues,
             is_sticky: filterValues.is_sticky === '1' ? true : filterValues.is_sticky === '0' ? false : undefined,

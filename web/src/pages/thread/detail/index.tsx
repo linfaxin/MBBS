@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { postApi, threadApi, threadTagApi } from '@/api';
-import { history, useModel, useParams, useLocation } from 'umi';
+import { history, useLocation, useModel, useParams } from 'umi';
 import copyToClipboard from 'copy-to-clipboard';
 import { Box, Button, ButtonGroup, Chip, Typography, useTheme } from '@mui/material';
 import { getResourceUrl } from '@/utils/resource-url';
@@ -27,7 +27,7 @@ import { markThreadViewed } from '@/utils/view-thread-records-util';
 import showPromptDialog from '@/utils/show-prompt-dialog';
 import ThreadContentPreview from '@/components/thread-content/thread-content-preview';
 import DoTaskButton from '@/components/do-task-button';
-import { Category, getCategory, listCategory } from '@/api/category';
+import { Category, getCategory, getCategoryFullName, listCategory } from '@/api/category';
 import CategorySelect from '@/components/category-select';
 import showManageTagDialog from '@/pages/thread/detail/show-manage-tag-dialog';
 import { getLoginUser } from '@/api/base/user';
@@ -123,14 +123,16 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
     if (!thread) return;
     const allCategories = await listCategory();
     const allOtherCategories = allCategories.filter((c) => c.id !== thread.category_id);
-    const currentCategory = allCategories.filter((c) => c.id === thread.category_id)[0];
+    const currentCategory = allCategories.find((c) => c.id === thread.category_id);
     let sticky_at_other_categories = '';
     showAlert({
       title: '设置置顶',
       message: (
         <>
           <Typography sx={{ fontSize: 15, mb: 2, opacity: 0.8 }}>{thread.is_sticky ? '当前帖子已置顶' : '是否置顶当前帖子？'}</Typography>
-          <Typography sx={{ fontSize: 15, mb: 2, opacity: 0.8 }}>当前所属板块：{currentCategory?.name}</Typography>
+          <Typography sx={{ fontSize: 15, mb: 2, opacity: 0.8 }}>
+            当前所属板块：{currentCategory && getCategoryFullName(currentCategory)}
+          </Typography>
           <Box display="flex" alignItems="center">
             <Typography fontSize={13} sx={{ opacity: 0.8, flexShrink: 0 }}>
               同时置顶至：
@@ -145,7 +147,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
                 size: 'small',
               }}
               defaultValue={thread.sticky_at_other_categories?.split(',').map((id) => parseInt(id)) || []}
-              onChange={(v) => (sticky_at_other_categories = String(v))}
+              onChange={(v) => (sticky_at_other_categories = [].concat((v as any) || []).join(','))}
             />
           </Box>
         </>

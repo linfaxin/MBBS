@@ -6,7 +6,7 @@ export default function useCategories() {
 
   return {
     categories,
-    categoriesSorted: [...(categories || [])].sort((a, b) => a.sort - b.sort),
+    categoriesSorted: categories,
     reloadCategory: () =>
       categoryApi.listCategory(true).then(async (categories) => {
         await refresh();

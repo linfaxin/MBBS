@@ -3,6 +3,7 @@ import { Box, Checkbox, FormControlLabel, ListItemText, MenuItem, Radio, RadioGr
 import { RadioGroupProps } from '@mui/material/RadioGroup/RadioGroup';
 import { useRequest } from 'ahooks';
 import { categoryApi } from '@/api';
+import { getCategoryFullName } from '@/api/category';
 
 export declare type GlobalOrCategoryResultValue = false | true | Array<number>; // 关 / 开 / 指定板块允许
 
@@ -100,7 +101,7 @@ const GlobalOrCategoryRadio: React.FC<
           {(categories || []).map((c) => (
             <MenuItem value={c.id} key={c.id}>
               <Checkbox checked={selectCategories.indexOf(c.id) > -1} />
-              <ListItemText primary={c.name} />
+              <ListItemText primary={getCategoryFullName(c)} />
             </MenuItem>
           ))}
         </TextField>

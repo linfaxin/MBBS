@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Badge, Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Theme, useTheme } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -10,6 +10,7 @@ import PowerBy from '@/components/power-by';
 import BBSInfo from '@/layouts/components/bbs-nav-menu/bbs-info';
 import GroupListItem from '@/components/group-list-item';
 import { getResourceUrl } from '@/utils/resource-url';
+import { getCategoryTotalThreadCount } from '@/api/category';
 
 const BBSNavMenu: React.FC<{
   onMenuJump?: () => void;
@@ -24,6 +25,8 @@ const BBSNavMenu: React.FC<{
   const theme = useTheme();
   const { onMenuJump, sx, className } = props;
   const { width = 240 } = sx || ({} as any);
+
+  const categoryRootItems = useMemo(() => categoriesSorted?.filter((c) => !c.parent), [categoriesSorted]);
 
   const jumpTo = (route: string) => {
     history.push(route);
@@ -51,14 +54,14 @@ const BBSNavMenu: React.FC<{
       </ListItem>
       <GroupListItem text="分类版块" icon={<CategoryIcon />} defaultOpen>
         <List component="div" disablePadding>
-          {categoriesSorted?.map((c) => (
+          {categoryRootItems?.map((c) => (
             <ListItemButton
               key={c.id}
               onClick={() => jumpTo(`/thread/category/${c.id}`)}
               selected={navBarContentModel.hasCategory(c.id) || location.hash === `#/thread/category/${c.id}`}
             >
               <ListItemText primary={c.name} />
-              <span style={{ opacity: 0.5 }}>{c.thread_count || 0}</span>
+              <span style={{ opacity: 0.5 }}>{getCategoryTotalThreadCount(c)}</span>
             </ListItemButton>
           ))}
         </List>

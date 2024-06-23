@@ -7,18 +7,22 @@ import { FormInstance } from 'rc-field-form/es/interface';
 import { getResourceUrl } from '@/utils/resource-url';
 import { compressImageFile } from '@/utils/compress-image-util';
 import UploadResourceButton from '@/components/upload-resource-button';
-import { Category } from '@/api/category';
+import { Category, CategoryLinked } from '@/api/category';
 import ThreadTagSelect from '@/components/thread-tag-select';
 import { useRequest } from 'ahooks';
 import { threadTagApi } from '@/api';
+import CategorySelect from '@/components/category-select';
+import TipIconButton from '@/components/tip-icon-button';
 
 const OpenEditCategoryDialog: React.FC<
   Partial<OpenAlertDialogProps> & {
     category?: Category;
+    categories: CategoryLinked[];
+    parentCategoryId?: number;
     doSubmitCategory: (fields: Pick<Category, 'name' | 'description' | 'icon' | 'sort'>) => void | Promise<void>;
   }
 > = (props) => {
-  const { category, doSubmitCategory, ...otherProps } = props;
+  const { category, categories, doSubmitCategory, parentCategoryId, ...otherProps } = props;
   const { data: editableThreadTags } = useRequest(() => threadTagApi.listEditableTagForCategory(category?.id));
 
   let innerForm: FormInstance;
@@ -60,7 +64,7 @@ const OpenEditCategoryDialog: React.FC<
                 variant="outlined"
                 error={!!form.getFieldError('name')?.length}
                 helperText={(form.getFieldError('name') || [])[0]}
-                sx={{ marginTop: 1 }}
+                sx={{ mt: 1, mb: 0.5 }}
               />
             </Field>
             <Field name="description" initialValue={category?.description || ''}>
@@ -74,21 +78,19 @@ const OpenEditCategoryDialog: React.FC<
                 multiline
                 error={!!form.getFieldError('description')?.length}
                 helperText={(form.getFieldError('description') || [])[0]}
-                sx={{ marginTop: 1 }}
+                sx={{ mt: 1, mb: 0.5 }}
               />
             </Field>
-            <Field name="sort" initialValue={category?.sort || ''} rules={[{ required: true, message: '请输入' }]}>
+            <Field name="sort" initialValue={category?.sort || ''}>
               <TextField
                 margin="dense"
                 label="排序"
-                placeholder="请输入"
+                placeholder="选填"
                 size="small"
                 fullWidth
                 variant="outlined"
                 type="number"
-                error={!!form.getFieldError('sort')?.length}
-                helperText={(form.getFieldError('sort') || [])[0]}
-                sx={{ marginTop: 1 }}
+                sx={{ mt: 1, mb: 0.5 }}
               />
             </Field>
             <Field
@@ -106,7 +108,7 @@ const OpenEditCategoryDialog: React.FC<
                 variant="outlined"
                 error={!!form.getFieldError('threads_default_sort')?.length}
                 helperText={(form.getFieldError('threads_default_sort') || [])[0]}
-                sx={{ marginTop: 1 }}
+                sx={{ mt: 1, mb: 0.5 }}
               >
                 <MenuItem value="-posted_at">最新回复</MenuItem>
                 <MenuItem value="-created_at">最新发帖</MenuItem>
@@ -128,7 +130,7 @@ const OpenEditCategoryDialog: React.FC<
                 variant="outlined"
                 error={!!form.getFieldError('posts_default_sort')?.length}
                 helperText={(form.getFieldError('posts_default_sort') || [])[0]}
-                sx={{ marginTop: 1 }}
+                sx={{ mt: 1, mb: 0.5 }}
               >
                 <MenuItem value="created_at">最早发布</MenuItem>
                 <MenuItem value="-created_at">最新发布</MenuItem>
@@ -139,7 +141,7 @@ const OpenEditCategoryDialog: React.FC<
               {() => (
                 <ThreadTagSelect
                   label="可筛选标签"
-                  TextFieldProps={{ fullWidth: true, sx: { mt: 1 } }}
+                  TextFieldProps={{ fullWidth: true, sx: { mt: 1, mb: 0.5 } }}
                   value={((form.getFieldValue('filter_thread_tag_ids') as string) || '')
                     .split(',')
                     .filter(Boolean)
@@ -150,6 +152,17 @@ const OpenEditCategoryDialog: React.FC<
                 />
               )}
             </Field>
+            <Box display="flex">
+              <Field name="parent_category_id" initialValue={parentCategoryId || category?.parent_category_id}>
+                <CategorySelect
+                  label="父板块(选填)"
+                  categories={categories}
+                  clearable
+                  TextFieldProps={{ sx: { mt: 1, mb: 0.5 }, fullWidth: true }}
+                />
+              </Field>
+              <TipIconButton message="设置父版块后，该版块入口将仅在父板块页面内出现" />
+            </Box>
             <Field name="hidden" initialValue={!!category?.hidden} valuePropName="checked">
               <FormControlLabel
                 sx={{ m: 0.5, mr: 2 }}
@@ -187,7 +200,11 @@ const OpenEditCategoryDialog: React.FC<
       onOk={async () => {
         await innerForm.validateFields();
         await doTaskWithUI({
-          task: async () => doSubmitCategory(innerForm.getFieldsValue()),
+          task: async () => {
+            const values = innerForm.getFieldsValue();
+            if (values.sort === '') values.sort = null;
+            await doSubmitCategory(values);
+          },
           failAlert: true,
           fullScreenLoading: false,
         });

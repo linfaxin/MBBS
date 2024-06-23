@@ -16,6 +16,7 @@ import showAlert from '@/utils/show-alert';
 import MarkdownPureText from '@/components/vditor/markdown-pure-text';
 import OpenPopupMarkdownEditor from '@/components/open-popup-markdown-editor';
 import GlobalOrCategoryRadio from '@/components/global-or-category-radio';
+import { getCategoryFullName } from '@/api/category';
 
 const BaseSetting = () => {
   const bbsSetting = useModel('useBBSSetting');
@@ -364,19 +365,20 @@ const BaseSetting = () => {
                       onChange={(e) => (configValueAllCategories = e.target.value as `${number}`)}
                       helperText="如果需要单独针对板块设置，可以在下方目标板块内填写"
                     />
-                    {categoriesSorted.map((c) => (
-                      <TextField
-                        key={c.id}
-                        label={`板块：${c.name}`}
-                        variant="outlined"
-                        fullWidth
-                        sx={{ mt: 2 }}
-                        size="small"
-                        type="number"
-                        defaultValue={configValueCategoryMapValue[c.id]}
-                        onChange={(e) => (configValueCategoryMapValue[c.id] = e.target.value)}
-                      />
-                    ))}
+                    {categoriesSorted &&
+                      categoriesSorted.map((c) => (
+                        <TextField
+                          key={c.id}
+                          label={`板块：${getCategoryFullName(c)}`}
+                          variant="outlined"
+                          fullWidth
+                          sx={{ mt: 2 }}
+                          size="small"
+                          type="number"
+                          defaultValue={configValueCategoryMapValue[c.id]}
+                          onChange={(e) => (configValueCategoryMapValue[c.id] = e.target.value)}
+                        />
+                      ))}
                   </>
                 );
               };

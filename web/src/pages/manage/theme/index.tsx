@@ -15,6 +15,7 @@ import { compressImageFile } from '@/utils/compress-image-util';
 import OpenAlertDialog from '@/components/open-alert-dialog';
 import { formatHexColor } from '@/utils/format-util';
 import DoTaskButton from '@/components/do-task-button';
+import { getCategoryFullName } from '@/api/category';
 
 const BaseSetting = () => {
   const bbsSetting = useModel('useBBSSetting');
@@ -430,7 +431,7 @@ const BaseSetting = () => {
             >
               {(categories || []).map((c) => (
                 <MenuItem value={c.id} key={c.id}>
-                  {c.name}
+                  {getCategoryFullName(c)}
                 </MenuItem>
               ))}
             </TextField>

@@ -33,6 +33,8 @@ export interface Category {
   posts_default_sort?: PostSortKey;
   /** 板块帖子标签筛选ID，格式：1,3,4(逗号分隔的 标签ID) */
   filter_thread_tag_ids: string;
+  /** 父板块ID */
+  parent_category_id?: number;
   /** 板块帖子标签筛选 */
   filter_thread_tags: ThreadTag[];
   /** 创建时间 */
@@ -41,10 +43,15 @@ export interface Category {
   updated_at: string;
 }
 
-let fetchingListCategory: null | Promise<Category[]>;
-let listCategoryCache: null | Category[];
+export interface CategoryLinked extends Category {
+  parent?: CategoryLinked;
+  children: CategoryLinked[];
+}
 
-export function listCategory(ignoreCache = false): Promise<Category[]> {
+let fetchingListCategory: null | Promise<CategoryLinked[]>;
+let listCategoryCache: null | CategoryLinked[];
+
+export function listCategory(ignoreCache = false): Promise<CategoryLinked[]> {
   if (fetchingListCategory) {
     return fetchingListCategory;
   }
@@ -54,7 +61,7 @@ export function listCategory(ignoreCache = false): Promise<Category[]> {
   fetchingListCategory = fetchApi('category/listCategory')
     .then((resp) => {
       fetchingListCategory = null;
-      const data = resp.data.filter((c: Category) => !c.hidden);
+      const data = makeCategoryLinked(resp.data as CategoryLinked[]).filter((c) => !isCategoryHiddenOrParentHidden(c));
       listCategoryCache = data;
       return data;
     })
@@ -65,15 +72,15 @@ export function listCategory(ignoreCache = false): Promise<Category[]> {
   return fetchingListCategory;
 }
 
-export function listAllCategoryWithHidden(): Promise<Category[]> {
-  return fetchApi('category/listCategory').then((resp) => resp.data);
+export function listAllCategoryWithHidden(): Promise<CategoryLinked[]> {
+  return fetchApi('category/listCategory').then((resp) => makeCategoryLinked(resp.data));
 }
 
-export function listCategorySorted(ignoreCache = false): Promise<Category[]> {
-  return listCategory(ignoreCache).then((list) => [...list].sort((a, b) => a.sort - b.sort));
+export function listCategorySorted(ignoreCache = false): Promise<CategoryLinked[]> {
+  return listCategory(ignoreCache);
 }
 
-export async function listCategoryCanCreateSorted(ignoreCache = false): Promise<Category[]> {
+export async function listCategoryCanCreateSorted(ignoreCache = false): Promise<CategoryLinked[]> {
   const allCategories = await listCategorySorted(ignoreCache);
   const myPermissions = await permissionApi.getMyPermissions();
   if (myPermissions.includes('createThread')) {
@@ -147,4 +154,69 @@ export function removeCategory(category_id: string | number): Promise<void> {
   }).then((resp) => {
     listCategoryCache = null;
   });
+}
+
+function makeCategoryLinked(categories: CategoryLinked[]) {
+  const categoryMap = new Map<number | undefined, CategoryLinked>();
+  for (const c of categories) {
+    categoryMap.set(c.id, c);
+  }
+
+  for (const c of categories) {
+    const parentCategory = categoryMap.get(c.parent_category_id);
+    if (parentCategory) {
+      c.parent = parentCategory;
+      parentCategory.children = parentCategory.children || [];
+      parentCategory.children.push(c);
+    }
+  }
+
+  const sortedCategories: CategoryLinked[] = [];
+
+  function deepTravelCategory(c: CategoryLinked) {
+    sortedCategories.push(c);
+    c.children?.sort((c1, c2) => c1.sort - c2.sort).forEach(deepTravelCategory);
+  }
+  categories
+    .filter((c) => !c.parent)
+    .sort((c1, c2) => c1.sort - c2.sort)
+    .forEach(deepTravelCategory);
+
+  return sortedCategories;
+}
+
+export function isCategoryHiddenOrParentHidden(category: CategoryLinked): boolean {
+  if (category.hidden) return true;
+  if (category.parent) {
+    return isCategoryHiddenOrParentHidden(category.parent);
+  }
+  return false;
+}
+
+export function getCategoryFullName(category: CategoryLinked | undefined): string | undefined {
+  if (!category) return undefined;
+  const names = [];
+  let checkCategory: CategoryLinked | undefined = category;
+
+  while (checkCategory) {
+    names.unshift(checkCategory.name);
+    checkCategory = checkCategory.parent;
+  }
+
+  return names.join('/');
+}
+
+export function getCategoryTotalThreadCount(category: CategoryLinked | undefined): number {
+  if (!category) return 0;
+
+  let count = 0;
+
+  function deepTravelCategory(c: CategoryLinked) {
+    count += c.thread_count;
+    c.children?.forEach(deepTravelCategory);
+  }
+
+  deepTravelCategory(category);
+
+  return count;
 }

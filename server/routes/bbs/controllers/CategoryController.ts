@@ -23,6 +23,7 @@ export default class CategoryController {
     @BodyParam('threads_default_sort') threads_default_sort: string,
     @BodyParam('posts_default_sort') posts_default_sort: string,
     @BodyParam('filter_thread_tag_ids') filter_thread_tag_ids: string,
+    @BodyParam('parent_category_id') parent_category_id: number | undefined,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -40,6 +41,7 @@ export default class CategoryController {
       threads_default_sort,
       posts_default_sort,
       filter_thread_tag_ids,
+      parent_category_id,
     });
     return category.toViewJSON();
   }
@@ -77,6 +79,7 @@ export default class CategoryController {
     @BodyParam('threads_default_sort') threads_default_sort: string,
     @BodyParam('posts_default_sort') posts_default_sort: string,
     @BodyParam('filter_thread_tag_ids') filter_thread_tag_ids: string,
+    @BodyParam('parent_category_id') parent_category_id: number | undefined,
   ) {
     if (!(await currentUser.isAdmin())) throw new UIError('无权操作');
 
@@ -87,7 +90,18 @@ export default class CategoryController {
 
     const CategoryModel = await getCategoryModel(db);
     await CategoryModel.update(
-      { icon, name, description, sort, hidden, disable_post, threads_default_sort, posts_default_sort, filter_thread_tag_ids },
+      {
+        icon,
+        name,
+        description,
+        sort,
+        hidden,
+        disable_post,
+        threads_default_sort,
+        posts_default_sort,
+        filter_thread_tag_ids,
+        parent_category_id,
+      },
       { where: { id: categoryId } },
     );
 
