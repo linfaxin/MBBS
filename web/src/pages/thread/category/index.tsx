@@ -74,6 +74,7 @@ function CategoryThreadsPageComponent(props: { categoryId: string | number }) {
               <Typography sx={{ fontSize: '13px', opacity: 0.7 }}>子版块</Typography>
               {category.children.map((c) => (
                 <Button
+                  key={c.id}
                   size="small"
                   variant="outlined"
                   color="inherit"
