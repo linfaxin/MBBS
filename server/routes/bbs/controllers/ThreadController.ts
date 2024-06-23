@@ -94,14 +94,14 @@ export default class ThreadController {
     if (thread.deleted_at) throw new UIError('帖子已被删除');
 
     const hasPermission = await currentUser.hasOneOfPermissions('thread.sticky', `category${thread.category_id}.thread.sticky`);
-    if (!hasPermission) throw new UIError('无权在当前板块置顶');
+    if (!hasPermission) throw new UIError('无权在当前版块置顶');
 
     for (const otherCategoryId of (sticky_at_other_categories || '')
       .split(',')
       .filter(Boolean)
       .map((id) => parseInt(id))) {
       if (!(await currentUser.hasOneOfPermissions('thread.sticky', `category${otherCategoryId}.thread.sticky`))) {
-        throw new UIError(`无权置顶至板块"${(await getCategoryById(db, otherCategoryId)).name}"`);
+        throw new UIError(`无权置顶至版块"${(await getCategoryById(db, otherCategoryId)).name}"`);
       }
     }
 
@@ -132,7 +132,7 @@ export default class ThreadController {
         title: `你的帖子"${formatSubString(thread.title, 15)}"被${isSticky ? '置顶' : '取消置顶'}了`,
         content: `管理员"${formatSubString(currentUser.nickname, 15)}"${
           isSticky ? '置顶' : '取消置顶'
-        }了你的帖子\n板块：${belongCategoryNames.join(', ')}`,
+        }了你的帖子\n版块：${belongCategoryNames.join(', ')}`,
         link: `/#/thread/detail/${thread.id}`,
         user_id: thread.user_id,
         from_user_id: currentUser.id,
@@ -304,7 +304,7 @@ export default class ThreadController {
       }
     }
 
-    // 每日发帖量检查（当前板块）
+    // 每日发帖量检查（当前版块）
     const categoryCreateLimit = await getCreateThreadDailyLimit(db, categoryId);
     if (canCreate && categoryCreateLimit && !(await currentUser.isAdmin())) {
       const categoryTodayCreateCount = await getUserTodayCreateCount(db, currentUser.id, categoryId);
@@ -393,7 +393,7 @@ export default class ThreadController {
 
     insertUserMessage(db, {
       title: `有用户发布了新帖"${formatSubString(thread.title, 10)}"`,
-      content: `用户 "${formatSubString(currentUser.nickname, 15)}" 在板块 "${category.name}" 发布了新帖`,
+      content: `用户 "${formatSubString(currentUser.nickname, 15)}" 在版块 "${category.name}" 发布了新帖`,
       link: `/#/thread/detail/${thread.id}`,
       user_id: (await getUserByName(db, 'admin')).id,
       from_user_id: thread.user_id,
@@ -433,7 +433,7 @@ export default class ThreadController {
       '1' === settingValue_create_thread_validate ||
       [].concat(JSON.parse(settingValue_create_thread_validate || '[]')).includes(categoryId);
     if (needValidate && (await currentUser.hasOneOfPermissions(`category${categoryId}.thread.ignoreCreateValidate`))) {
-      // 在该板块发帖免审核权限
+      // 在该版块发帖免审核权限
       needValidate = false;
     }
 
@@ -570,7 +570,7 @@ export default class ThreadController {
       }
     }
 
-    // 仅在有阅读权限的板块内搜索帖子
+    // 仅在有阅读权限的版块内搜索帖子
     const filterInCategoryIds = [] as Array<number>;
     const hasPermissionForCategory = async (categoryId: number) => {
       if (currentUser) {
@@ -583,12 +583,12 @@ export default class ThreadController {
       }
     };
     if (categoryId) {
-      // 指定了查看板块，检查是否有权限查看
+      // 指定了查看版块，检查是否有权限查看
       if (await hasPermissionForCategory(categoryId)) {
         filterInCategoryIds.push(categoryId);
       }
     } else {
-      // 未指定查看板块，找出所有有阅读权限的板块
+      // 未指定查看版块，找出所有有阅读权限的版块
       const CategoryModel = await getCategoryModel(db);
       for (const category of await CategoryModel.findAll()) {
         if (await hasPermissionForCategory(category.id)) {
@@ -684,7 +684,7 @@ export default class ThreadController {
     });
 
     if (categoryId && !keywords && !userId && offset === 0) {
-      // 板块列表帖子第一页 同时返回 来自其他板块 置顶到当前板块的帖子
+      // 版块列表帖子第一页 同时返回 来自其他版块 置顶到当前版块的帖子
       const fromOtherCategoryStickyThreads = await Promise.all(
         (
           await ThreadModel.findAll({
@@ -873,7 +873,7 @@ export default class ThreadController {
       }
     }
     if (needValidate && (await currentUser.hasOneOfPermissions(`category${thread.category_id}.thread.ignoreCreateValidate`))) {
-      // 在该板块发帖免审核权限
+      // 在该版块发帖免审核权限
       needValidate = false;
     }
 

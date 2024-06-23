@@ -67,7 +67,7 @@ const ManageCategory = () => {
                     </div>
                     {threadTag.limit_use_in_categories && (
                       <div>
-                        限制使用板块：
+                        限制使用版块：
                         {threadTag.limit_use_in_categories
                           .split(',')
                           .map((cid) => categories?.find((c) => String(c.id) == cid)?.name || cid)

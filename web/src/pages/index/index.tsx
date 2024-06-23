@@ -65,7 +65,7 @@ export default function IndexPage() {
       initPage={async () => {
         const categories = await reloadCategory();
         if (bbsSetting.site_home_page_show_category) {
-          // 首页直接显示目标板块
+          // 首页直接显示目标版块
           const redirectToCategory = categories.find((c) => String(c.id) === bbsSetting.site_home_page_show_category);
           if (redirectToCategory) {
             history.replace(`/thread/category/${redirectToCategory.id}`);

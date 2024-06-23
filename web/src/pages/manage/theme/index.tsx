@@ -413,14 +413,14 @@ const BaseSetting = () => {
             <ListItemText
               primary={
                 <>
-                  首页显示板块内容
-                  <TipIconButton message="设置后，进入首页将直接显示目标板块的帖子内容" />
+                  首页显示版块内容
+                  <TipIconButton message="设置后，进入首页将直接显示目标版块的帖子内容" />
                 </>
               }
             />
             <TextField
               select
-              label="选择板块"
+              label="选择版块"
               size="small"
               sx={{ maxWidth: '50vw', minWidth: 120 }}
               value={bbsSetting.site_home_page_show_category || ''}

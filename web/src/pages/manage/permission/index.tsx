@@ -105,7 +105,7 @@ const PermissionPage = () => {
               </Field>
             </ListItem>
             <ListItem divider>
-              <ListItemText primary="发帖免审核" secondary="如果论坛开启了发帖审核，可以在此设置当前角色在指定板块发帖免审核" />
+              <ListItemText primary="发帖免审核" secondary="如果论坛开启了发帖审核，可以在此设置当前角色在指定版块发帖免审核" />
               <Field name="thread.ignoreCreateValidate" initialValue={getPermissionScopeValue(permissions, 'thread.ignoreCreateValidate')}>
                 <PermissionScopeRadio />
               </Field>

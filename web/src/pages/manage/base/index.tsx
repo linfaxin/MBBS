@@ -269,7 +269,7 @@ const BaseSetting = () => {
             primary="发帖审核设置"
             secondary={
               /^\[\d+.*]$/.test(bbsSetting.create_thread_validate)
-                ? '部分板块需要审核'
+                ? '部分版块需要审核'
                 : bbsSetting.create_thread_validate === '1'
                 ? '需要审核'
                 : '无需审核'
@@ -285,7 +285,7 @@ const BaseSetting = () => {
                   <GlobalOrCategoryRadio
                     textGlobalOff="无需审核"
                     textGlobalOn="需要审核"
-                    textCategoryOn="部分板块需要审核"
+                    textCategoryOn="部分版块需要审核"
                     defaultValue={
                       /^\[\d+.*]$/.test(create_thread_validate) ? JSON.parse(create_thread_validate) : create_thread_validate === '1'
                     }
@@ -355,7 +355,7 @@ const BaseSetting = () => {
                 return (
                   <>
                     <TextField
-                      label="全部板块"
+                      label="全部版块"
                       variant="outlined"
                       fullWidth
                       sx={{ mt: 2 }}
@@ -363,13 +363,13 @@ const BaseSetting = () => {
                       type="number"
                       defaultValue={configValueAllCategories}
                       onChange={(e) => (configValueAllCategories = e.target.value as `${number}`)}
-                      helperText="如果需要单独针对板块设置，可以在下方目标板块内填写"
+                      helperText="如果需要单独针对版块设置，可以在下方目标版块内填写"
                     />
                     {categoriesSorted &&
                       categoriesSorted.map((c) => (
                         <TextField
                           key={c.id}
-                          label={`板块：${getCategoryFullName(c)}`}
+                          label={`版块：${getCategoryFullName(c)}`}
                           variant="outlined"
                           fullWidth
                           sx={{ mt: 2 }}

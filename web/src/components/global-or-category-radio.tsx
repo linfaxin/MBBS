@@ -5,7 +5,7 @@ import { useRequest } from 'ahooks';
 import { categoryApi } from '@/api';
 import { getCategoryFullName } from '@/api/category';
 
-export declare type GlobalOrCategoryResultValue = false | true | Array<number>; // 关 / 开 / 指定板块允许
+export declare type GlobalOrCategoryResultValue = false | true | Array<number>; // 关 / 开 / 指定版块允许
 
 const GlobalOrCategoryRadio: React.FC<
   {
@@ -23,7 +23,7 @@ const GlobalOrCategoryRadio: React.FC<
     onChange: propsOnChange,
     textGlobalOff = '关',
     textGlobalOn = '开',
-    textCategoryOn = '指定板块',
+    textCategoryOn = '指定版块',
     ...otherProps
   } = props;
   const { data: categories } = useRequest(() => categoryApi.listCategorySorted());

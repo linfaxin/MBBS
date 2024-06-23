@@ -82,7 +82,7 @@ export default class ThreadTagController {
 
     const ThreadTagModel = await getThreadTagModel(db);
     if (tagId < 100) {
-      // 系统预置标签（ID < 100）不允许修改 限制使用板块/角色
+      // 系统预置标签（ID < 100）不允许修改 限制使用版块/角色
       limit_use_in_categories = null;
       limit_use_by_groups = null;
     }

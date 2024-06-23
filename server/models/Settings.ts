@@ -15,7 +15,7 @@ export interface SettingKeyValue {
   /** 新用户注册审核 */
   register_validate: '0' | '1';
   /** 发帖是否需要审核 */
-  create_thread_validate: '0' | '1' | `[${string}]`; // 0 / 1 / [板块1ID, 板块2ID]
+  create_thread_validate: '0' | '1' | `[${string}]`; // 0 / 1 / [版块1ID, 版块2ID]
   /** 站点关闭原因 */
   site_close_msg: string;
   /** 站点名称 */
@@ -40,7 +40,7 @@ export interface SettingKeyValue {
   site_third_platform_login_pass_validate: '0' | '1';
   /** 开启邮件功能 */
   site_enable_email: '0' | '1';
-  /** 进入首页默认显示目标板块内容 */
+  /** 进入首页默认显示目标版块内容 */
   site_home_page_show_category: `${number}`;
   /** 每人每日在所有分类发帖 总量上限 */
   person_daily_create_thread: `${number}`;
@@ -89,8 +89,8 @@ export interface SettingKeyValue {
   /** 导航菜单背景图 */
   ui_nav_menu_bg_image: string;
   // 服务端内部字段（以 __ 开头的字段 默认不会返回给前端）
-  /** 板块新帖消息形式 通知到管理员 */
-  __internal_new_thread_notice_admin_email: 'all' | string; // 板块ID1,板块ID2
+  /** 版块新帖消息形式 通知到管理员 */
+  __internal_new_thread_notice_admin_email: 'all' | string; // 版块ID1,版块ID2
   /** 审核帖子/用户消息形式 通知到管理员 */
   __internal_reviewed_content_notice_admin_email: '0' | '1';
   /** 是否校验 referer */

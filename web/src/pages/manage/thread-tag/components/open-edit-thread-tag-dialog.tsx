@@ -90,10 +90,10 @@ const OpenEditThreadTagDialog: React.FC<
                 sx={{ marginTop: 1 }}
               />
             </Field>
-            {threadTag && threadTag.id < 100 ? null : ( // 系统预置标签（ID<100）无需限制使用板块和角色（是系统代码层面自动添加的标签）
+            {threadTag && threadTag.id < 100 ? null : ( // 系统预置标签（ID<100）无需限制使用版块和角色（是系统代码层面自动添加的标签）
               <>
                 <Box display="flex" alignItems="center" mt={1}>
-                  <span style={{ flexShrink: 0 }}>限制使用板块：</span>
+                  <span style={{ flexShrink: 0 }}>限制使用版块：</span>
                   <Field name="limit_use_in_categories" initialValue={threadTag?.limit_use_in_categories || ''}>
                     {() => (
                       <CategorySelect
@@ -108,7 +108,7 @@ const OpenEditThreadTagDialog: React.FC<
                       />
                     )}
                   </Field>
-                  <TipIconButton message="设置后，仅能在限定板块内帖子上添加该标签；否则，全部板块可用" />
+                  <TipIconButton message="设置后，仅能在限定版块内帖子上添加该标签；否则，全部版块可用" />
                 </Box>
                 <Box display="flex" alignItems="center" mt={1}>
                   <span style={{ flexShrink: 0 }}>限制使用角色：</span>

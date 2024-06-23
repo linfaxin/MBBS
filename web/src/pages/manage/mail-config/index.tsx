@@ -163,7 +163,7 @@ const BaseSetting = () => {
               bbsSetting.__internal_new_thread_notice_admin_email === 'all'
                 ? '已开启'
                 : bbsSetting.__internal_new_thread_notice_admin_email
-                ? '部分板块开启'
+                ? '部分版块开启'
                 : '未开启'
             }
           />
@@ -177,7 +177,7 @@ const BaseSetting = () => {
                   <GlobalOrCategoryRadio
                     textGlobalOff="关闭"
                     textGlobalOn="开启"
-                    textCategoryOn="部分板块开启"
+                    textCategoryOn="部分版块开启"
                     defaultValue={
                       bbsSetting.__internal_new_thread_notice_admin_email === 'all'
                         ? true

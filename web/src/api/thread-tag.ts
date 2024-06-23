@@ -12,7 +12,7 @@ export interface ThreadTag {
   icon?: string;
   /** 是否在 帖子列表/详情 隐藏显示(帖子详情-标签管理弹窗内仍会显示) */
   hidden_in_thread_view?: boolean;
-  /** 限制在指定板块内使用，格式：1,3,4 （逗号分隔的板块ID） */
+  /** 限制在指定版块内使用，格式：1,3,4 （逗号分隔的版块ID） */
   limit_use_in_categories?: string;
   /** 限制指定的用户角色可以设置标签到帖子，格式：1,10,11 （逗号分隔的角色ID，-1代表帖子作者） */
   limit_use_by_groups?: string;
@@ -36,7 +36,7 @@ export async function listEditableTagForThread(threadId: string | number): Promi
   return await fetchApi(`threadTag/listEditableTagForThread?thread_id=${threadId}`).then((resp) => resp.data);
 }
 
-/** 列出指定板块的所有可使用标签 */
+/** 列出指定版块的所有可使用标签 */
 export async function listEditableTagForCategory(categoryId?: string | number): Promise<Array<ThreadTag>> {
   if (!categoryId) {
     return await fetchApi(`threadTag/listEditableTagForAllCategory`).then((resp) => resp.data);

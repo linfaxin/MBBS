@@ -71,7 +71,7 @@ function CategoryThreadsPageComponent(props: { categoryId: string | number }) {
           <>
             <Divider orientation="horizontal" />
             <Box display="flex" flexWrap="wrap" alignItems="center" sx={{ pl: 1, pr: 1, pt: 0.5, pb: 0.5 }}>
-              <Typography sx={{ fontSize: '13px', opacity: 0.7 }}>子板块</Typography>
+              <Typography sx={{ fontSize: '13px', opacity: 0.7 }}>子版块</Typography>
               {category.children.map((c) => (
                 <Button
                   size="small"

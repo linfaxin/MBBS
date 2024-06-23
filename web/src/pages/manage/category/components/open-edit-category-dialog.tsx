@@ -155,13 +155,13 @@ const OpenEditCategoryDialog: React.FC<
             <Box display="flex">
               <Field name="parent_category_id" initialValue={parentCategoryId || category?.parent_category_id}>
                 <CategorySelect
-                  label="父板块(选填)"
+                  label="父版块(选填)"
                   categories={categories}
                   clearable
                   TextFieldProps={{ sx: { mt: 1, mb: 0.5 }, fullWidth: true }}
                 />
               </Field>
-              <TipIconButton message="设置父版块后，该版块入口将仅在父板块页面内出现" />
+              <TipIconButton message="设置父版块后，该版块入口将仅在父版块页面内出现" />
             </Box>
             <Field name="hidden" initialValue={!!category?.hidden} valuePropName="checked">
               <FormControlLabel

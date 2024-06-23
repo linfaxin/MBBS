@@ -5,7 +5,7 @@ import { PostSortKey } from '@/api/post';
 import { ThreadTag } from '@/api/thread-tag';
 
 /**
- * 分类板块
+ * 分类版块
  */
 export interface Category {
   id: number;
@@ -21,21 +21,21 @@ export interface Category {
   thread_count: number;
   /** 分类创建帖子时的 默认内容模版 */
   create_thread_template: string;
-  /** 板块首页自定义内容 */
+  /** 版块首页自定义内容 */
   home_ui_tip: string;
   /** 是否隐藏 */
   hidden: boolean;
-  /** 是否关闭板块评论功能 */
+  /** 是否关闭版块评论功能 */
   disable_post: boolean;
-  /** 板块帖子 默认排序方式 */
+  /** 版块帖子 默认排序方式 */
   threads_default_sort?: ThreadSortKey;
-  /** 板块帖子评论 默认排序方式 */
+  /** 版块帖子评论 默认排序方式 */
   posts_default_sort?: PostSortKey;
-  /** 板块帖子标签筛选ID，格式：1,3,4(逗号分隔的 标签ID) */
+  /** 版块帖子标签筛选ID，格式：1,3,4(逗号分隔的 标签ID) */
   filter_thread_tag_ids: string;
-  /** 父板块ID */
+  /** 父版块ID */
   parent_category_id?: number;
-  /** 板块帖子标签筛选 */
+  /** 版块帖子标签筛选 */
   filter_thread_tags: ThreadTag[];
   /** 创建时间 */
   created_at: string;

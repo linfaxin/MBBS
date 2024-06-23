@@ -114,7 +114,7 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
         showSnackbar('删除成功');
         removeThreadInHistoryData(thread);
         history.goBack();
-        reloadCategory(); // 更新板块内帖子数显示
+        reloadCategory(); // 更新版块内帖子数显示
       },
     });
   };
@@ -131,14 +131,14 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
         <>
           <Typography sx={{ fontSize: 15, mb: 2, opacity: 0.8 }}>{thread.is_sticky ? '当前帖子已置顶' : '是否置顶当前帖子？'}</Typography>
           <Typography sx={{ fontSize: 15, mb: 2, opacity: 0.8 }}>
-            当前所属板块：{currentCategory && getCategoryFullName(currentCategory)}
+            当前所属版块：{currentCategory && getCategoryFullName(currentCategory)}
           </Typography>
           <Box display="flex" alignItems="center">
             <Typography fontSize={13} sx={{ opacity: 0.8, flexShrink: 0 }}>
               同时置顶至：
             </Typography>
             <CategorySelect
-              label="其他板块"
+              label="其他版块"
               categories={allOtherCategories}
               multiple
               TextFieldProps={{
@@ -188,9 +188,9 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
       title: '设置评论开关',
       inputLabel: '帖子评论开关',
       defaultValue: thread.disable_post ? 'off' : thread.disable_post === false ? 'on' : 'default',
-      description: `当前板块评论开关：${threadCategory?.disable_post ? '关' : '开'}`,
+      description: `当前版块评论开关：${threadCategory?.disable_post ? '关' : '开'}`,
       options: [
-        { label: '跟随板块', value: 'default' },
+        { label: '跟随版块', value: 'default' },
         { label: '开', value: 'on' },
         { label: '关', value: 'off' },
       ],

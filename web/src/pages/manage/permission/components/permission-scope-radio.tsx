@@ -6,7 +6,7 @@ import { categoryApi } from '@/api';
 import { CategoryPermissionType, PermissionType } from '@/api/permission';
 import { getCategoryFullName } from '@/api/category';
 
-export declare type PermissionScopeValue = false | true | Array<number>; // 不允许 / 全局允许 / 指定板块允许
+export declare type PermissionScopeValue = false | true | Array<number>; // 不允许 / 全局允许 / 指定版块允许
 
 export function getPermissionScopeValue(allPermissions: PermissionType[], checkPermission: CategoryPermissionType): PermissionScopeValue {
   if (allPermissions.includes(checkPermission)) return true;

@@ -22,7 +22,7 @@ export class ThreadTag extends Model<Partial<ThreadTag>> {
   icon?: string;
   /** 是否在 帖子列表/详情 隐藏显示(帖子详情-标签管理弹窗内仍会显示) */
   hidden_in_thread_view: boolean;
-  /** 限制在指定板块内使用，格式：1,3,4 （逗号分隔的板块ID） */
+  /** 限制在指定版块内使用，格式：1,3,4 （逗号分隔的版块ID） */
   limit_use_in_categories: string;
   /** 限制指定的用户角色可以设置标签到帖子，格式：1,10,11 （逗号分隔的角色ID，-1代表帖子作者） */
   limit_use_by_groups: string;
@@ -34,7 +34,7 @@ export class ThreadTag extends Model<Partial<ThreadTag>> {
   created_at: Date;
   /** 更新时间 */
   updated_at: Date;
-  /** 是否能被角色在指定板块使用该标签 */
+  /** 是否能被角色在指定版块使用该标签 */
   canUseByGroupAndCategory(userGroupID: number, categoryId: number, isUserThreadOwner: boolean): boolean {
     if (this.id < 100) {
       if (userGroupID === GROUP_ID_ADMIN && this.id === THREAD_TAG_ID_READONLY) {
@@ -45,7 +45,7 @@ export class ThreadTag extends Model<Partial<ThreadTag>> {
       return false;
     }
     if (!this.canUseInCategory(categoryId)) {
-      // 不能在当前板块使用的标签
+      // 不能在当前版块使用的标签
       return false;
     }
 
@@ -71,7 +71,7 @@ export class ThreadTag extends Model<Partial<ThreadTag>> {
   }
   canUseInCategory(categoryId: number): boolean {
     if (!this.limit_use_in_categories) {
-      // 未指定限制使用的板块，全局可用
+      // 未指定限制使用的版块，全局可用
       return true;
     }
     return this.limit_use_in_categories.split(',').includes(String(categoryId));

@@ -129,7 +129,7 @@ export default class PostController {
       if (thread.disable_post === null) {
         const category = await getCategoryById(db, thread.category_id);
         if (category.disable_post) {
-          throw new UIError('当前板块已关闭评论功能');
+          throw new UIError('当前版块已关闭评论功能');
         }
       }
       // 用户查看评论权限 检查
@@ -584,7 +584,7 @@ ${formatSubString(markdownToPureText(content), 20)}`,
         const category = await getCategoryById(db, thread.category_id);
         if (category.disable_post) {
           canCreate = false;
-          cantCreateReason = '当前板块已关闭评论功能';
+          cantCreateReason = '当前版块已关闭评论功能';
         }
       }
     }

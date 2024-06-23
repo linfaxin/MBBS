@@ -20,19 +20,19 @@ export class Category extends Model<Partial<Category>> {
   thread_count: number;
   /** 分类创建帖子时的 默认内容模版 */
   create_thread_template: string;
-  /** 板块首页自定义内容 */
+  /** 版块首页自定义内容 */
   home_ui_tip: string;
   /** 是否隐藏 */
   hidden: boolean;
-  /** 是否板块级别关闭评论 */
+  /** 是否版块级别关闭评论 */
   disable_post: boolean;
-  /** 板块内帖子默认排序方式 */
+  /** 版块内帖子默认排序方式 */
   threads_default_sort: string;
-  /** 板块内帖子评论默认排序方式 */
+  /** 版块内帖子评论默认排序方式 */
   posts_default_sort: string;
-  /** 板块内支持的可筛选标签，格式：1,3,4 （逗号分隔的标签ID） */
+  /** 版块内支持的可筛选标签，格式：1,3,4 （逗号分隔的标签ID） */
   filter_thread_tag_ids: string;
-  /** 父板块id */
+  /** 父版块id */
   parent_category_id: number;
   /** 创建时间 */
   created_at: Date;
@@ -179,7 +179,7 @@ export async function getCategoryModel(db: Sequelize): Promise<typeof Category> 
     db,
     DBCategory.sync({ alter: { drop: false } }).then(async () => {
       try {
-        // 补齐板块默认的标签筛选条件
+        // 补齐版块默认的标签筛选条件
         if (
           await DBCategory.findOne({
             where: { filter_thread_tag_ids: { [Op.is]: null } },
