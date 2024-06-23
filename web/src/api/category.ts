@@ -43,6 +43,11 @@ export interface Category {
   updated_at: string;
 }
 
+declare type CategoryEditFields = Omit<
+  Category,
+  'id' | 'created_at' | 'updated_at' | 'filter_thread_tags' | 'home_ui_tip' | 'create_thread_template' | 'thread_count'
+>;
+
 export interface CategoryLinked extends Category {
   parent?: CategoryLinked;
   children: CategoryLinked[];
@@ -96,7 +101,7 @@ export async function getCategory(categoryId: number | string) {
   return (await listCategory(true)).find((p) => p.id == categoryId);
 }
 
-export function addCategory(param: Pick<Category, 'name' | 'description' | 'icon' | 'sort'>): Promise<Category> {
+export function addCategory(param: Partial<CategoryEditFields>): Promise<Category> {
   return fetchApi({
     pathOrUrl: 'category/addCategory',
     method: 'post',
@@ -107,10 +112,7 @@ export function addCategory(param: Pick<Category, 'name' | 'description' | 'icon
   });
 }
 
-export function setCategory(
-  category_id: string | number,
-  param: Pick<Category, 'name' | 'description' | 'icon' | 'sort'>,
-): Promise<boolean> {
+export function setCategory(category_id: string | number, param: Partial<CategoryEditFields>): Promise<boolean> {
   return fetchApi({
     pathOrUrl: 'category/setCategory',
     method: 'post',

@@ -9,6 +9,7 @@ import OpenAlertDialog from '@/components/open-alert-dialog';
 import showAlert from '@/utils/show-alert';
 import { CategoryLinked } from '@/api/category';
 import { categoryApi } from '@/api';
+import OpenEditFilterTagDialog from './open-edit-filter-tag-dialog';
 
 const CategoryManageTreeItem = (props: {
   treeDeep?: number;
@@ -67,6 +68,20 @@ const CategoryManageTreeItem = (props: {
               删除
             </Button>
           </OpenAlertDialog>
+          <OpenEditCategoryDialog
+            title="新增子版块"
+            categories={categoriesLinked}
+            parentCategoryId={category.id}
+            doSubmitCategory={async (fields) => {
+              await categoryApi.addCategory(fields);
+              onCategoryChanged();
+              showSnackbar('新增成功');
+            }}
+          >
+            <Button variant="contained" size="small" sx={{ mr: 1, mt: 1 }}>
+              新增子版块
+            </Button>
+          </OpenEditCategoryDialog>
           <OpenPopupMarkdownEditor
             title="自定义版块页提示"
             defaultValue={category.home_ui_tip || ''}
@@ -79,9 +94,21 @@ const CategoryManageTreeItem = (props: {
             }}
           >
             <Button variant="contained" size="small" sx={{ mr: 1, mt: 1 }}>
-              自定义版块页文案
+              设置版块页文案
             </Button>
           </OpenPopupMarkdownEditor>
+          <OpenEditFilterTagDialog
+            title="设置版块筛选标签"
+            category={category}
+            onChanged={() => {
+              onCategoryChanged();
+              showSnackbar('设置成功');
+            }}
+          >
+            <Button variant="contained" size="small" sx={{ mr: 1, mt: 1 }}>
+              设置筛选标签
+            </Button>
+          </OpenEditFilterTagDialog>
           <OpenPopupMarkdownEditor
             title="设置发帖默认模版"
             defaultValue={category.create_thread_template || ''}
@@ -98,21 +125,7 @@ const CategoryManageTreeItem = (props: {
             </Button>
           </OpenPopupMarkdownEditor>
           <OpenEditCategoryDialog
-            title="新增子版块"
-            categories={categoriesLinked}
-            parentCategoryId={category.id}
-            doSubmitCategory={async (fields) => {
-              await categoryApi.addCategory(fields);
-              onCategoryChanged();
-              showSnackbar('新增成功');
-            }}
-          >
-            <Button variant="contained" size="small" sx={{ mr: 1, mt: 1 }}>
-              新增子版块
-            </Button>
-          </OpenEditCategoryDialog>
-          <OpenEditCategoryDialog
-            title="修改分类版块"
+            title="修改分类版块信息"
             category={category}
             categories={categoriesLinked}
             doSubmitCategory={async (fields) => {
@@ -122,7 +135,7 @@ const CategoryManageTreeItem = (props: {
             }}
           >
             <Button startIcon={<EditIcon />} variant="contained" size="small" sx={{ mr: 1, mt: 1 }}>
-              修改
+              基本信息
             </Button>
           </OpenEditCategoryDialog>
         </Box>

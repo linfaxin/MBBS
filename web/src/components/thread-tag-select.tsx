@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Checkbox, Chip, ListItemText, MenuItem, SelectProps, TextField } from '@mui/material';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import { Checkbox, Chip, Divider, ListItemText, MenuItem, SelectProps, TextField } from '@mui/material';
 import { TextFieldProps } from '@mui/material/TextField/TextField';
 import { ThreadTag } from '@/api/thread-tag';
 import { getResourceUrl } from '@/utils/resource-url';
@@ -11,10 +11,21 @@ const ThreadTagSelect = (props: {
   defaultValue?: number | number[];
   onChange?: (value: number | number[]) => void;
   threadTags: ThreadTag[];
+  extraMenuItems?: ReactNode;
   SelectProps?: Partial<SelectProps>;
   TextFieldProps?: Partial<TextFieldProps>;
 }) => {
-  const { label = '选择标签', threadTags, multiple, value: _value, defaultValue, onChange, TextFieldProps, SelectProps } = props;
+  const {
+    label = '选择标签',
+    threadTags,
+    multiple,
+    value: _value,
+    defaultValue,
+    extraMenuItems,
+    onChange,
+    TextFieldProps,
+    SelectProps,
+  } = props;
 
   const [value, setValue] = useState(_value || defaultValue);
   useEffect(() => {
@@ -68,6 +79,8 @@ const ThreadTagSelect = (props: {
           />
         </MenuItem>
       ))}
+      {!!extraMenuItems && <Divider orientation="horizontal" />}
+      {extraMenuItems}
     </TextField>
   );
 };

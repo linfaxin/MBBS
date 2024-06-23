@@ -1,7 +1,7 @@
 import React from 'react';
 import { categoryApi } from '@/api';
 import { history, useParams } from 'umi';
-import { Box, Button, Card, Divider, Fab, Typography, useTheme } from '@mui/material';
+import { Box, Button, Card, Divider, Fab, ListItemText, MenuItem, Typography, useTheme } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { getResourceUrl } from '@/utils/resource-url';
 import { useScreenWidthUpMD } from '@/utils/use-screen-width';
@@ -13,6 +13,9 @@ import { usePageState } from '@/utils/use-page-history-hooks';
 import { CategoryLinked, getCategoryTotalThreadCount } from '@/api/category';
 import showAlert from '@/utils/show-alert';
 import MarkdownPreview from '@/components/vditor/markdown-preview';
+import { GROUP_ID_ADMIN } from '@/consts';
+import { useModel } from '@@/plugin-model/useModel';
+import OpenEditFilterTagDialog from '@/pages/manage/category/components/open-edit-filter-tag-dialog';
 
 export default function CategoryThreadsPage() {
   const params = useParams() as any;
@@ -22,6 +25,7 @@ export default function CategoryThreadsPage() {
 
 function CategoryThreadsPageComponent(props: { categoryId: string | number }) {
   const { categoryId } = props;
+  const loginUserModel = useModel('useLoginUser');
   const isWidthUpDM = useScreenWidthUpMD();
   const theme = useTheme();
   const [category, setCategory] = usePageState<CategoryLinked>('category');
@@ -99,6 +103,21 @@ function CategoryThreadsPageComponent(props: { categoryId: string | number }) {
         <ThreadList
           queryParam={{ category_id: categoryId, sort: category.threads_default_sort }}
           filterableThreadTags={category.filter_thread_tags}
+          filterableThreadSelectExtraItems={
+            loginUserModel.user?.group?.id === GROUP_ID_ADMIN && (
+              <MenuItem>
+                <OpenEditFilterTagDialog
+                  title="设置版块筛选标签"
+                  category={category}
+                  onChanged={async () => {
+                    setCategory((await categoryApi.getCategory(categoryId)) || category);
+                  }}
+                >
+                  <ListItemText primary="设置筛选项..." secondary="该功能仅系统管理员可见" />
+                </OpenEditFilterTagDialog>
+              </MenuItem>
+            )
+          }
           style={{ marginTop: 16 }}
         />
       )}

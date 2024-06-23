@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { useRequest, useUpdateEffect } from 'ahooks';
 import {
   Box,
@@ -39,6 +39,7 @@ const ThreadList: React.FC<
     enablePullRefreshLoad?: boolean;
     showCategoryName?: boolean;
     filterableThreadTags?: ThreadTag[];
+    filterableThreadSelectExtraItems?: ReactNode;
     onClickThread?: (thread: Thread) => void;
     renderActions?: (thread: Thread, reRender: () => void) => React.ReactNode;
     renderAfterListTitleThreadCount?: (threads: Thread[], reLoad: () => void) => React.ReactNode;
@@ -50,6 +51,7 @@ const ThreadList: React.FC<
     enablePullRefreshLoad = true,
     showCategoryName,
     filterableThreadTags,
+    filterableThreadSelectExtraItems,
     onClickThread,
     renderActions,
     renderAfterListTitleThreadCount,
@@ -150,6 +152,7 @@ const ThreadList: React.FC<
                   .map((v) => parseInt(v)) || []
               }
               onChange={(tags) => setFilterThreadTagIds(String(tags))}
+              extraMenuItems={filterableThreadSelectExtraItems}
               SelectProps={{
                 displayEmpty: true,
                 className: style.sort_select_button,
