@@ -41,10 +41,11 @@ const ThreadTagSelect = (props: {
       label={label}
       size="small"
       SelectProps={{
-        ...SelectProps,
         renderValue: (v) => Array.isArray(v) && v.map((id) => nameMap[id]).join(','),
+        ...SelectProps,
         sx: {
           fontSize: '14px',
+          ...SelectProps?.sx,
         },
         multiple,
       }}
@@ -52,7 +53,7 @@ const ThreadTagSelect = (props: {
       onChange={(e) => triggerChange(e.target.value as any)}
     >
       {(threadTags || []).map((item) => (
-        <MenuItem value={item.id} key={item.id}>
+        <MenuItem key={item.id} value={item.id} sx={{ pt: 0, pb: 0 }}>
           {multiple && Array.isArray(value) && <Checkbox checked={value.indexOf(item.id) > -1} />}
           <ListItemText
             secondary={

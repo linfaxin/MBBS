@@ -106,7 +106,7 @@ export interface ListThreadParam {
   is_sticky?: boolean;
   /** 支持逗号分割的多个状态 */
   is_approved?: ThreadIsApproved | string;
-  filter_thread_tag_id?: number | string;
+  filter_thread_tag_ids?: string;
   is_deleted?: boolean;
   created_at_begin?: Date;
   created_at_end?: Date;

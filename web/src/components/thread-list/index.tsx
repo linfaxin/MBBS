@@ -16,7 +16,6 @@ import {
   useTheme,
 } from '@mui/material';
 import ModeCommentIcon from '@mui/icons-material/ModeComment';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import SearchIcon from '@mui/icons-material/Search';
 import { useScreenWidthUpMD } from '@/utils/use-screen-width';
 import { categoryApi, threadApi } from '@/api';
@@ -28,10 +27,10 @@ import { formatTimeFriendly } from '@/utils/format-util';
 import OpenPromptDialog from '@/components/open-prompt-dialog';
 import { getPageStateWhenPop, setPageState, usePageState } from '@/utils/use-page-history-hooks';
 import { hasViewThread } from '@/utils/view-thread-records-util';
-import ShowThreadContentMatchKeywords from './show-thread-content-match-keywords';
+import ShowThreadContentMatchKeywords from '@/components/thread-list/show-thread-content-match-keywords';
 import { ThreadTag } from '@/api/thread-tag';
-import OpenPopoverMenu from '@/components/open-popover-menu';
 import { getCategoryFullName } from '@/api/category';
+import ThreadTagSelect from '@/components/thread-tag-select';
 import style from './index.less';
 
 const ThreadList: React.FC<
@@ -63,10 +62,7 @@ const ThreadList: React.FC<
     ((Array.isArray(queryParam.sort) ? queryParam.sort[0] : queryParam.sort) as ThreadSortKey) || '-posted_at',
   );
   const [keywords, setKeywords] = usePageState<string>('thread-list.keywords', queryParam.keywords);
-  const [filterThreadTagId, setFilterThreadTagId] = usePageState<string | number>(
-    'thread-list.filterThreadTag',
-    queryParam.filter_thread_tag_id,
-  );
+  const [filterThreadTagIds, setFilterThreadTagIds] = usePageState<string>('thread-list.filterTags', queryParam.filter_thread_tag_ids);
   const [totalCount, setTotalCount] = usePageState<number | string>('thread-list.totalCount');
   const [threadList, setThreadList] = usePageState<Thread[]>('thread-list', []);
   const forceUpdate = () => setThreadList([...threadList]);
@@ -83,7 +79,7 @@ const ThreadList: React.FC<
       ...queryParam,
       sort,
       keywords,
-      filter_thread_tag_id: filterThreadTagId,
+      filter_thread_tag_ids: filterThreadTagIds,
       page_offset: (pageNo - 1) * pageSize,
       page_limit: pageSize,
     });
@@ -101,7 +97,7 @@ const ThreadList: React.FC<
     <AppPageList
       {...listProps}
       defaultPageNo={getPageStateWhenPop('thread-list.next-page-no') || 1}
-      listReloadKey={`${listReloadKeyId}_${JSON.stringify({ ...queryParam, sort, keywords, filterThreadTagId })}`}
+      listReloadKey={`${listReloadKeyId}_${JSON.stringify({ ...queryParam, sort, keywords, filterThreadTagIds })}`}
       loadPage={loadPage}
       pullRefreshLoad={enablePullRefreshLoad ? loadPage.bind(this, 1) : undefined}
       useBodyScroll
@@ -112,15 +108,15 @@ const ThreadList: React.FC<
       }
       renderPageEmpty={
         <Typography textAlign="center" p={2} component="div">
-          {keywords || filterThreadTagId ? (
+          {keywords || filterThreadTagIds ? (
             <>
               <span>未搜索到帖子</span>
               <div style={{ height: 20 }} />
               <div hidden={!keywords}>
                 <Button onClick={setKeywords.bind(this, '')}>清空搜索关键字</Button>
               </div>
-              <div hidden={!filterThreadTagId}>
-                <Button onClick={setFilterThreadTagId.bind(this, '')}>清空筛选标签</Button>
+              <div hidden={!filterThreadTagIds}>
+                <Button onClick={setFilterThreadTagIds.bind(this, '')}>清空筛选标签</Button>
               </div>
             </>
           ) : (
@@ -143,24 +139,26 @@ const ThreadList: React.FC<
           {renderAfterListTitleThreadCount?.(threadList, () => setListReloadKeyId((prev) => prev + 1))}
           <div style={{ flex: 1 }} />
           {!!filterableThreadTags?.length && (
-            <OpenPopoverMenu
-              options={filterableThreadTags.map((tag) => ({
-                checked: filterThreadTagId === tag.id,
-                label: (
-                  <>
-                    <Chip size="small" component="span" label={tag.name} sx={{ mr: 0.5 }} />
-                    {!!tag.icon && <img alt="icon" src={getResourceUrl(tag.icon)} style={{ height: 20, paddingRight: 4 }} />}
-                    {tag.description}
-                  </>
-                ),
-                onClick: () => setFilterThreadTagId(tag.id === filterThreadTagId ? '' : tag.id),
-              }))}
-            >
-              <Button size="small" color={filterThreadTagId ? 'primary' : 'inherit'} sx={{ fontWeight: 'normal' }}>
-                筛选{filterThreadTagId ? '*' : ''}
-                <ArrowDropDownIcon sx={{ fontSize: '1.5rem' }} />
-              </Button>
-            </OpenPopoverMenu>
+            <ThreadTagSelect
+              label=""
+              threadTags={filterableThreadTags}
+              multiple
+              value={
+                filterThreadTagIds
+                  ?.split(',')
+                  .filter(Boolean)
+                  .map((v) => parseInt(v)) || []
+              }
+              onChange={(tags) => setFilterThreadTagIds(String(tags))}
+              SelectProps={{
+                displayEmpty: true,
+                className: style.sort_select_button,
+                renderValue: (v) => ((v as any)?.length ? '筛选*' : '筛选'),
+                SelectDisplayProps: {
+                  style: { fontWeight: filterThreadTagIds ? 'bold' : 'normal' },
+                },
+              }}
+            />
           )}
           <Select
             size="small"
