@@ -282,7 +282,12 @@ function ThreadDetailPageComponent(props: { threadId: number | string }) {
                   {tag.icon ? (
                     <img alt="icon" src={getResourceUrl(tag.icon)} style={{ height: 16, verticalAlign: 'text-bottom', paddingLeft: 6 }} />
                   ) : (
-                    <Chip size="small" label={tag.name} sx={{ marginLeft: 0.6, verticalAlign: 'top' }} component="span" />
+                    <Chip
+                      size="small"
+                      label={tag.name}
+                      sx={{ marginLeft: 0.6, verticalAlign: 'top', color: tag.color, bgcolor: tag.bgcolor }}
+                      component="span"
+                    />
                   )}
                 </MouseOverTip>
               ),

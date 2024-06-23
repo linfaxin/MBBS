@@ -1,6 +1,6 @@
 import React from 'react';
 import OpenAlertDialog, { OpenAlertDialogProps } from '@/components/open-alert-dialog';
-import { Box, TextField, Switch, FormControlLabel, Button } from '@mui/material';
+import { Box, TextField, Switch, FormControlLabel, Button, IconButton } from '@mui/material';
 import doTaskWithUI from '@/utils/do-task-with-ui';
 import Form, { Field } from 'rc-field-form';
 import { FormInstance } from 'rc-field-form/es/interface';
@@ -16,6 +16,8 @@ import { useRequest } from 'ahooks';
 import { groupApi } from '@/api';
 import { Group } from '@/api/group';
 import { GROUP_ID_TOURIST } from '@/consts';
+import EditIcon from '@mui/icons-material/Edit';
+import OpenColorPickerDialog from '@/components/open-color-picker-dialog';
 
 const OpenEditThreadTagDialog: React.FC<
   Partial<OpenAlertDialogProps> & {
@@ -60,6 +62,62 @@ const OpenEditThreadTagDialog: React.FC<
                   </UploadResourceButton>
                   {form.getFieldValue('icon') && <Button onClick={() => form.setFieldsValue({ icon: '' })}>删除</Button>}
                   <TipIconButton message="设置后，图标会代替文字显示在帖子标题处" />
+                </Box>
+              )}
+            </Field>
+            <Field name="color" initialValue={threadTag?.color || ''}>
+              {() => (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  标签文字颜色：
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 20,
+                      height: 20,
+                      background: form.getFieldValue('color') || 'rgba(0, 0, 0, 0.87)',
+                      verticalAlign: 'bottom',
+                    }}
+                  />
+                  <OpenColorPickerDialog
+                    title="设置标签文字颜色"
+                    defaultColor={form.getFieldValue('color')}
+                    submitFailAlert
+                    onSubmit={(inputValue) => {
+                      form.setFieldsValue({ color: inputValue });
+                    }}
+                  >
+                    <IconButton color="primary">
+                      <EditIcon />
+                    </IconButton>
+                  </OpenColorPickerDialog>
+                </Box>
+              )}
+            </Field>
+            <Field name="bgcolor" initialValue={threadTag?.bgcolor || ''}>
+              {() => (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  标签背景颜色：
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 20,
+                      height: 20,
+                      background: form.getFieldValue('bgcolor') || 'rgba(0, 0, 0, 0.08)',
+                      verticalAlign: 'bottom',
+                    }}
+                  />
+                  <OpenColorPickerDialog
+                    title="设置标签背景颜色"
+                    defaultColor={form.getFieldValue('bgcolor')}
+                    submitFailAlert
+                    onSubmit={(inputValue) => {
+                      form.setFieldsValue({ bgcolor: inputValue });
+                    }}
+                  >
+                    <IconButton color="primary">
+                      <EditIcon />
+                    </IconButton>
+                  </OpenColorPickerDialog>
                 </Box>
               )}
             </Field>

@@ -54,7 +54,7 @@ const ManageTagContent = (props: { threadId: string | number }) => {
                     </>
                   }
                   component="span"
-                  sx={{ mr: 0.5 }}
+                  sx={{ mr: 0.5, color: threadTag.color, bgcolor: threadTag.bgcolor }}
                 />
                 {!!threadTag.icon && (
                   <img
@@ -93,13 +93,14 @@ const ManageTagContent = (props: { threadId: string | number }) => {
         <Box textAlign="center" mt={2}>
           <OpenPopoverMenu
             options={[
-              { groupTitle: '选择要添加的标签' },
+              { groupTitle: '选择要添加的标签　' },
               ...data.addableTags.map((tag) => ({
                 label: (
                   <>
                     <Chip
                       size="small"
                       component="span"
+                      sx={{ color: tag.color, bgcolor: tag.bgcolor }}
                       label={
                         <>
                           {tag.name}

@@ -10,6 +10,10 @@ export interface ThreadTag {
   description?: string;
   /** 标签图标 */
   icon?: string;
+  /** 标签颜色 */
+  color?: string;
+  /** 标签背景色 */
+  bgcolor?: string;
   /** 是否在 帖子列表/详情 隐藏显示(帖子详情-标签管理弹窗内仍会显示) */
   hidden_in_thread_view?: boolean;
   /** 限制在指定版块内使用，格式：1,3,4 （逗号分隔的版块ID） */

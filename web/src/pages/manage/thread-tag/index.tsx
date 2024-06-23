@@ -39,6 +39,7 @@ const ManageCategory = () => {
                   <>
                     <Chip
                       size="small"
+                      sx={{ color: threadTag.color, bgcolor: threadTag.bgcolor }}
                       label={
                         <>
                           {threadTag.name}

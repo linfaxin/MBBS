@@ -58,7 +58,7 @@ const ThreadTagSelect = (props: {
           <ListItemText
             secondary={
               <>
-                <Chip size="small" component="span" label={item.name} sx={{ mr: 0.5 }} />
+                <Chip size="small" component="span" label={item.name} sx={{ mr: 0.5, color: item.color, bgcolor: item.bgcolor }} />
                 {!!item.icon && (
                   <img alt="icon" src={getResourceUrl(item.icon)} style={{ height: 20, paddingRight: 4, verticalAlign: 'text-bottom' }} />
                 )}

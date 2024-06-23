@@ -17,6 +17,8 @@ export default class ThreadTagController {
     @CurrentDomain() domain: string,
     @BodyParam('name', { required: true }) name: string,
     @BodyParam('icon') icon: string,
+    @BodyParam('color') color?: string,
+    @BodyParam('bgcolor') bgcolor?: string,
     @BodyParam('description') description?: string,
     @BodyParam('hidden_in_thread_view') hidden_in_thread_view?: boolean,
     @BodyParam('limit_use_in_categories') limit_use_in_categories?: string,
@@ -31,8 +33,10 @@ export default class ThreadTagController {
     }
     const ThreadTagModel = await getThreadTagModel(db);
     const threadTag = await ThreadTagModel.create({
-      icon,
       name,
+      icon,
+      color,
+      bgcolor,
       description,
       hidden_in_thread_view,
       limit_use_in_categories,
@@ -66,6 +70,8 @@ export default class ThreadTagController {
     @BodyParam('tag_id', { required: true }) tagId: number,
     @BodyParam('name') name?: string,
     @BodyParam('icon') icon?: string,
+    @BodyParam('color') color?: string,
+    @BodyParam('bgcolor') bgcolor?: string,
     @BodyParam('description') description?: string,
     @BodyParam('hidden_in_thread_view') hidden_in_thread_view?: boolean,
     @BodyParam('limit_use_in_categories') limit_use_in_categories?: string,
@@ -90,6 +96,8 @@ export default class ThreadTagController {
       {
         name: name == null ? threadTag.name : name,
         icon: icon == null ? threadTag.icon : icon,
+        color: color == null ? threadTag.color : color,
+        bgcolor: bgcolor == null ? threadTag.bgcolor : bgcolor,
         description: description == null ? threadTag.description : description,
         hidden_in_thread_view: hidden_in_thread_view == null ? threadTag.hidden_in_thread_view : hidden_in_thread_view,
         limit_use_in_categories: limit_use_in_categories == null ? threadTag.limit_use_in_categories : limit_use_in_categories,

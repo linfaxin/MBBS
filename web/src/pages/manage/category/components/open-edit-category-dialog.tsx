@@ -137,21 +137,24 @@ const OpenEditCategoryDialog: React.FC<
                 <MenuItem value="-like_count">最多点赞</MenuItem>
               </TextField>
             </Field>
-            <Field name="filter_thread_tag_ids" initialValue={category?.filter_thread_tag_ids || ''}>
-              {() => (
-                <ThreadTagSelect
-                  label="可筛选标签"
-                  TextFieldProps={{ fullWidth: true, sx: { mt: 1, mb: 0.5 } }}
-                  value={((form.getFieldValue('filter_thread_tag_ids') as string) || '')
-                    .split(',')
-                    .filter(Boolean)
-                    .map((id) => parseInt(id))}
-                  onChange={(value) => form.setFieldsValue({ filter_thread_tag_ids: [].concat(value as any).join(',') })}
-                  multiple
-                  threadTags={editableThreadTags || []}
-                />
-              )}
-            </Field>
+            <Box display="flex">
+              <Field name="filter_thread_tag_ids" initialValue={category?.filter_thread_tag_ids || ''}>
+                {() => (
+                  <ThreadTagSelect
+                    label="可筛选标签"
+                    TextFieldProps={{ fullWidth: true, sx: { mt: 1, mb: 0.5 } }}
+                    value={((form.getFieldValue('filter_thread_tag_ids') as string) || '')
+                      .split(',')
+                      .filter(Boolean)
+                      .map((id) => parseInt(id))}
+                    onChange={(value) => form.setFieldsValue({ filter_thread_tag_ids: [].concat(value as any).join(',') })}
+                    multiple
+                    threadTags={editableThreadTags || []}
+                  />
+                )}
+              </Field>
+              <TipIconButton message="设置当前版块内可用于筛选帖子的标签，选中顺序即为筛选项排序" />
+            </Box>
             <Box display="flex">
               <Field name="parent_category_id" initialValue={parentCategoryId || category?.parent_category_id}>
                 <CategorySelect

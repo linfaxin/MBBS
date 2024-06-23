@@ -211,7 +211,12 @@ const ThreadList: React.FC<
                                     style={{ height: 16, verticalAlign: 'text-bottom', paddingRight: 4 }}
                                   />
                                 ) : (
-                                  <Chip size="small" label={tag.name} sx={{ marginRight: 0.6, verticalAlign: 'top' }} component="span" />
+                                  <Chip
+                                    size="small"
+                                    label={tag.name}
+                                    sx={{ marginRight: 0.6, verticalAlign: 'top', color: tag.color, bgcolor: tag.bgcolor }}
+                                    component="span"
+                                  />
                                 )}
                               </React.Fragment>
                             ),
