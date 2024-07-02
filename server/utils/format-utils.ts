@@ -25,6 +25,7 @@ export function formatNumber(num: number, fixed = 1) {
 }
 
 export function formatSubString(content: string, maxLength: number) {
+  if (!content) return '';
   if (content.length <= maxLength) return content;
   return content.substring(0, maxLength) + '...';
 }
