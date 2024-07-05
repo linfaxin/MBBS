@@ -7,8 +7,7 @@ import { FormInstance } from 'rc-field-form/es/interface';
 import { getResourceUrl } from '@/utils/resource-url';
 import { compressImageFile } from '@/utils/compress-image-util';
 import UploadResourceButton from '@/components/upload-resource-button';
-import { Category, CategoryLinked } from '@/api/category';
-import ThreadTagSelect from '@/components/thread-tag-select';
+import { Category, CategoryLinked, isCategoryParentPathContain } from '@/api/category';
 import { useRequest } from 'ahooks';
 import { threadTagApi } from '@/api';
 import CategorySelect from '@/components/category-select';
@@ -141,7 +140,9 @@ const OpenEditCategoryDialog: React.FC<
               <Field name="parent_category_id" initialValue={parentCategoryId || category?.parent_category_id}>
                 <CategorySelect
                   label="父版块(选填)"
-                  categories={categories}
+                  categories={categories.filter((c) => {
+                    return c.id !== category?.id && !isCategoryParentPathContain(c, category?.id);
+                  })}
                   clearable
                   TextFieldProps={{ sx: { mt: 1, mb: 0.5 }, fullWidth: true }}
                 />
@@ -188,6 +189,7 @@ const OpenEditCategoryDialog: React.FC<
           task: async () => {
             const values = innerForm.getFieldsValue();
             if (values.sort === '') values.sort = null;
+            if (!values.parent_category_id) values.parent_category_id = null;
             await doSubmitCategory(values);
           },
           failAlert: true,

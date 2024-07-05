@@ -100,7 +100,7 @@ export default class CategoryController {
         ...(threads_default_sort == null ? undefined : { threads_default_sort }),
         ...(posts_default_sort == null ? undefined : { posts_default_sort }),
         ...(filter_thread_tag_ids == null ? undefined : { filter_thread_tag_ids }),
-        ...(parent_category_id == null ? undefined : { parent_category_id }),
+        parent_category_id,
       },
       { where: { id: categoryId } },
     );

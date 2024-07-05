@@ -167,6 +167,10 @@ function makeCategoryLinked(categories: CategoryLinked[]) {
   for (const c of categories) {
     const parentCategory = categoryMap.get(c.parent_category_id);
     if (parentCategory) {
+      if (parentCategory === c || getCategoryParentPath(parentCategory)?.has(c)) {
+        // 发生循环引用，忽略建立链接
+        continue;
+      }
       c.parent = parentCategory;
       parentCategory.children = parentCategory.children || [];
       parentCategory.children.push(c);
@@ -206,6 +210,33 @@ export function getCategoryFullName(category: CategoryLinked | undefined): strin
   }
 
   return names.join('/');
+}
+
+function getCategoryParentPath(category: CategoryLinked | undefined): Set<CategoryLinked> | undefined {
+  if (!category) return undefined;
+  const parentPath = new Set<CategoryLinked>();
+
+  let checkCategory: CategoryLinked | undefined = category.parent;
+
+  while (checkCategory) {
+    parentPath.add(checkCategory);
+    checkCategory = checkCategory.parent;
+  }
+
+  return parentPath;
+}
+
+export function isCategoryParentPathContain(category: CategoryLinked | undefined, aimCategoryId: number | undefined): boolean {
+  if (!category) return false;
+
+  let checkCategory: CategoryLinked | undefined = category.parent;
+
+  while (checkCategory) {
+    if (checkCategory.id === aimCategoryId) return true;
+    checkCategory = checkCategory.parent;
+  }
+
+  return false;
 }
 
 export function getCategoryTotalThreadCount(category: CategoryLinked | undefined): number {
