@@ -60,7 +60,7 @@ const CategoryCache = createModelCache(Category, {
 });
 
 export async function getCategoryById(db: Sequelize, categoryId: number): Promise<Category> {
-  return CategoryCache.getInCache(db, categoryId) || (await getCategoryModel(db)).findByPk(categoryId);
+  return CategoryCache.getInCache(db, categoryId) || (await getCategoryModel(db)).findByPk(categoryId, { paranoid: false });
 }
 
 export async function getCategoryByName(db: Sequelize, name: string): Promise<Category> {

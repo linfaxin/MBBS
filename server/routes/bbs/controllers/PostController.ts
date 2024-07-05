@@ -128,7 +128,7 @@ export default class PostController {
       if (thread.disable_post) throw new UIError('当前帖子已关闭评论功能');
       if (thread.disable_post === null) {
         const category = await getCategoryById(db, thread.category_id);
-        if (category.disable_post) {
+        if (category?.disable_post) {
           throw new UIError('当前版块已关闭评论功能');
         }
       }
