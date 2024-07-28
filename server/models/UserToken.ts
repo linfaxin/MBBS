@@ -43,7 +43,7 @@ function checkClearExpiredToken(db: Sequelize) {
   }
   if (Date.now() - db[dbLastClearTokenTime] > 12 * 60 * 60 * 1000) {
     // 距离上次清理超过 12 小时
-    clearExpiredToken(db); // 异步清理 token
+    clearExpiredToken(db).catch(console.warn); // 异步清理 token
     db[dbLastClearTokenTime] = Date.now();
   }
 }

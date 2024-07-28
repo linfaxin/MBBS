@@ -154,7 +154,7 @@ export class Thread extends Model<Partial<Thread>> {
     return firstPost?.content;
   }
   async toViewJSON(viewUser: User, options?: { field_is_liked?: boolean }) {
-    const { field_is_liked = true } = options || {};
+    const { field_is_liked } = options || {};
 
     let firstPost: Post;
     if (!this.first_post_id) {

@@ -507,7 +507,7 @@ export default class ThreadController {
       ThreadController.newThreadMailNoticeAdmin(currentUser, createdThread).catch(noop);
     }
 
-    return createdThread.toViewJSON(currentUser);
+    return createdThread.toViewJSON(currentUser, { field_is_liked: true });
   }
 
   @Get('/listMyDrafts')
@@ -674,7 +674,7 @@ export default class ThreadController {
       limit,
     });
 
-    const threads = await Promise.all(findThreads.map((t) => t.toViewJSON(currentUser, { field_is_liked: false })));
+    const threads = await Promise.all(findThreads.map((t) => t.toViewJSON(currentUser)));
     const totalCount = await ThreadModel.count({ where: whereOption });
     threads[WrapDataExtraKey] = { totalCount };
     userListThreadLogger.log({
@@ -706,9 +706,7 @@ export default class ThreadController {
           .filter((otherThread) => {
             return otherThread.sticky_at_other_categories?.split(',').includes(String(categoryId));
           })
-          .map((t) => {
-            return t.toViewJSON(currentUser, { field_is_liked: false });
-          }),
+          .map((t) => t.toViewJSON(currentUser)),
       );
       threads.unshift(...fromOtherCategoryStickyThreads);
       threads[WrapDataExtraKey] = { totalCount: totalCount + fromOtherCategoryStickyThreads.length };
@@ -721,7 +719,7 @@ export default class ThreadController {
     const thread = await getThread(db, id);
     if (thread == null) throw new UIError('帖子未找到');
     if (!(await currentUser.isAdmin())) throw new UIError('无权查看');
-    return thread.toViewJSON(currentUser);
+    return thread.toViewJSON(currentUser, { field_is_liked: true });
   }
 
   @Post('/batchDelete')
@@ -804,7 +802,7 @@ export default class ThreadController {
     }
 
     userViewThreadLogger.log({ threadId: id, title: thread.title });
-    return thread.toViewJSON(currentUser);
+    return thread.toViewJSON(currentUser, { field_is_liked: true });
   }
 
   @Post('/:id')
@@ -948,7 +946,7 @@ export default class ThreadController {
         unread_merge_key: `viewThread${thread.id}.setApproved`,
       }).catch(noop);
     }
-    return thread.toViewJSON(currentUser);
+    return thread.toViewJSON(currentUser, { field_is_liked: true });
   }
 
   @Delete('/:id')

@@ -36,7 +36,7 @@ export function getDBFilePath(dbName: string) {
   if (!dbName) return null;
   dbName = dbName.toLowerCase();
   if (!dbName.endsWith('.db')) dbName = `${dbName}.db`;
-  return path.join(DBDataDir, path.join('/', dbName));
+  return path.join(DBDataDir, '/', dbName);
 }
 
 const DBPathSymbol = Symbol('DBPath');
