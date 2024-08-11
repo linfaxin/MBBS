@@ -32,7 +32,7 @@
 安装：
 
 ```shell
-npm i -g mbbs # 全局安装 mbbs 模块
+npm i -g mbbs --registry=https://registry.npmmirror.com # 全局安装 mbbs 模块
 # 使用的部分依赖库（sqlite3、bcrypt）在安装时会从 github 下载 prebuild 文件
 # 可能会由于国内网络问题，在快结束时卡住，请耐心等待，如果失败请重试
 ```
