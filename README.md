@@ -41,7 +41,7 @@ npm i -g mbbs --registry=https://registry.npmmirror.com # 全局安装 mbbs 模�
 
 ```shell
 cd ./要部署论坛的目录
-mbbs serve # 在当前目录启动论坛服务
+mbbs serve # 在当前目录启动论坛服务（首次创建会提示输入管理密码）
 ```
 
 > 如果提示 npm 命令找不到，需要先安装 [Node.js](https://nodejs.org/) 最新版本
