@@ -262,33 +262,37 @@ export default function initVditor(div: HTMLElement, param: InitVditorOption) {
       );
 
       // 支持拖拽入图片/附件
-      vditor.vditor.wysiwyg?.element.addEventListener('drop', (e) => {
-        if (e.dataTransfer?.items?.length) {
-          const imgFiles: File[] = [];
-          const attachmentFiles: File[] = [];
+      vditor.vditor.wysiwyg?.element.addEventListener(
+        'drop',
+        (e) => {
+          if (e.dataTransfer?.items?.length) {
+            const imgFiles: File[] = [];
+            const attachmentFiles: File[] = [];
 
-          Array.from(e.dataTransfer.items).forEach((i) => {
-            const file = i.getAsFile();
-            if (!file) return;
-            if (/^image\//.test(i.type)) {
-              imgFiles.push(file);
-            } else {
-              attachmentFiles.push(file);
+            Array.from(e.dataTransfer.items).forEach((i) => {
+              const file = i.getAsFile();
+              if (!file) return;
+              if (/^image\//.test(i.type)) {
+                imgFiles.push(file);
+              } else {
+                attachmentFiles.push(file);
+              }
+            });
+
+            if (imgFiles.length && doUploadAndInsertImage) {
+              e.stopPropagation();
+              e.preventDefault();
+              doUploadAndInsertImage(imgFiles as File[]);
             }
-          });
-
-          if (imgFiles.length && doUploadAndInsertImage) {
-            e.stopPropagation();
-            e.preventDefault();
-            doUploadAndInsertImage(imgFiles as File[]);
+            if (attachmentFiles.length && doUploadAndInsertFiles) {
+              e.stopPropagation();
+              e.preventDefault();
+              doUploadAndInsertFiles(attachmentFiles as File[]);
+            }
           }
-          if (attachmentFiles.length && doUploadAndInsertFiles) {
-            e.stopPropagation();
-            e.preventDefault();
-            doUploadAndInsertFiles(attachmentFiles as File[]);
-          }
-        }
-      });
+        },
+        true,
+      );
 
       if (vditor.vditor.wysiwyg) {
         let afterRenderTimeoutId: number;
