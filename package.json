@@ -33,6 +33,9 @@
     "type": "git",
     "url": "git+https://github.com/linfaxin/mbbs.git"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "author": "linlinfaxin@163.com",
   "license": "MIT",
   "bugs": {
