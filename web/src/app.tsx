@@ -36,6 +36,7 @@ export async function render(_doRender: Function) {
       if (!user.token) {
         throw new Error('loginByQQ 返回用户 token 为空');
       }
+      loginUser = user;
       setLoginUser(user);
       history.replaceState(null, '', location.hash.replace(/LOGIN_TOKEN_FROM_QQ=.*(&|$)/, '').replace(/\?$/, ''));
     }
