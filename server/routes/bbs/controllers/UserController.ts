@@ -347,7 +347,7 @@ export default class UserController {
     if (nickname?.length > 50 && !(await currentUser.isAdmin())) {
       throw new UIError('昵称过长，最多50个字符');
     }
-    if (nickname === '管理员' || nickname === '系统管理员') {
+    if (!(await user.isAdmin()) && /^(系统)?管理员$/.test(nickname)) {
       throw new UIError('禁止使用该昵称');
     }
     if (modifyRequest.signature?.length > 200) {

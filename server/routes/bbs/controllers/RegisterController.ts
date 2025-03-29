@@ -54,6 +54,9 @@ export default class RegisterController {
     if (!defaultGroup) {
       throw new UIError('论坛配置异常：缺少默认角色分组');
     }
+    if (/^(系统)?管理员$/.test(nickname)) {
+      throw new UIError('禁止使用该昵称');
+    }
     let needValidate = options.needValidate;
     if (needValidate == null) {
       needValidate = (await getSettingValue(db, 'register_validate')) === '1';
@@ -122,7 +125,6 @@ export default class RegisterController {
     username = username.trim();
     if (username.length < 3) throw new UIError('用户名长度必须大于等于 3 位');
     if (!/^[\d|a-z|A-Z|\-|_]*$/.test(username)) throw new UIError('用户名只能由数字、英文字母组成');
-    if (username === '管理员' || username === '系统管理员') throw new UIError('禁止使用该用户名');
 
     captchaText = captchaText.trim();
     if (!isDevEnv() && captchaLruCache.get(captchaId)?.toUpperCase() !== captchaText.toUpperCase()) {
