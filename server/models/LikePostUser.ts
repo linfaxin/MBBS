@@ -45,6 +45,12 @@ export async function setUserLikePost(db: Sequelize, post: Post, userId: number,
   }
 }
 
+// 列出用户喜欢的所有 PostId
+export async function getUserLikedPostIds(db: Sequelize, userId: number): Promise<number[]> {
+  const LikePostUserModel = await getLikePostUserModel(db);
+  return (await LikePostUserModel.findAll({ where: { user_id: userId } })).map((m) => m.post_id);
+}
+
 const waitDBSync = new WeakMap<Sequelize, Promise<any>>();
 export async function getLikePostUserModel(db: Sequelize): Promise<typeof LikePostUser> {
   if (waitDBSync.has(db)) {

@@ -119,6 +119,11 @@ const BBSNavMenu: React.FC<{
               <span style={{ opacity: 0.5 }}>{user.post_count || 0}</span>
             </ListItemButton>
           )}
+          {user && (
+            <ListItemButton onClick={() => jumpTo(`/user/likes?id=${user.id}`)}>
+              <ListItemText primary="我的点赞" />
+            </ListItemButton>
+          )}
         </List>
       </GroupListItem>
       <AdminMenuItem jumpTo={jumpTo} />

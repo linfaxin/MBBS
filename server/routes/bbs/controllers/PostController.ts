@@ -5,7 +5,7 @@ import { getUser, User, UserStatus } from '../../../models/User';
 import CurrentDB from '../decorators/CurrentDB';
 import { Op, Sequelize, WhereOptions } from 'sequelize';
 import { getPost, getPostModel, getUserCreatePostCountInTimes, Post as PostClass } from '../../../models/Post';
-import { setUserLikePost } from '../../../models/LikePostUser';
+import { getUserLikedPostIds, setUserLikePost } from '../../../models/LikePostUser';
 import { getThread, Thread } from '../../../models/Thread';
 import { WrapDataExtraKey } from '../global-interceptors/WrapDataInterceptors';
 import { formatReqIP, formatSubString } from '../../../utils/format-utils';
@@ -113,6 +113,7 @@ export default class PostController {
     @CurrentDB() db: Sequelize,
     @QueryParam('thread_id') threadId: number,
     @QueryParam('user_id') userId: number,
+    @QueryParam('like_by_user_id') likeByUserId: number,
     @QueryParam('keywords') keywords: string,
     @QueryParam('page_offset') offset = 0,
     @QueryParam('page_limit') limit = 20,
@@ -156,6 +157,13 @@ export default class PostController {
     const whereOption: WhereOptions<Partial<PostClass>> = {
       ...(threadId ? { thread_id: threadId } : {}),
       ...(userId ? { user_id: userId } : {}),
+      ...(likeByUserId
+        ? {
+            id: {
+              [Op.in]: await getUserLikedPostIds(db, likeByUserId),
+            },
+          }
+        : {}),
       ...(keywords
         ? {
             content: {
@@ -233,6 +241,7 @@ export default class PostController {
       is_approved: true,
       is_comment: true,
     };
+
     const posts = await PostModel.findAll({
       where: whereOption,
       order: `${sort || 'created_at'}`

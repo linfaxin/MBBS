@@ -168,6 +168,19 @@ export async function getPost(
   return PostCache.getInCache(db, postId) || (await getPostModel(db)).findByPk(postId, options);
 }
 
+// 批量读取 post
+export async function getPosts(
+  db: Sequelize,
+  postIds: number[],
+  options?: Partial<Omit<NonNullFindOptions<Post['_attributes']>, 'where'>>,
+): Promise<Post[]> {
+  const PostModel = await getPostModel(db);
+  return await PostModel.findAll({
+    where: { id: postIds },
+    ...options,
+  });
+}
+
 export async function getUserCreatePostCountInTimes(db: Sequelize, userId: number, times: [number, number]): Promise<number> {
   const PostModel = await getPostModel(db);
   return PostModel.count({

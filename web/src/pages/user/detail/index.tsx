@@ -256,6 +256,12 @@ export default function UserDetailPage() {
             <KeyboardArrowRightIcon />
           </ListItemButton>
         </ListItem>
+        <ListItem>
+          <ListItemButton onClick={() => history.push(`/user/likes?id=${user.id}`)}>
+            <ListItemText primary="TA的点赞" />
+            <KeyboardArrowRightIcon />
+          </ListItemButton>
+        </ListItem>
       </List>
     </AppPage>
   );

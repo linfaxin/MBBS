@@ -58,6 +58,7 @@ export type PostSortKey = keyof Post | `-${keyof Post}`;
 export interface ListPostParam {
   thread_id?: number | string;
   user_id?: number | string;
+  like_by_user_id?: number | string;
   sort?: PostSortKey | Array<PostSortKey>;
   keywords?: string;
 }

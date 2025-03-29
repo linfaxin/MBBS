@@ -24,6 +24,7 @@ export default defineConfig({
         { path: '/user/detail', component: '@/pages/user/detail' },
         { path: '/user/threads', component: '@/pages/user/threads' },
         { path: '/user/posts', component: '@/pages/user/posts' },
+        { path: '/user/likes', component: '@/pages/user/likes' },
         { path: '/user/search', component: '@/pages/user/search' },
         { path: '/manage', component: '@/pages/manage/index' },
         { path: '/manage/base', component: '@/pages/manage/base' },
