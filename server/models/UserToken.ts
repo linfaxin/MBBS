@@ -36,6 +36,26 @@ async function clearExpiredToken(db: Sequelize) {
   });
 }
 
+/** 删除所有已临时 token */
+export async function clearUserAllTmpToken(db: Sequelize, userId: number, excludeToken?: string) {
+  const UserTokenModel = await getUserTokenModel(db);
+  await UserTokenModel.destroy({
+    where: {
+      user_id: userId,
+      expired_at: {
+        [Op.lt]: new Date().getTime() + 24 * 60 * 60 * 1000 * 365,
+      },
+      ...(excludeToken
+        ? {
+            token: {
+              [Op.not]: excludeToken,
+            },
+          }
+        : {}),
+    },
+  });
+}
+
 const dbLastClearTokenTime = Symbol('dbLastClearTokenTime');
 function checkClearExpiredToken(db: Sequelize) {
   if (!db[dbLastClearTokenTime]) {

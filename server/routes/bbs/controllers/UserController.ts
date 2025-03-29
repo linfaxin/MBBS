@@ -1,4 +1,4 @@
-import { BadRequestError, Body, BodyParam, Get, JsonController, Param, Post, QueryParam } from 'routing-controllers';
+import { BadRequestError, Body, BodyParam, Get, HeaderParam, JsonController, Param, Post, QueryParam } from 'routing-controllers';
 import CurrentDB from '../decorators/CurrentDB';
 import { getUser, getUserByEmail, getUserByName, getUserByNickName, getUserModel, User, UserStatus } from '../../../models/User';
 import { Op, Sequelize, WhereOptions } from 'sequelize';
@@ -9,11 +9,12 @@ import UIError from '../../../utils/ui-error';
 import { getGroupUserIds } from '../../../models/GroupUser';
 import { WrapDataExtraKey } from '../global-interceptors/WrapDataInterceptors';
 import { hasPermission } from '../../../models/GroupPermission';
-import { GROUP_ID_ADMIN, GROUP_ID_TOURIST } from '../const';
+import { GROUP_ID_ADMIN, GROUP_ID_TOURIST, HEADER_TOKEN } from '../const';
 import ReqLog, { ReqLogger } from '../decorators/ReqLog';
 import * as LRUCache from 'lru-cache';
 import { mailToEmail } from '../../../utils/mail-util';
 import { getSettingValue } from '../../../models/Settings';
+import { clearUserAllTmpToken } from '../../../models/UserToken';
 
 class ModifyUserRequest {
   nickname?: string;
@@ -105,6 +106,8 @@ export default class UserController {
 
   @Post('/changePassword')
   async changePassword(
+    @HeaderParam(HEADER_TOKEN) token: string,
+    @CurrentDB() db: Sequelize,
     @CurrentUser({ required: true }) currentUser: User,
     @BodyParam('old_password', { required: true }) oldPassword: string,
     @BodyParam('new_password', { required: true }) newPassword: string,
@@ -113,6 +116,10 @@ export default class UserController {
     if (!verifyPassword(oldPassword, currentUser.password)) throw new UIError('原密码错误');
     currentUser.password = hashPassword(newPassword);
     await currentUser.save();
+
+    // 删除除当前token外的其他临时 token
+    clearUserAllTmpToken(db, currentUser.id, token);
+
     return true;
   }
 
