@@ -191,6 +191,12 @@ export async function getUserByName(db: Sequelize, username: string): Promise<Us
   return allCachedUsers.find((u) => u.username === username) || (await getUserModel(db)).findOne({ where: { username } });
 }
 
+export async function getUserByNickName(db: Sequelize, nickname: string): Promise<User> {
+  if (!nickname) return null;
+  const allCachedUsers = UserCache.getAllCachedValue(db);
+  return allCachedUsers.find((u) => u.nickname === nickname) || (await getUserModel(db)).findOne({ where: { nickname } });
+}
+
 export async function getUserByEmail(db: Sequelize, email: string): Promise<User> {
   if (!email) return null;
   const allCachedUsers = UserCache.getAllCachedValue(db);

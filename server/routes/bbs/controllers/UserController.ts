@@ -1,6 +1,6 @@
 import { BadRequestError, Body, BodyParam, Get, JsonController, Param, Post, QueryParam } from 'routing-controllers';
 import CurrentDB from '../decorators/CurrentDB';
-import { getUser, getUserByEmail, getUserByName, getUserModel, User, UserStatus } from '../../../models/User';
+import { getUser, getUserByEmail, getUserByName, getUserByNickName, getUserModel, User, UserStatus } from '../../../models/User';
 import { Op, Sequelize, WhereOptions } from 'sequelize';
 import CurrentUser from '../decorators/CurrentUser';
 import { getGroupById } from '../../../models/Group';
@@ -341,10 +341,18 @@ export default class UserController {
       throw new UIError('昵称过长，最多50个字符');
     }
     if (nickname === '管理员' || nickname === '系统管理员') {
-      throw new UIError('禁止使用该用户名');
+      throw new UIError('禁止使用该昵称');
     }
     if (modifyRequest.signature?.length > 200) {
       throw new UIError('个性签名过长，最多200个字符');
+    }
+
+    // 检查昵称唯一性设置
+    if ((await getSettingValue(db, 'user_nickname_unique')) === '1' && nickname) {
+      const existingUser = await getUserByNickName(db, nickname);
+      if (existingUser) {
+        throw new UIError('该昵称已被使用');
+      }
     }
 
     const userBaseInfoChanged =

@@ -128,10 +128,10 @@ export default class RegisterController {
     if (!isDevEnv() && captchaLruCache.get(captchaId)?.toUpperCase() !== captchaText.toUpperCase()) {
       throw new UIError('验证码校验失败，请重试');
     }
-    captchaLruCache.del(captchaId);
     if (await getUserByName(db, username)) {
       throw new UIError('该账号已存在');
     }
+    captchaLruCache.del(captchaId);
 
     const userJSON = await RegisterController.doCreateUser({
       db,

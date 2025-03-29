@@ -621,6 +621,29 @@ const BaseSetting = () => {
             }}
           />
         </ListItem>
+        <ListItem>
+          <ListItemText
+            primary={
+              <>
+                用户昵称不能重复
+                <TipIconButton message="开启后，用户昵称不能重复" />
+              </>
+            }
+            secondary={bbsSetting.user_nickname_unique === '1' ? '已开启' : '已关闭'}
+          />
+          <Switch
+            checked={bbsSetting.user_nickname_unique === '1'}
+            onChange={async (e) => {
+              const checked = e.target.checked;
+              await doTaskWithUI({
+                task: () => settingApi.set('user_nickname_unique', checked ? '1' : '0'),
+                failAlert: true,
+                fullScreenLoading: true,
+              });
+              bbsSetting.update('user_nickname_unique', checked ? '1' : '0');
+            }}
+          />
+        </ListItem>
       </List>
     </AppPage>
   );

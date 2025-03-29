@@ -18,6 +18,8 @@ export interface SettingKeyValue {
   create_thread_validate: '0' | '1' | `[${string}]`; // 0 / 1 / [版块1ID, 版块2ID]
   /** 站点关闭原因 */
   site_close_msg: string;
+  /** 用户昵称是否唯一 */
+  user_nickname_unique: '0' | '1';
   /** 站点名称 */
   site_name: string;
   /** 站点介绍 */
