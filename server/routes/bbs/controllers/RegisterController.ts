@@ -122,6 +122,7 @@ export default class RegisterController {
     username = username.trim();
     if (username.length < 3) throw new UIError('用户名长度必须大于等于 3 位');
     if (!/^[\d|a-z|A-Z|\-|_]*$/.test(username)) throw new UIError('用户名只能由数字、英文字母组成');
+    if (username === '管理员' || username === '系统管理员') throw new UIError('禁止使用该用户名');
 
     captchaText = captchaText.trim();
     if (!isDevEnv() && captchaLruCache.get(captchaId)?.toUpperCase() !== captchaText.toUpperCase()) {
