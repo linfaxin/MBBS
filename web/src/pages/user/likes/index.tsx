@@ -7,6 +7,7 @@ import AppLink from '@/components/app-link';
 import { Button, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { usePageState } from '@/utils/use-page-history-hooks';
 import UserPostCommentList from '@/components/user-comment-list';
+import ThreadList from '@/components/thread-list';
 
 export default function UserLikesPage() {
   const { user: loginUser } = useModel('useLoginUser');
@@ -30,6 +31,7 @@ export default function UserLikesPage() {
           点赞的评论
         </ToggleButton>
       </ToggleButtonGroup>
+      {type === 'thread' && <ThreadList queryParam={{ like_by_user_id: String(id) }} showCategoryName />}
       {type === 'post' && (
         <PostList
           queryParam={{ like_by_user_id: String(id) }}

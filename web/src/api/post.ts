@@ -81,6 +81,7 @@ export function listPost(
       sort: Array.isArray(param.sort) ? param.sort.join(',') : [param.sort].filter(Boolean).join(','),
       thread_id: param.thread_id === '' ? undefined : param.thread_id,
       user_id: param.user_id === '' ? undefined : param.user_id,
+      like_by_user_id: param.like_by_user_id === '' ? undefined : param.like_by_user_id,
     },
   }).then((resp) => ({
     list: resp.data,

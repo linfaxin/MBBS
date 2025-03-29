@@ -16,7 +16,7 @@ import {
   ThreadIsApproved,
 } from '../../../models/Thread';
 import { GROUP_ID_TOURIST } from '../const';
-import { setUserLikePost } from '../../../models/LikePostUser';
+import { getUserLikedPostIds, setUserLikePost } from '../../../models/LikePostUser';
 import { getPost, getPostModel } from '../../../models/Post';
 import { getCategoryById, getCategoryModel, updateCategoryThreadCount } from '../../../models/Category';
 import { getCreateThreadDailyLimit, getSettingValue, setSettingValue } from '../../../models/Settings';
@@ -544,6 +544,7 @@ export default class ThreadController {
     @QueryParam('category_id') categoryId: number,
     @QueryParam('thread_id') threadId: number,
     @QueryParam('user_id') userId: number,
+    @QueryParam('like_by_user_id') likeByUserId: number,
     @QueryParam('keywords') keywords: string,
     @QueryParam('is_essence') isEssence: boolean,
     @QueryParam('is_sticky') isSticky: boolean,
@@ -622,6 +623,11 @@ export default class ThreadController {
         [Op.in]: filterInCategoryIds,
       },
       ...(userId ? { user_id: userId } : {}),
+      ...(likeByUserId
+        ? {
+            first_post_id: { [Op.in]: await getUserLikedPostIds(db, likeByUserId) },
+          }
+        : {}),
       ...(keywords
         ? {
             content_for_indexes: {
@@ -678,7 +684,18 @@ export default class ThreadController {
     const totalCount = await ThreadModel.count({ where: whereOption });
     threads[WrapDataExtraKey] = { totalCount };
     userListThreadLogger.log({
-      filter: { categoryId, userId, keywords, isEssence, isSticky, isApprovedArrStr, isDeleted, createdAtBegin, createdAtEnd },
+      filter: {
+        categoryId,
+        userId,
+        likeByUserId,
+        keywords,
+        isEssence,
+        isSticky,
+        isApprovedArrStr,
+        isDeleted,
+        createdAtBegin,
+        createdAtEnd,
+      },
       offset,
       limit,
       sort,

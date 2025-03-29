@@ -101,6 +101,7 @@ export interface ListThreadParam {
   category_id?: number | string;
   thread_id?: number | string;
   user_id?: number | string;
+  like_by_user_id?: number | string;
   keywords?: string;
   is_essence?: boolean;
   is_sticky?: boolean;
@@ -132,6 +133,7 @@ export function listThread(
       thread_id: param.thread_id === '' ? undefined : param.thread_id,
       category_id: param.category_id === '' ? undefined : param.category_id,
       user_id: param.user_id === '' ? undefined : param.user_id,
+      like_by_user_id: param.like_by_user_id === '' ? undefined : param.like_by_user_id,
       is_approved: Array.isArray(param.is_approved)
         ? param.is_approved.join(',')
         : [param.is_approved].filter((n) => typeof n === 'number').join(','),
