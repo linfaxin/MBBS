@@ -663,7 +663,7 @@ export default class ThreadController {
         if (o[0] === '-') {
           return [o.substring(1), 'DESC'];
         }
-        return [o];
+        return [o, 'ASC'];
       }) as any;
 
     const findThreads = await ThreadModel.findAll({
