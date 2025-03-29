@@ -6,3 +6,4 @@ resources/
 logs
 *.db
 test/db
+.DS_Store

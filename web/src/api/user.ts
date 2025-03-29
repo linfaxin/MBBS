@@ -111,10 +111,18 @@ export function sendBindEmailVerifyCode(param: { email: string }) {
   });
 }
 
-export function removeBindEmail() {
+export function sendRemoveBindEmailVerifyCode() {
+  return fetchApi({
+    pathOrUrl: '/users/sendUnBindEmailVerifyCode',
+    method: 'post',
+  });
+}
+
+export function removeBindEmail(param: { verify_code: string }) {
   return fetchApi({
     pathOrUrl: '/users/removeBindEmail',
     method: 'post',
+    data: param,
   });
 }
 

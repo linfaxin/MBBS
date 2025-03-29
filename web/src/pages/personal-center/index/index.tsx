@@ -34,6 +34,7 @@ import ApiUI from '@/api-ui';
 import showAlert, { showConfirm } from '@/utils/show-alert';
 import TipIconButton from '@/components/tip-icon-button';
 import showBindEmailDialog from '@/utils/show-bind-email-dialog';
+import showPromptDialog from '@/utils/show-prompt-dialog';
 
 export default function UserIndexPage() {
   const { user, setUser, refreshUser } = useModel('useLoginUser');
@@ -218,11 +219,22 @@ export default function UserIndexPage() {
                 onClick={() => {
                   showConfirm({
                     title: '解绑确认',
-                    message: '确定要取消绑定邮箱吗？',
+                    message: '我们将发送解绑验证码到你的邮箱',
+                    onOkErrorAlert: true,
+                    okText: '继续',
                     onOk: async () => {
-                      await userApi.removeBindEmail();
-                      showSnackbar('解除绑定成功');
-                      refreshUser();
+                      await userApi.sendRemoveBindEmailVerifyCode();
+                      showPromptDialog({
+                        title: '解绑邮箱',
+                        inputLabel: '输入解绑验证码',
+                        description: '已发送 验证码邮件 至已绑定邮箱',
+                        submitFailAlert: true,
+                        onSubmit: async (verifyCode) => {
+                          await userApi.removeBindEmail({ verify_code: verifyCode });
+                          showSnackbar('解除绑定成功');
+                          refreshUser();
+                        },
+                      });
                     },
                   });
                 }}

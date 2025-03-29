@@ -29,6 +29,11 @@ const BindEmailVerifyCodeCacheMap = new LRUCache<String, { code: string; sendTim
   maxAge: 1000 * 60 * 5, // 5 min
 });
 
+const UnBindEmailVerifyCodeCacheMap = new LRUCache<String, { code: string; sendTime: number }>({
+  max: 1000,
+  maxAge: 1000 * 60 * 5, // 5 min
+});
+
 @JsonController('/users')
 export default class UserController {
   @Get('/getLoginUser')
@@ -138,6 +143,30 @@ export default class UserController {
     return true;
   }
 
+  @Post('/sendUnBindEmailVerifyCode')
+  async sendUnBindEmailVerifyCode(@CurrentDB() db: Sequelize, @CurrentUser({ required: true }) currentUser: User) {
+    const email = currentUser.email;
+    if (!email) {
+      throw new UIError('未绑定邮箱');
+    }
+    if (UnBindEmailVerifyCodeCacheMap.get(email)?.sendTime > Date.now() - 1000 * 30) {
+      // 30s 内仅发送一条验证码邮件
+      throw new UIError('验证码发送太频繁，请稍后再试');
+    }
+    const verifyCode = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+
+    await mailToEmail({
+      db,
+      mailKey: `verifyCode${verifyCode}`,
+      email,
+      title: '论坛解绑邮箱验证',
+      htmlBody: `您的验证码为 <b>${verifyCode}</b><br/><br/>验证码5分钟内有效，请尽快输入`,
+    });
+
+    UnBindEmailVerifyCodeCacheMap.set(email, { code: verifyCode, sendTime: Date.now() });
+    return true;
+  }
+
   @Post('/bindEmail')
   async bindEmail(
     @CurrentDB() db: Sequelize,
@@ -159,7 +188,20 @@ export default class UserController {
   }
 
   @Post('/removeBindEmail')
-  async removeBindEmail(@CurrentDB() db: Sequelize, @CurrentUser({ required: true }) currentUser: User) {
+  async removeBindEmail(
+    @CurrentDB() db: Sequelize,
+    @CurrentUser({ required: true }) currentUser: User,
+    @BodyParam('verify_code', { required: true }) verify_code: string,
+  ) {
+    const email = currentUser.email;
+    if (!email) {
+      throw new UIError('未绑定邮箱');
+    }
+    if (UnBindEmailVerifyCodeCacheMap.get(email)?.code !== verify_code) {
+      throw new UIError('验证码校验失败');
+    }
+    // 验证码校验成功
+    UnBindEmailVerifyCodeCacheMap.del(email);
     currentUser.email = null;
     await currentUser.save();
     return true;
