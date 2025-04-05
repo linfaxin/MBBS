@@ -112,6 +112,7 @@ const OpenEditCategoryDialog: React.FC<
                 <MenuItem value="-posted_at">最新回复</MenuItem>
                 <MenuItem value="-created_at">最新发帖</MenuItem>
                 <MenuItem value="-modified_at">最新修改</MenuItem>
+                <MenuItem value="created_at">最早发帖</MenuItem>
               </TextField>
             </Field>
             <Field

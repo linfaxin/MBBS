@@ -173,7 +173,7 @@ const ThreadList: React.FC<
             <MenuItem value="-posted_at">最新回复</MenuItem>
             <MenuItem value="-created_at">最新发帖</MenuItem>
             <MenuItem value="-modified_at">最新修改</MenuItem>
-            <MenuItem value="created_at">最旧发帖</MenuItem>
+            <MenuItem value="created_at">最早发帖</MenuItem>
           </Select>
           <Divider orientation="vertical" sx={{ height: 20 }} />
           <OpenPromptDialog title="搜索帖子" inputLabel="关键字" defaultValue={keywords} onSubmit={setKeywords}>
