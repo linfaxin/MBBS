@@ -85,7 +85,7 @@ export default class PostController {
     if (post.deleted_at) throw new UIError('评论已被删除');
     if (thread.deleted_at) throw new UIError('帖子已被删除');
 
-    post.is_sticky = isSticky;
+    post.is_sticky = isSticky ? true : null;
     await post.save();
 
     // 评论置顶消息提示
