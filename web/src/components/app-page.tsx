@@ -131,7 +131,7 @@ const AppPage: React.FC<
             {pageError ? (
               <>
                 <Typography>{pageError?.message || String(pageError)}</Typography>
-                <Button onClick={reloadPage} sx={{ marginTop: 1 }}>
+                <Button variant="outlined" onClick={reloadPage} sx={{ marginTop: 1 }}>
                   点击重试
                 </Button>
               </>
