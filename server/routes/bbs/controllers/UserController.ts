@@ -357,8 +357,8 @@ export default class UserController {
     // 检查昵称唯一性设置
     if ((await getSettingValue(db, 'user_nickname_unique')) === '1' && nickname) {
       const existingUser = await getUserByNickName(db, nickname);
-      if (existingUser) {
-        throw new UIError('该昵称已被使用');
+      if (existingUser && existingUser.id !== id) {
+        throw new UIError('该昵称已被他人使用');
       }
     }
 
