@@ -122,7 +122,10 @@ function CategoryThreadsPageComponent(props: { categoryId: string | number }) {
         />
       )}
       <MouseOverTip tip="发帖">
-        <AppLink href={`/thread/add?category_id=${categoryId}`} sx={{ position: 'fixed', bottom: 20, right: 20 }}>
+        <AppLink
+          href={`/thread/add?category_id=${categoryId}`}
+          sx={{ position: 'fixed', bottom: 20, right: 20, WebkitTapHighlightColor: 'transparent' }}
+        >
           <Fab color="primary" aria-label="add">
             <AddIcon />
           </Fab>
