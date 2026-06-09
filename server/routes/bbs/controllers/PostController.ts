@@ -119,7 +119,7 @@ export default class PostController {
     @QueryParam('page_limit') limit = 20,
     @QueryParam('sort') sort: string, // [keyof Post | `-${keyof Post}`].join(',')
   ) {
-    if (!threadId && !userId && !(await currentUser.isAdmin())) {
+    if (!threadId && !userId && !likeByUserId && !(await currentUser.isAdmin())) {
       throw new UIError('无权限查看全站评论');
     }
     if (threadId) {
@@ -150,6 +150,17 @@ export default class PostController {
         : await hasPermission(db, GROUP_ID_TOURIST, 'user.view.posts');
       if (!currentUserHasPermission) {
         throw new UIError('无权限查看指定用户的所有评论');
+      }
+    }
+    if (!threadId && likeByUserId && likeByUserId !== currentUser?.id) {
+      const aimUser = await getUser(db, likeByUserId);
+      if (!aimUser) throw new UIError('指定用户未找到');
+      // 权限检查：查看指定用户点赞的评论
+      const currentUserHasPermission = currentUser
+        ? await currentUser.hasPermission('user.view.posts')
+        : await hasPermission(db, GROUP_ID_TOURIST, 'user.view.posts');
+      if (!currentUserHasPermission) {
+        throw new UIError('无权限查看指定用户点赞的评论');
       }
     }
 
