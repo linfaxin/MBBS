@@ -211,6 +211,8 @@ export default class ManageController {
     if (!dbFilePath) {
       throw new UIError('文件不存在');
     }
+    // WAL 模式下未 checkpoint 的数据只存在于 -wal 文件中，导出前先执行 checkpoint 把数据写回主数据库文件，保证导出文件数据完整
+    await db.query('PRAGMA wal_checkpoint(TRUNCATE);');
     this.preparingExportDBData.set(preparedKey, dbFilePath);
     return { key: preparedKey };
   }
