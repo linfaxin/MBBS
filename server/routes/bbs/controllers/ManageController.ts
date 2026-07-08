@@ -13,7 +13,7 @@ import { getUserTokenModel, getValidUserTokens, saveUserToken } from '../../../m
 import { getBindHosts, setBindHosts } from '../../../utils/bind-host-util';
 import CurrentDBName from '../decorators/CurrentDomain';
 import getHostFromUrl from '../../../utils/get-host-from-url';
-import { getDBFilePath } from '../../../models/db';
+import { checkpointDB, getDBFilePath } from '../../../models/db';
 import { TOKEN_DEFAULT_VALID_DAY_COUNT } from '../const';
 
 import fse = require('fs-extra');
@@ -211,6 +211,8 @@ export default class ManageController {
     if (!dbFilePath) {
       throw new UIError('文件不存在');
     }
+    // WAL 模式下未 checkpoint 的数据只存在于 -wal 文件中，导出前先执行 checkpoint 把数据写回主数据库文件，保证导出文件数据完整
+    await checkpointDB(db);
     this.preparingExportDBData.set(preparedKey, dbFilePath);
     return { key: preparedKey };
   }

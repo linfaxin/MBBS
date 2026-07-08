@@ -87,6 +87,15 @@ export async function getDB(dbName: string): Promise<Sequelize> {
   return db;
 }
 
+/**
+ * 手动执行一次 WAL checkpoint，将 -wal 文件中的数据落盘到主数据库文件，并清空/收缩 -wal 文件
+ * 用于导出/备份数据库文件前，保证读取到的主数据库文件数据完整
+ */
+export async function checkpointDB(db: Sequelize): Promise<void> {
+  if (!db) return;
+  await db.query('PRAGMA wal_checkpoint(TRUNCATE);');
+}
+
 export async function hasDB(dbName): Promise<boolean> {
   if (!dbName) return false;
   dbName = dbName.toLowerCase();
