@@ -680,7 +680,7 @@ export default class ThreadController {
       limit,
     });
 
-    const threads = await Promise.all(findThreads.map((t) => t.toViewJSON(currentUser)));
+    const threads = await Promise.all(findThreads.map((t) => t.toListJSON()));
     const totalCount = await ThreadModel.count({ where: whereOption });
     threads[WrapDataExtraKey] = { totalCount };
     userListThreadLogger.log({
@@ -723,7 +723,7 @@ export default class ThreadController {
           .filter((otherThread) => {
             return otherThread.sticky_at_other_categories?.split(',').includes(String(categoryId));
           })
-          .map((t) => t.toViewJSON(currentUser)),
+          .map((t) => t.toListJSON()),
       );
       threads.unshift(...fromOtherCategoryStickyThreads);
       threads[WrapDataExtraKey] = { totalCount: totalCount + fromOtherCategoryStickyThreads.length };
