@@ -78,6 +78,9 @@ export async function getDB(dbName: string): Promise<Sequelize> {
     storage: dbPath,
     logging: isDevEnv(),
   });
+  // 开启 WAL 模式提升并发读写性能，synchronous=NORMAL 在 WAL 模式下减少 fsync 频率
+  await db.query('PRAGMA journal_mode = WAL;');
+  await db.query('PRAGMA synchronous = NORMAL;');
   db[DBPathSymbol] = dbPath;
   dbCache.set(dbPath, db);
   getThreadTagModel(db); // 初始化帖子标签 & 补齐帖子标签
