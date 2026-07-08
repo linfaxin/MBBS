@@ -13,7 +13,7 @@ import { getUserTokenModel, getValidUserTokens, saveUserToken } from '../../../m
 import { getBindHosts, setBindHosts } from '../../../utils/bind-host-util';
 import CurrentDBName from '../decorators/CurrentDomain';
 import getHostFromUrl from '../../../utils/get-host-from-url';
-import { getDB, getDBFilePath } from '../../../models/db';
+import { checkpointDB, getDBFilePath } from '../../../models/db';
 import { TOKEN_DEFAULT_VALID_DAY_COUNT } from '../const';
 
 import fse = require('fs-extra');
@@ -193,7 +193,7 @@ export default class ManageController {
     return fse.statSync(dbFilePath).size;
   }
 
-  preparingExportDBData = new LRUCache<string, string>({ maxAge: 5 * 60 * 1000 }); // key, dbName
+  preparingExportDBData = new LRUCache<string, string>({ maxAge: 5 * 60 * 1000 }); // key, dbFilePath
   @Get('/prepareExportDBData')
   async prepareExportDBData(
     @Res() res: Response,
@@ -211,24 +211,17 @@ export default class ManageController {
     if (!dbFilePath) {
       throw new UIError('文件不存在');
     }
-    this.preparingExportDBData.set(preparedKey, dbName);
+    // WAL 模式下未 checkpoint 的数据只存在于 -wal 文件中，导出前先执行 checkpoint 把数据写回主数据库文件，保证导出文件数据完整
+    await checkpointDB(db);
+    this.preparingExportDBData.set(preparedKey, dbFilePath);
     return { key: preparedKey };
   }
 
   @Get('/downloadPreparedDBData')
   async downloadPreparedDBData(@Res() res: Response, @Req() request: Request, @QueryParam('key', { required: true }) key: string) {
-    const dbName = this.preparingExportDBData.get(key);
-    if (!dbName) {
-      throw new UIError('文件不存在');
-    }
-    const dbFilePath = getDBFilePath(dbName);
+    const dbFilePath = this.preparingExportDBData.get(key);
     if (!dbFilePath) {
       throw new UIError('文件不存在');
-    }
-    // WAL 模式下未 checkpoint 的数据只存在于 -wal 文件中，导出（真正读取文件）前先执行 checkpoint 把数据写回主数据库文件，保证导出文件数据完整
-    const db = await getDB(dbName);
-    if (db) {
-      await db.query('PRAGMA wal_checkpoint(TRUNCATE);');
     }
     res.type('application/octet-stream');
     res.attachment(path.basename(dbFilePath));
