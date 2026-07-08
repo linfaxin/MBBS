@@ -219,6 +219,27 @@ export class Thread extends Model<Partial<Thread>> {
         .map((tag) => tag.toJSON()),
     };
   }
+  /** 列表接口专用：不读取帖子正文，不返回权限/点赞等详情页字段 */
+  async toListJSON() {
+    const threadUser = await getUser(this.sequelize, this.user_id);
+    return {
+      ...this.toJSON(),
+      content_for_indexes: this.content_for_indexes,
+      user: threadUser ? await threadUser.toViewJSON() : undefined,
+      reply_count: this.post_count ?? 0,
+      modified_at: this.modified_at || this.created_at, // 老数据无 modified_at 展示兼容
+      thread_tags: (
+        await Promise.all(
+          (this.thread_tag_ids || '')
+            .split('^')
+            .filter(Boolean)
+            .map((id) => getThreadTagById(this.sequelize, parseInt(id))),
+        )
+      )
+        .filter(Boolean)
+        .map((tag) => tag.toJSON()),
+    };
+  }
   async addTag(tagId: number, save = true) {
     const tagIdSet = new Set(
       (this.thread_tag_ids || '')
